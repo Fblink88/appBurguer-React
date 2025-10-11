@@ -1,0 +1,141 @@
+
+.product-card {
+  display: flex;
+  flex-direction: row;         /* Imagen a la izquierda, texto a la derecha */
+  background: #0d0e0e;        
+  border-radius: 18px;
+  overflow: hidden;            
+  box-shadow: 0 6px 18px rgba(0,0,0,.35);
+}
+
+.product-img {
+  width: 50%;                  /* Mitad izquierda de la foto*/
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.product-panel {
+  flex: 1;                     /* Ocupa la mitad derecha de la foto */
+  padding: 16px;
+  color: #fdfdfd;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
+.text-muted {
+  color: #a29999 !important;   
+}
+
+.price {
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: #ffcc00;              
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: bold;
+  border-bottom: 1px solid #b2b2b2; 
+  padding-bottom: 8px;
+  margin-bottom: 24px;
+}
+.row {
+  margin-top: 16px;
+}
+
+
+.btn-primary {
+  background-color: #d8c67c;   
+  font-weight: bold;
+ }
+
+ .btn btn-panel agregar-carrito
+  {
+    background-color: #b2a674;   
+    font-weight: bold;
+  }
+
+.nav-link:hover, .nav-link:focus {
+  color: #ffc107 !important; 
+  /*background-color: rgba(255,193,7,0.1); */
+  border-radius: 0.5rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* --- Estilos para el Footer --- */
+.site-footer {
+  background-color: #0d0d0d; /* Un negro un poco más suave que el fondo */
+  border-top: 1px solid #2a2b30;
+  color: #adb5bd; /* Texto de color gris claro */
+}
+
+.site-footer h5 {
+  font-weight: bold;
+}
+
+.site-footer .list-unstyled a:hover i {
+  color: #ffc107; /* El ícono se vuelve amarillo al pasar el mouse */
+  transition: color 0.2s;
+}
+
+/* Forzar labels en blanco */
+.form-label {
+  color: #fff !important;
+  }
+
+/* Mensajes de en blanco */
+.form-text {
+  color: #fff !important;
+  }
+
+/* Estilos para el botón 'Agregar' */
+.btn-panel {
+  background-color: #000000; /* Color de fondo amarillo */
+  color: #fff; /* El texto será blanco por defecto */
+  font-weight: bold;
+  border: none;
+  transition: background-color 0.3s ease, color 0.3s ease; /* Añadimos una transición suave */
+}
+
+/* Estilos para cuando el botón está en estado 'hover' (ratón encima) y 'active' (click) */
+.btn-panel:hover,
+.btn-panel:active {
+  background-color: #e0b300; /* Un tono un poco más oscuro de amarillo */
+  color: #fff; /* Aseguramos que el texto siga siendo blanco */
+}
+
+/* Para el estado 'focus' (cuando se selecciona con teclado) */
+.btn-panel:focus {
+  outline: 2px solid #fff; /* Añade un contorno blanco para accesibilidad */
+  outline-offset: 2px;
+}
+
+.btn-chip {
+  background-color: #ffc107; /* Fondo amarillo */
+  color: #000; /* Texto negro */
+  font-weight: 500;
+  border: 1px solid #ffc107; /* Borde del mismo color que el fondo */
+  border-radius: 50px; /* Bordes muy redondeados para crear una forma de píldora */
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s; /* Transición suave para los cambios */
+}
+
+.btn-chip.active,
+.btn-chip:hover {
+  background-color: #000; /* Fondo negro al pasar el cursor o estar activo */
+  color: #fff; /* Texto blanco para que resalte sobre el fondo negro */
+  border-color: #000; /* Borde del mismo color que el fondo */
+}
+
+
+/* Cambia el color del texto en el resumen del carrito a blanco */
+#cart-summary {
+  color: white;
+}
+
+/* Opcional: Asegura que el subtotal también sea blanco si es necesario */
+#cart-summary span {
+    color: white;
+}

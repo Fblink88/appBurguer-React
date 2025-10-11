@@ -1,0 +1,203 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  height: 100vh;
+  background: #2c3e50;
+  color: white;
+  padding-top: 30px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  flex-grow: 1;
+}
+.sidebar ul li {
+  padding: 15px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.sidebar ul li:hover {
+  background: #34495e;
+}
+.sidebar ul li a {
+  color: white;
+  text-decoration: none;
+  display: block;
+}
+
+.sidebar .logout {
+  padding: 20px;
+}
+.sidebar .logout a {
+  display: block;
+  background: #f39c12;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Contenido */
+.content {
+  margin-left: 220px;
+  padding: 20px;
+  width: calc(100% - 220px);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Contenedor de gráficos */
+.charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+.chart-container {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+
+  /* Fijamos un alto estándar */
+  height: 320px;
+  display: flex;
+  flex-direction: column;
+}
+.chart-container h4 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  text-align: center;
+}
+.chart-container canvas {
+  flex: 1; /* el canvas ocupa todo el espacio disponible */
+  width: 100% !important;
+  height: 100% !important;
+}
+
+form.formPedidos {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+form.formPedidos input,
+form.formPedidos select,
+form.formPedidos button {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+form.formPedidos button.btn-agregar {
+  background: #27ae60;
+  color: white;
+  cursor: pointer;
+  border: none;
+  font-weight: bold;
+}
+form.formPedidos button.btn-agregar:hover {
+  background: #219150;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+th, td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+th {
+  background: #2980b9;
+  color: white;
+}
+tr:hover {
+  background: #f1f1f1;
+}
+button.deleteBtn {
+  background: #c0392b;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button.deleteBtn:hover {
+  background: #a93226;
+}
+
+/* === Gestión de Clientes === */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-top: 20px;
+}
+
+th, td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background: #2980b9;
+  color: white;
+}
+
+tr:hover {
+  background: #f1f1f1;
+}
+
+.deleteBtn {
+  background: #c0392b;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.deleteBtn:hover {
+  background: #a93226;
+}
