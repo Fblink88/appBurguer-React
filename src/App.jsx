@@ -1,8 +1,9 @@
 import { Route, Routes } from 'react-router-dom'
-import Inicio from './pages/client/inicio';
-import Catalogo from './pages/client/Catalogo';
-import Nosotros from './pages/client/Nosotros';
-import Contacto from './pages/client/Contacto';
+import InicioPag from './pages/client/InicioPag';
+import CatalogoPag from './pages/client/CatalogoPag';
+import NosotrosPag from './pages/client/NosotrosPag';
+import ContactoPag from './pages/client/ContactoPag';
+
 
 //import viteLogo from '/vite.svg'
 //import reactLogo from './assets/react.svg'
@@ -11,34 +12,21 @@ import './App.css'
 function App() {
   
   return (
+    
+    
     <div className="App">
-      <Routes>  
-        <Route path="/" element={<Inicio />} />
-        <Route path="/catalogo" element={<Catalogo />} />
-        <Route path="/nosotros" element={<Nosotros />} />
-        <Route path="/contacto" element={<Contacto />} />
+      
+      <Routes>
+        <Route path="/" element={<InicioPag />} />  
+        <Route path="/inicio" element={<InicioPag />} />
+        <Route path="/catalogo" element={<CatalogoPag />} />
+        <Route path="/nosotros" element={<NosotrosPag />} />
+        <Route path="/contacto" element={<ContactoPag />} />
+        
+        
       </Routes>
     </div>
-    /*<>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-      
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </> */
+
   );
 }
 
