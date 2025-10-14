@@ -43,9 +43,9 @@ export default function HeaderComp() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           
-          {/* <Nav> reemplaza al <ul>. 'mx-auto' lo centra. */}
+          
           <Nav className="mx-auto">
-            {/* <Nav.Link> reemplaza al <li> y <a>. Lo convertimos en NavLink para el estilo 'active'. */}
+            
             <Nav.Link as={NavLink} to="/inicio" className="fw-bold">INICIO</Nav.Link>
             <Nav.Link as={NavLink} to="/catalogo" className="fw-bold">CATÁLOGO</Nav.Link>
             <Nav.Link as={NavLink} to="/nosotros" className="fw-bold">NOSOTROS</Nav.Link>
