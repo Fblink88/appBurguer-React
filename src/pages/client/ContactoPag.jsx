@@ -47,7 +47,7 @@ function ContactoPag() {
 
       <main>
         <div className="container my-5 py-5">
-          {/* 2. Usamos <Row> para crear la fila de dos columnas */}
+          {/* <Row> para crear la fila de dos columnas */}
           {/* 'g-4' añade un espacio entre las columnas */}
           <Row className="g-4">
 
