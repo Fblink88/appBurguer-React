@@ -178,5 +178,19 @@ export const productosDB = [
         descripcion: 'Hamburguesa con queso.',
         stock: 5,
         imagen: '/src/assets/img/Playqueso.PNG'
-    }
+    }]
+
+    export const usuarios = [
+  {
+    nombre: "Admin",
+    email: "admin@profesor.duocuc.cl",
+    password: "1234"
+  },
+  {
+    nombre: "Camilo",
+    email: "camilo@gmail.com",
+    password: "abcd"
+  }
+
+
 ];
