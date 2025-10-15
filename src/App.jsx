@@ -3,6 +3,7 @@ import InicioPag from './pages/client/InicioPag';
 import CatalogoPag from './pages/client/CatalogoPag';
 import NosotrosPag from './pages/client/NosotrosPag';
 import ContactoPag from './pages/client/ContactoPag';
+import Login from './pages/client/Login';
 
 
 //import viteLogo from '/vite.svg'
@@ -22,6 +23,8 @@ function App() {
         <Route path="/catalogo" element={<CatalogoPag />} />
         <Route path="/nosotros" element={<NosotrosPag />} />
         <Route path="/contacto" element={<ContactoPag />} />
+        <Route path="/login" element={<Login />} />
+        
         
         
       </Routes>
