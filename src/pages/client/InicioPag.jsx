@@ -3,10 +3,13 @@ import HeaderComp from '../../components/HeaderComp'
 import FooterComp from '../../components/FooterComp'
 
 
+
 function InicioPag() {
   return (
     <div className="pagina-completa">
       <HeaderComp />
+
+
       <main className="contenido-principal">
         <div className="container py-5 text-center">
           <h1>Página de Inicio</h1>
