@@ -1,0 +1,213 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  height: 100vh;
+  background: #2c3e50;
+  color: white;
+  padding-top: 30px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  flex-grow: 1;
+}
+.sidebar ul li {
+  padding: 15px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.sidebar ul li:hover {
+  background: #34495e;
+}
+.sidebar ul li a {
+  color: white;
+  text-decoration: none;
+  display: block;
+}
+
+.sidebar .logout {
+  padding: 20px;
+}
+.sidebar .logout a {
+  display: block;
+  background: #f39c12;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+.container-content {
+  margin-left: 220px;
+  padding: 20px;
+  flex-grow: 1;
+  width: calc(100% - 220px);
+}
+
+/* Estilos para la tabla */
+.content h1 {
+    text-align: center;
+    color: #333;
+}
+.content table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.content th, .content td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.content th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+
+.form-producto {
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+}
+
+/* Estilos para los labels */
+.form-producto label {
+    font-weight: bold; /* Texto en negrita para destacar las etiquetas */
+    color: #333;
+    margin-bottom: -5px; /* Reduce el espacio entre el label y el input */
+}
+
+/* Estilos para todos los inputs del formulario (texto, número, archivo) */
+.form-producto input[type="text"],
+.form-producto input[type="number"],
+.form-producto input[type="file"] 
+{
+    width: 100%; 
+    padding: 12px; 
+    border: 1px solid #dcdcdc; 
+    border-radius: 6px; 
+    font-size: 16px; 
+    color: #444; 
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); 
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; 
+}
+
+/* Estilo para los inputs al ser enfocados (hacer clic) */
+.form-producto input[type="text"]:focus,
+.form-producto input[type="number"]:focus,
+.form-producto input[type="file"]:focus {
+    border-color: #f6b343; 
+    box-shadow: 0 0 5px rgba(255,153,0,0.5); 
+    outline: none; 
+}
+
+/* Estilo para el botón de agregar producto */
+.btn-agregar {
+    background-color: #f6b343; 
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: background-color 0.3s ease; }
+.tabla-producto{
+  width: 100%;
+  margin-top: 25px;
+  border-radius: 8px;
+  overflow: hidden;
+
+}
+
+.tabla-producto thead th{
+
+   background-color: #f7f9fc;
+    color: #555; 
+    font-weight: 600; 
+    padding: 15px; 
+    text-align: left; 
+    border-bottom: 2px solid #e2e8f0; 
+
+}
+
+.fila-producto {
+    
+    transition: background-color 0.3s ease; }
+
+
+.fila-producto td {
+    padding: 12px 15px; 
+}
+
+.fila-producto:hover {
+    background-color: #f0f4f8;
+}
+
+.fila-producto {
+    border-bottom: 1px solid #ddd;
+}
+
+@media (max-width: 768px) {
+
+  .sidebar {
+    display: none;
+  }
+  
+  
+  .container-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 15px;
+  }
+
+  
+  .tabla-producto thead {
+      display: none; 
+  }
+  .tabla-producto, .tabla-producto tbody, .tabla-producto tr, .tabla-producto td {
+      display: block;
+      width: 100%;
+  }
+  .tabla-producto tr {
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      display: flex;
+  }
+  .tabla-producto td {
+      text-align: right;
+      padding-left: 50%;
+      position: relative;
+  }
+  .tabla-producto td::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 0;
+      width: 45%;
+      padding-left: 10px;
+      font-weight: bold;
+      text-align: left;
+  }
+}

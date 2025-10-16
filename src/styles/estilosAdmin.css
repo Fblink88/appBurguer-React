@@ -1,0 +1,135 @@
+/* --- ESTILOS DEL LAYOUT PRINCIPAL DEL ADMIN --- */
+.admin-layout {
+  display: flex;
+  align-items: flex-start;
+}
+
+.admin-content {
+  flex-grow: 1;
+  padding: 2rem;
+  background-color: #1a1a1a;
+}
+
+/* --- ESTILOS PARA LA BARRA LATERAL (SIDEBAR) --- */
+.sidebar-admin {
+  width: 250px;
+  background-color: #0d0d0d;
+  color: #fdfdfd;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  flex-shrink: 0;
+  transition: width 0.3s ease-in-out; /* Transición suave para el cambio de ancho */
+}
+
+/* --- Encabezado del Sidebar --- */
+.sidebar-header {
+  padding: 0 20px 30px;
+  text-align: center;
+}
+
+.sidebar-logo {
+  color: #fdfdfd;
+  text-decoration: none;
+  font-size: 1.4rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* --- ESTILOS PARA LOS ENLACES DE NAVEGACIÓN --- */
+
+.sidebar-admin .nav-link-text-short {
+  display: none;
+}
+
+.sidebar-admin .sidebar-nav {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.sidebar-admin .sidebar-nav .nav-link {
+  color: #fdfdfd !important;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+}
+
+.sidebar-admin .sidebar-nav .nav-link:hover {
+  background-color: rgba(255, 204, 0, 0.1);
+  color: #ffcc00 !important;
+}
+
+.sidebar-admin .sidebar-nav.nav-pills .nav-link.active {
+  background-color: #ffcc00 !important;
+  color: #0d0d0d !important;
+  font-weight: bold;
+}
+
+.sidebar-admin .sidebar-nav.nav-pills .nav-link.active i {
+  color: #0d0d0d !important;
+}
+
+/* --- Pie de página del Sidebar --- */
+.sidebar-footer {
+  padding: 20px 15px;
+  margin-top: auto;
+}
+
+/* --- ESTILOS RESPONSIVOS (MEDIA QUERY) --- */
+@media (max-width: 992px) {
+  .sidebar-admin {
+    width: 150px;
+    text-align: center;
+  }
+
+  .sidebar-logo strong span {
+    display: block;
+    line-height: 1.1;
+  }
+
+  /* AHORA, EN LUGAR DE OCULTAR TODO EL TEXTO: */
+  /* Ocultamos el texto largo */
+  .sidebar-admin .nav-link-text-full {
+    display: none;
+  }
+
+  /* Y mostramos el texto corto */
+  .sidebar-admin .nav-link-text-short {
+    display: inline; /* o block, según prefieras el alineamiento */
+  }
+
+  .sidebar-admin .sidebar-nav .nav-link {
+    justify-content: center; /* Centramos el contenido (ícono + texto corto) */
+  }
+  
+  .sidebar-admin .sidebar-nav .nav-link i {
+    margin-right: 8px !important; /* Damos un pequeño espacio entre el ícono y el texto corto */
+  }
+
+  /* ... (el resto de los estilos para el footer y el botón se quedan igual) ... */
+  .sidebar-footer {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  .sidebar-footer .btn {
+    width: 100%;
+    padding: 8px 5px;
+    min-height: 50px;
+  }
+  .sidebar-footer .btn-text-stacked span {
+    display: block;
+    line-height: 1.2;
+    font-size: 0.9rem;
+  }
+  .sidebar-footer .btn i {
+    display: none;
+  }
+}
