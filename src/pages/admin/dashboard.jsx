@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useEffect, useRef } from "react";
 import Sidebar from "../../components/Sidebar";
 import Chart from "chart.js/auto";
@@ -145,8 +146,33 @@ export default function Dashboard() {
               <canvas ref={categoriasRef}></canvas>
             </div>
           </div>
+=======
+import React from 'react';
+import Sidebar from '../../components/Sidebar';
+
+
+function Dashboard() {
+  const handleAdminLogout = () => {
+    console.log("Cerrando sesión del administrador...");
+  };
+
+  return (
+    
+    <div className="admin-layout"> 
+      <Sidebar onLogoutAdmin={handleAdminLogout} />
+
+      <main className="admin-content">
+        <div className="container py-5 text-center">
+          <h1>Página Dashboard</h1>
+          <p>¡Bienvenido al Admin de Golden Burger!</p>
+>>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
         </div>
       </main>
     </div>
   );
 }
+<<<<<<< HEAD
+=======
+
+export default Dashboard;
+>>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
@@ -94,8 +95,33 @@ export default function GestionUsuarios() {
               </tbody>
             </table>
           </div>
+=======
+import React from 'react';
+import Sidebar from '../../components/Sidebar';
+
+
+function GestionUsuarios() {
+  const handleAdminLogout = () => {
+    console.log("Cerrando sesión del administrador...");
+  };
+
+  return (
+    
+    <div className="admin-layout"> 
+      <Sidebar onLogoutAdmin={handleAdminLogout} />
+
+      <main className="admin-content">
+        <div className="container py-5 text-center">
+          <h1>Página Gestión  Usuarios</h1>
+          <p>¡Bienvenido al Admin de Golden Burger!</p>
+>>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
         </div>
       </main>
     </div>
   );
 }
+<<<<<<< HEAD
+=======
+
+export default GestionUsuarios;
+>>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
