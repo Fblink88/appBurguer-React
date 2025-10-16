@@ -4,6 +4,7 @@ import CatalogoPag from './pages/client/CatalogoPag';
 import NosotrosPag from './pages/client/NosotrosPag';
 import ContactoPag from './pages/client/ContactoPag';
 import CarroPag from './pages/client/CarroPag';
+import CheckoutPag from './pages/client/CheckoutPag';
 import Dashboard from './pages/admin/Dashboard';
 import GestionPedidos from './pages/admin/GestionPedidos';
 import GestionProductos from './pages/admin/GestionProductos';
@@ -27,7 +28,8 @@ function App() {
         <Route path="/catalogo" element={<CatalogoPag />} />
         <Route path="/nosotros" element={<NosotrosPag />} />
         <Route path="/contacto" element={<ContactoPag />} />
-         <Route path="/carrito" element={<CarroPag />} />
+        <Route path="/carrito" element={<CarroPag />} />
+        <Route path="/checkout" element={<CheckoutPag />} />
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/gestion-pedidos" element={<GestionPedidos />} />
         <Route path="/admin/gestion-productos" element={<GestionProductos />} />

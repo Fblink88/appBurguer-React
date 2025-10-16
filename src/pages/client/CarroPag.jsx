@@ -66,7 +66,7 @@ function CarroPag() {
       alert('El carrito está vacío');
       return;
     }
-    alert('Funcionalidad de pago en desarrollo');
+    navigate('/checkout');
   };
 
   return (
