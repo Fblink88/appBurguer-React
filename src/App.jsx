@@ -6,7 +6,7 @@ import ContactoPag from './pages/client/ContactoPag';
 import Dashboard from './pages/admin/Dashboard';
 import GestionPedidos from './pages/admin/GestionPedidos';
 import GestionProductos from './pages/admin/GestionProductos';
-import GestionUsuarios from './pages/admin/GestionUsuarios';
+import GestionUsuarios from './pages/admin/gestionUsuarios';
 
 
 //import viteLogo from '/vite.svg'
