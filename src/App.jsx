@@ -7,7 +7,7 @@ import Dashboard from './pages/admin/Dashboard';
 import GestionPedidos from './pages/admin/GestionPedidos';
 import GestionProductos from './pages/admin/GestionProductos';
 import GestionUsuarios from './pages/admin/gestionUsuarios';
-
+import NuevoUsuario from './pages/admin/nuevoUsuario';
 
 //import viteLogo from '/vite.svg'
 //import reactLogo from './assets/react.svg'
@@ -30,6 +30,7 @@ function App() {
         <Route path="/admin/gestion-pedidos" element={<GestionPedidos />} />
         <Route path="/admin/gestion-productos" element={<GestionProductos />} />
         <Route path="/admin/gestion-usuarios" element={<GestionUsuarios />} />  
+        <Route path="/admin/usuarios/nuevo" element={<NuevoUsuario />} />
         
               
       </Routes>
