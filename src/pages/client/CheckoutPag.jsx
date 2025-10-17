@@ -175,7 +175,7 @@ function CheckoutPag() {
                         onChange={(e) => setTipoPedido(e.target.value)}
                       />
                       <div className="opcion-contenido">
-                        <span className="opcion-titulo">Delivery a domicilio</span>
+                        <span className="opcion-titulo">Delivery </span>
                         <span className="opcion-precio">+$2.990</span>
                       </div>
                     </label>
@@ -303,7 +303,7 @@ function CheckoutPag() {
                       />
                       <div className="metodo-info">
                         <i className="bi bi-cash"></i>
-                        <span>Efectivo (pago contra entrega)</span>
+                        <span>Efectivo (pago en la entrega)</span>
                       </div>
                     </label>
 
@@ -318,7 +318,7 @@ function CheckoutPag() {
                       <div className="metodo-info">
                         <i className="bi bi-credit-card"></i>
                         <span>Transbank Webpay</span>
-                        <small>Pago seguro con iFrame Integrado - PCI DSS Compliant</small>
+                        <small>Tarjeta de Credito o Debito</small>
                       </div>
                     </label>
 
@@ -333,7 +333,7 @@ function CheckoutPag() {
                       <div className="metodo-info">
                         <i className="bi bi-wallet2"></i>
                         <span>Mercado Pago</span>
-                        <small>Múltiples opciones: tarjetas, efectivo, transferencias</small>
+                        <small>Diponible en Lationoamerica</small>
                       </div>
                     </label>
 
