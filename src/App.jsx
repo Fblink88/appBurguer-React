@@ -7,8 +7,8 @@ import Login from './pages/client/Login';
 import Dashboard from './pages/admin/Dashboard';
 import GestionPedidos from './pages/admin/GestionPedidos';
 import GestionProductos from './pages/admin/GestionProductos';
-import GestionUsuarios from './pages/admin/GestionUsuarios';
-
+import GestionUsuarios from './pages/admin/gestionUsuarios';
+import NuevoUsuario from './pages/admin/nuevoUsuario';
 
 //import viteLogo from '/vite.svg'
 //import reactLogo from './assets/react.svg'
