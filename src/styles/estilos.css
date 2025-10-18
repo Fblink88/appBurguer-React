@@ -139,3 +139,31 @@
 #cart-summary span {
     color: white;
 }
+
+/* Estilos para el fondo de la tarjeta */
+.card {
+  background-color: #0d0d0d !important; /* Fondo negro (similar al sidebar) */
+  border: 1px solid #333 !important; /* Borde más sutil */
+}
+
+/* Estilos para el título de la tarjeta */
+.card-title {
+  color: #fdfdfd !important; /* Texto blanco */
+}
+
+/* Estilos para el texto de la descripción */
+.card-text {
+  color: #adb5bd !important; /* Texto gris claro para contraste */
+}
+
+/* Estilos para el precio */
+.card-body .price {
+  color: #ffcc00 !important; /* Amarillo para el precio */
+}
+
+/* Estilos para las imágenes de la tarjeta (¡AQUÍ EL ARREGLO DE TAMAÑO!) */
+.card-img-top {
+  height: 200px; /* Altura fija para todas las imágenes */
+  object-fit: cover; /* Las recorta para que llenen el espacio sin deformarse */
+}
+
