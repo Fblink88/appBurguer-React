@@ -1,9 +1,7 @@
 /*****************************************************Formulario de Login**************************************************************************/
-* {
-  box-sizing: border-box;
-}
 
-.body-login {
+
+.login-page-container{
   display: flex;
   background-color: #f6b343;
   justify-content: center;
@@ -14,7 +12,12 @@
   height: 100vh;
 }
 
-h1 {
+.login-page-container * {
+  box-sizing: border-box;
+}
+
+
+.login-page-container h1 {
   font-weight: 700;
   letter-spacing: -1.5px;
   margin: 0;
@@ -22,14 +25,14 @@ h1 {
   color:white
 }
 
-h1.title {
+.login-page-container h1.title {
   font-size: 45px;
   line-height: 45px;
   margin: 0;
   text-shadow: 0 0 10px #f6b343;
 }
 
-p {
+.login-page-container p {
   font-size: 14px;
   font-weight: 100;
   line-height: 20px;
@@ -39,13 +42,13 @@ p {
   color:white
 }
 
-span {
+.login-page-containerspan {
   font-size: 14px;
   margin-top: 25px;
   color:white
 }
 
-a {
+.login-page-container a {
   color: #ffffff;
   font-size: 14px;
   text-decoration: none;
@@ -54,7 +57,7 @@ a {
 }
 
 a:hover {
-  color: #f6b343;
+  color: #f6b343; 
 }
 
 .content {
@@ -79,14 +82,14 @@ a:hover {
   height: 12px;
 }
 
-.content label {
+.login-page-containercontent label {
   font-size: 14px;
   user-select: none;
   padding-left: 5px;
     color:white;
 }
 
-button {
+.login-page-container button {
   position: relative;
   border-radius: 20px;
   border: 1px solid #f6b343;
@@ -143,7 +146,7 @@ button.ghost:hover i.login{
   opacity: 1;
 }
 
-form {  /*Formulario de Inicio Sesion y Registro*/
+.login-page-container form {  /*Formulario de Inicio Sesion y Registro*/
   background-color: #000000;
   display: flex;
   align-items: center;
@@ -154,23 +157,23 @@ form {  /*Formulario de Inicio Sesion y Registro*/
   text-align: center;
 }
 
-input {
+.login-page-container input {
   background-color: #eee;
   border-radius: 10px;
   border: none;
   padding: 12px 15px;
-  margin: 8px 0;
+  margin: 10px 0;
   width: 100%;
 }
 
-.container {
+.login-page-container .container {
   background-color: #0f0f0f;
   border-radius: 25px;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
   position: relative;
   overflow: hidden;
-  width: 768px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 768px; /* sigue siendo el máximo en desktop */
   min-height: 500px;
   display: flex;
 
@@ -210,6 +213,11 @@ input {
   animation: show 0.6s;
   
 }
+input, .btn-register {
+  width: 90%;
+  margin: 10px 0;
+}
+
 
 @keyframes show {
   0%,
@@ -224,6 +232,31 @@ input {
     z-index: 5;
   }
 }
+@media (max-width: 768px) {
+  .login-page-container .container {
+    flex-direction: column;  /* apilar formularios verticalmente */
+    min-height: auto;
+    overflow: visible;       /* evitar scroll horizontal */
+  }
+
+  .form-container {
+    width: 100% !important;  /* formularios ocupan todo el ancho */
+    left: 0 !important;
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+    position: relative !important;
+  }
+
+  .overlay-container {
+    display: none;           /* opcional: ocultar overlay en móvil */
+  }
+
+  input, .btn-register {
+    width: 90%;              /* inputs y botones casi full ancho */
+    margin: 10px 0;
+  }
+}
+
 
 .overlay-container {
   position: absolute;
