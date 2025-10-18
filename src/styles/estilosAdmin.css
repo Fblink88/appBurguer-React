@@ -133,3 +133,10 @@
     display: none;
   }
 }
+
+.admin-content .card {
+  background-color: #0d0d0d; /* mismo tono del sidebar */
+  color: #fdfdfd;           /* texto blanco */
+  border: 1px solid #444;
+}
+
