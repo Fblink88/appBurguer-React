@@ -1,99 +1,140 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
-import { usuariosStore } from "../../data/dataBase";
+
+// --- Funciones locales para manejar localStorage ---
+const readUsuarios = () => JSON.parse(localStorage.getItem("usuarios")) || [];
+
+const createUsuario = (usuario) => {
+  const usuarios = readUsuarios();
+  usuarios.push(usuario);
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+};
+
+const updateUsuario = (index, usuario) => {
+  const usuarios = readUsuarios();
+  usuarios[index] = usuario;
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+};
+
+const deleteUsuario = (index) => {
+  const usuarios = readUsuarios();
+  usuarios.splice(index, 1);
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+};
 
 export default function GestionUsuarios() {
-  const [usuarios, setUsuarios] = useState([]);
   const navigate = useNavigate();
+  const [usuarios, setUsuarios] = useState(readUsuarios());
+  const [filtroRol, setFiltroRol] = useState("Todos");
 
-  // Al montar, carga usuarios
   useEffect(() => {
-    setUsuarios(usuariosStore.read());
-
-    // Permitir sincronizar si se modifica en otra pestaña
-    const handleStorage = (e) => {
-      if (e.key === usuariosStore.key) {
-        setUsuarios(usuariosStore.read());
-      }
-    };
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
+    setUsuarios(readUsuarios());
   }, []);
 
-  const eliminarUsuario = (index) => {
-    if (!window.confirm("¿Deseas eliminar este usuario?")) return;
-    usuariosStore.remove(index);
-    setUsuarios(usuariosStore.read());
+  // --- Filtrar por rol ---
+  const usuariosFiltrados =
+    filtroRol === "Todos"
+      ? usuarios
+      : usuarios.filter((u) => u.rol === filtroRol);
+
+  // --- Eliminar usuario ---
+  const handleEliminar = (index) => {
+    if (window.confirm("¿Seguro que deseas eliminar este usuario?")) {
+      deleteUsuario(index);
+      setUsuarios(readUsuarios());
+    }
   };
 
-  const editarUsuario = (index) => {
-    navigate(`/admin/usuarios/nuevo?edit=${index}`);
+  // --- Editar usuario ---
+  const handleEditar = (index) => {
+    navigate(`/admin/nuevo-usuario?edit=${index}`);
+  };
+
+  // --- Crear nuevo usuario ---
+  const handleNuevo = () => {
+    navigate("/admin/nuevo-usuario");
   };
 
   return (
-    <div className="d-flex">
-      <Sidebar adminName="Administrador" onLogoutAdmin={() => alert("Cerrando sesión")} />
+    <div className="admin-layout">
+      <Sidebar
+        adminName="Administrador"
+        onLogoutAdmin={() => alert("Cerrando sesión")}
+      />
 
-      <main className="flex-fill p-4">
+      <main className="admin-content">
+        <h1 className="mb-4">Gestión de Usuarios</h1>
+
+        {/* Botón + Filtro */}
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h1 className="mb-0">Gestión de Usuarios</h1>
-          <button
-            className="btn btn-primary"
-            onClick={() => navigate("/admin/usuarios/nuevo")}
-          >
-            + Nuevo Usuario
+          <button className="btn btn-warning fw-semibold" onClick={handleNuevo}>
+            <i className="bi bi-person-plus-fill me-2"></i>Nuevo Usuario
           </button>
+
+          <div>
+            <label className="form-label me-2 mb-0">Filtrar por Rol:</label>
+            <select
+              className="form-select d-inline-block w-auto"
+              value={filtroRol}
+              onChange={(e) => setFiltroRol(e.target.value)}
+            >
+              <option value="Todos">Todos</option>
+              <option value="Admin">Admin</option>
+              <option value="Cajero">Cajero</option>
+              <option value="Cocinero">Cocinero</option>
+              <option value="Despacho">Despacho</option>
+            </select>
+          </div>
         </div>
 
-        <div className="card shadow-sm">
-          <div className="table-responsive">
-            <table className="table table-hover mb-0">
-              <thead className="table-light">
-                <tr>
-                  <th>#</th>
-                  <th>RUN</th>
-                  <th>Nombre</th>
-                  <th>Correo</th>
-                  <th>Rol</th>
-                  <th className="text-end">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {usuarios.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center py-4">
-                      No hay usuarios registrados
+        {/* Tabla de usuarios */}
+        <div className="table-responsive">
+          <table className="table table-dark table-hover align-middle">
+            <thead>
+              <tr>
+                <th>RUN</th>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th className="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {usuariosFiltrados.length > 0 ? (
+                usuariosFiltrados.map((u, index) => (
+                  <tr key={index}>
+                    <td>{u.run}</td>
+                    <td>{u.nombre}</td>
+                    <td>{u.apellidos}</td>
+                    <td>{u.email}</td>
+                    <td>{u.rol}</td>
+                    <td className="text-center">
+                      <button
+                        className="btn btn-sm btn-outline-light me-2"
+                        onClick={() => handleEditar(index)}
+                      >
+                        <i className="bi bi-pencil-square"></i>
+                      </button>
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => handleEliminar(index)}
+                      >
+                        <i className="bi bi-trash3"></i>
+                      </button>
                     </td>
                   </tr>
-                ) : (
-                  usuarios.map((u, i) => (
-                    <tr key={i}>
-                      <td>{i + 1}</td>
-                      <td>{u.run}</td>
-                      <td>{u.nombre} {u.apellidos}</td>
-                      <td>{u.email}</td>
-                      <td>{u.rol}</td>
-                      <td className="text-end">
-                        <button
-                          className="btn btn-sm btn-outline-secondary me-2"
-                          onClick={() => editarUsuario(i)}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => eliminarUsuario(i)}
-                        >
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center text-muted">
+                    No hay usuarios registrados
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </main>
     </div>

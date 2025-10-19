@@ -30,7 +30,7 @@ function App() {
         <Route path="/admin/gestion-pedidos" element={<GestionPedidos />} />
         <Route path="/admin/gestion-productos" element={<GestionProductos />} />
         <Route path="/admin/gestion-usuarios" element={<GestionUsuarios />} />  
-        <Route path="/admin/usuarios/nuevo" element={<NuevoUsuario />} />
+        <Route path="/admin/nuevo-usuario" element={<NuevoUsuario />} />
         
               
       </Routes>

@@ -1,46 +1,64 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
-import { usuariosStore } from "../../data/dataBase";
+
+// --- Funciones locales (idénticas a las de GestionUsuarios.jsx) ---
+const readUsuarios = () => JSON.parse(localStorage.getItem("usuarios")) || [];
+
+const createUsuario = (usuario) => {
+  const usuarios = readUsuarios();
+  usuarios.push(usuario);
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+};
+
+const updateUsuario = (index, usuario) => {
+  const usuarios = readUsuarios();
+  usuarios[index] = usuario;
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+};
 
 export default function NuevoUsuario() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const editIndex = searchParams.get("edit"); // ?edit=IDX si es edición
+  const editIndex = searchParams.get("edit");
 
-  // Estado inicial del usuario
   const [usuario, setUsuario] = useState({
     run: "",
     nombre: "",
     apellidos: "",
     email: "",
-    rol: ""
+    rol: "",
   });
 
-  // Si hay parámetro edit, precargar datos
+  // Si es edición, precarga los datos
   useEffect(() => {
     if (editIndex !== null) {
-      const usuarios = usuariosStore.read();
-      if (usuarios[editIndex]) {
-        setUsuario(usuarios[editIndex]);
-      }
+      const usuarios = readUsuarios();
+      if (usuarios[editIndex]) setUsuario(usuarios[editIndex]);
     }
   }, [editIndex]);
 
-  // Manejo de cambios en los inputs
+  // Manejar cambios en inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUsuario({ ...usuario, [name]: value });
   };
 
-  // Guardar usuario
+  // Guardar o actualizar usuario
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    if (!usuario.run || !usuario.nombre || !usuario.apellidos || !usuario.email || !usuario.rol) {
+      alert("Por favor completa todos los campos.");
+      return;
+    }
+
     if (editIndex !== null) {
-      usuariosStore.update(editIndex, usuario);
+      updateUsuario(editIndex, usuario);
+      alert("Usuario actualizado correctamente.");
     } else {
-      usuariosStore.create(usuario);
+      createUsuario(usuario);
+      alert("Usuario creado correctamente.");
     }
 
     navigate("/admin/gestion-usuarios");
@@ -67,7 +85,6 @@ export default function NuevoUsuario() {
               className="form-control"
               value={usuario.run}
               onChange={handleChange}
-              required
             />
           </div>
 
@@ -79,7 +96,6 @@ export default function NuevoUsuario() {
               className="form-control"
               value={usuario.nombre}
               onChange={handleChange}
-              required
             />
           </div>
 
@@ -91,7 +107,6 @@ export default function NuevoUsuario() {
               className="form-control"
               value={usuario.apellidos}
               onChange={handleChange}
-              required
             />
           </div>
 
@@ -103,7 +118,6 @@ export default function NuevoUsuario() {
               className="form-control"
               value={usuario.email}
               onChange={handleChange}
-              required
             />
           </div>
 
@@ -114,7 +128,6 @@ export default function NuevoUsuario() {
               className="form-select"
               value={usuario.rol}
               onChange={handleChange}
-              required
             >
               <option value="">Seleccione un rol</option>
               <option value="Admin">Admin</option>
