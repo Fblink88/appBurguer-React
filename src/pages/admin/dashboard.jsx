@@ -11,7 +11,7 @@ export default function Dashboard() {
   useEffect(() => {
     Chart.register(ChartDataLabels);
 
-    // Gráfico de barras - Ventas por mes
+    // === Gráfico de barras - Ventas por mes ===
     const ventasChart = new Chart(ventasRef.current, {
       type: "bar",
       data: {
@@ -26,17 +26,37 @@ export default function Dashboard() {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
+          legend: {
+            labels: { color: "#fff", font: { weight: "bold" } },
+          },
           datalabels: {
-            color: "#000",
+            color: "#fff",
             anchor: "end",
             align: "top",
+          },
+          title: {
+            display: true,
+            text: "Ventas por Mes",
+            color: "#fff",
+            font: { size: 16, weight: "bold" },
+          },
+        },
+        scales: {
+          x: {
+            ticks: { color: "#fff" },
+            grid: { color: "rgba(255,255,255,0.1)" },
+          },
+          y: {
+            ticks: { color: "#fff" },
+            grid: { color: "rgba(255,255,255,0.1)" },
           },
         },
       },
     });
 
-    // Gráfico doughnut - Progreso objetivos
+    // === Gráfico doughnut - Progreso de objetivos ===
     const progresoChart = new Chart(progresoRef.current, {
       type: "doughnut",
       data: {
@@ -45,20 +65,28 @@ export default function Dashboard() {
           {
             data: [75, 25],
             backgroundColor: ["#27ae60", "#c0392b"],
+            borderColor: "#fff",
           },
         ],
       },
       options: {
         plugins: {
+          legend: { labels: { color: "#fff" } },
           datalabels: {
             color: "#fff",
             formatter: (value) => value + "%",
+          },
+          title: {
+            display: true,
+            text: "Progreso de Objetivos",
+            color: "#fff",
+            font: { size: 16, weight: "bold" },
           },
         },
       },
     });
 
-    // Gráfico pie - Ventas por categoría
+    // === Gráfico pie - Ventas por categoría ===
     const categoriasChart = new Chart(categoriasRef.current, {
       type: "pie",
       data: {
@@ -67,11 +95,13 @@ export default function Dashboard() {
           {
             data: [40, 35, 25],
             backgroundColor: ["#2980b9", "#f1c40f", "#8e44ad"],
+            borderColor: "#fff",
           },
         ],
       },
       options: {
         plugins: {
+          legend: { labels: { color: "#fff" } },
           datalabels: {
             color: "#fff",
             formatter: (value, ctx) => {
@@ -79,11 +109,16 @@ export default function Dashboard() {
               return ((value / total) * 100).toFixed(1) + "%";
             },
           },
+          title: {
+            display: true,
+            text: "Ventas por Categoría",
+            color: "#fff",
+            font: { size: 16, weight: "bold" },
+          },
         },
       },
     });
 
-    // limpiar al desmontar
     return () => {
       ventasChart.destroy();
       progresoChart.destroy();
@@ -92,57 +127,46 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="d-flex">
+    <div className="d-flex dashboard-container">
       <Sidebar adminName="Administrador" onLogoutAdmin={() => alert("Cerrando sesión")} />
       <main className="flex-fill p-4">
-        <h1 className="mb-4">Bienvenido, Administrador</h1>
+        <h1 className="mb-4 fw-bold">Bienvenido, Administrador</h1>
 
         {/* Tarjetas de KPIs */}
         <div className="row g-3 mb-4">
-          <div className="col-md-3">
-            <div className="card text-center p-3 shadow-sm">
-              <h6>Ventas Totales</h6>
-              <p className="fs-5 fw-bold">$120,500</p>
+          {[
+            { title: "Ventas Totales", value: "$120,500" },
+            { title: "Usuarios Registrados", value: "1,245" },
+            { title: "Nuevos Clientes", value: "58" },
+            { title: "Tickets Soporte", value: "14" },
+          ].map((card, i) => (
+            <div className="col-md-3" key={i}>
+              <div className="card text-center p-3 shadow-sm">
+                <h6>{card.title}</h6>
+                <p>{card.value}</p>
+              </div>
             </div>
-          </div>
-          <div className="col-md-3">
-            <div className="card text-center p-3 shadow-sm">
-              <h6>Usuarios Registrados</h6>
-              <p className="fs-5 fw-bold">1,245</p>
-            </div>
-          </div>
-          <div className="col-md-3">
-            <div className="card text-center p-3 shadow-sm">
-              <h6>Nuevos Clientes</h6>
-              <p className="fs-5 fw-bold">58</p>
-            </div>
-          </div>
-          <div className="col-md-3">
-            <div className="card text-center p-3 shadow-sm">
-              <h6>Tickets Soporte</h6>
-              <p className="fs-5 fw-bold">14</p>
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Gráficos */}
         <div className="row g-4">
           <div className="col-md-6">
-            <div className="card shadow-sm p-3">
-              <h5 className="mb-3">Ventas por Mes</h5>
-              <canvas ref={ventasRef}></canvas>
+            <div className="chart-card">
+              <h5>Ventas por Mes</h5>
+              <canvas ref={ventasRef} id="ventasMes" data-testid="chart-ventas"></canvas>
             </div>
           </div>
           <div className="col-md-3">
-            <div className="card shadow-sm p-3">
-              <h5 className="mb-3">Progreso Objetivos</h5>
-              <canvas ref={progresoRef}></canvas>
+            <div className="chart-card">
+              <h5>Progreso Objetivos</h5>
+              <canvas ref={progresoRef} id="progreso" data-testid="chart-progreso"></canvas>
             </div>
           </div>
           <div className="col-md-3">
-            <div className="card shadow-sm p-3">
-              <h5 className="mb-3">Ventas por Categoría</h5>
-              <canvas ref={categoriasRef}></canvas>
+            <div className="chart-card">
+              <h5>Ventas por Categoría</h5>
+              <canvas ref={categoriasRef} id="categorias" data-testid="chart-categorias"></canvas>
             </div>
           </div>
         </div>

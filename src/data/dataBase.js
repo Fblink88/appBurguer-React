@@ -181,3 +181,40 @@ export const productosDB = [
     }
 ];
 
+// src/database.js
+
+// Datos base de ejemplo
+export const usuarios = [
+  {
+    run: "12345678-9",
+    nombre: "Juan",
+    apellidos: "Pérez",
+    email: "juan@test.com",
+    rol: "Admin",
+  },
+  {
+    run: "98765432-1",
+    nombre: "María",
+    apellidos: "Gómez",
+    email: "maria@test.com",
+    rol: "Cajero",
+  },
+  {
+    run: "11222333-4",
+    nombre: "Pedro",
+    apellidos: "Rojas",
+    email: "pedro@test.com",
+    rol: "Cocinero",
+  },
+];
+
+export const clientes = [
+  {
+    nombre: "Carlos",
+    correo: "carlos@cliente.com",
+  },
+  {
+    nombre: "Ana",
+    correo: "ana@cliente.com",
+  },
+];

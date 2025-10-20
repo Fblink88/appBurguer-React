@@ -3,11 +3,12 @@ import InicioPag from './pages/client/InicioPag';
 import CatalogoPag from './pages/client/CatalogoPag';
 import NosotrosPag from './pages/client/NosotrosPag';
 import ContactoPag from './pages/client/ContactoPag';
-import Dashboard from './pages/admin/Dashboard';
+import Dashboard from './pages/admin/dashboard';
 import GestionPedidos from './pages/admin/GestionPedidos';
 import GestionProductos from './pages/admin/GestionProductos';
 import GestionUsuarios from './pages/admin/gestionUsuarios';
 import NuevoUsuario from './pages/admin/nuevoUsuario';
+import NuevoCliente from './pages/admin/nuevoCliente';
 
 //import viteLogo from '/vite.svg'
 //import reactLogo from './assets/react.svg'
@@ -31,6 +32,7 @@ function App() {
         <Route path="/admin/gestion-productos" element={<GestionProductos />} />
         <Route path="/admin/gestion-usuarios" element={<GestionUsuarios />} />  
         <Route path="/admin/nuevo-usuario" element={<NuevoUsuario />} />
+        <Route path="/admin/nuevo-cliente" element={<NuevoCliente />} />
         
               
       </Routes>
