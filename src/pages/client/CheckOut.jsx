@@ -154,8 +154,8 @@ function CheckoutPag() {
                         onChange={(e) => setTipoPedido(e.target.value)}
                       />
                       <div className="opcion-contenido">
-                        <span className="opcion-titulo">Delivery a domicilio</span>
-                        <span className="opcion-precio">+$2.990</span>
+                        <span className="opcion-titulo">Delivery</span>
+                        <span className="opcion-precio">+$2.500</span>
                       </div>
                     </label>
 
@@ -169,7 +169,7 @@ function CheckoutPag() {
                       />
                       <div className="opcion-contenido">
                         <span className="opcion-titulo">Retiro en tienda</span>
-                        <span className="opcion-precio">Gratuito</span>
+                        <span className="opcion-precio">Gratis</span>
                       </div>
                     </label>
                   </div>
@@ -266,7 +266,7 @@ function CheckoutPag() {
 
                 <div className="form-seccion">
                   <h3 className="form-seccion-titulo">Método de Pago</h3>
-                  <p className="form-seccion-subtitulo">Pago Rápido</p>
+                  
 
                   <div className="metodos-pago">
                     <label className={`metodo-pago ${metodoPago === 'efectivo' ? 'active' : ''}`}>
@@ -279,7 +279,8 @@ function CheckoutPag() {
                       />
                       <div className="metodo-info">
                         <i className="bi bi-cash"></i>
-                        <span>Efectivo (pago contra entrega)</span>
+                        <span>Efectivo</span>
+                        <small>Paga en la Entrega</small>
                       </div>
                     </label>
 
@@ -294,7 +295,7 @@ function CheckoutPag() {
                       <div className="metodo-info">
                         <i className="bi bi-credit-card"></i>
                         <span>Transbank Webpay</span>
-                        <small>Pago seguro con iFrame Integrado - PCI DSS Compliant</small>
+                        <small>Pago 100% seguro y eficaz </small>
                       </div>
                     </label>
 
@@ -309,22 +310,7 @@ function CheckoutPag() {
                       <div className="metodo-info">
                         <i className="bi bi-wallet2"></i>
                         <span>Mercado Pago</span>
-                        <small>Múltiples opciones: tarjetas, efectivo, transferencias</small>
-                      </div>
-                    </label>
-
-                    <label className={`metodo-pago ${metodoPago === 'stripe' ? 'active' : ''}`}>
-                      <input
-                        type="radio"
-                        name="metodoPago"
-                        value="stripe"
-                        checked={metodoPago === 'stripe'}
-                        onChange={(e) => setMetodoPago(e.target.value)}
-                      />
-                      <div className="metodo-info">
-                        <i className="bi bi-stripe"></i>
-                        <span>Stripe Elements</span>
-                        <small>Pago internacional con tokenización automática</small>
+                        <small>Disponible en todo Latinoamerica</small>
                       </div>
                     </label>
                   </div>

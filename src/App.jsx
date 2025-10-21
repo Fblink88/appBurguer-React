@@ -9,6 +9,7 @@ import GestionProductos from "./pages/admin/GestionProductos";
 import GestionUsuarios from "./pages/admin/GestionUsuarios";
 import NuevoUsuario from "./pages/admin/nuevoUsuario";
 import CarroPag from "./pages/client/CarroPag";
+import CheckOut from "./pages/client/CheckOut";
 import "./App.css";
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path="/nosotros" element={<NosotrosPag />} />
         <Route path="/contacto" element={<ContactoPag />} />
         <Route path="/carrito" element={<CarroPag />} />
+        <Route path="/checkout" element={<CheckOut />} />
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/gestion-pedidos" element={<GestionPedidos />} />
         <Route path="/admin/gestion-productos" element={<GestionProductos />} />
