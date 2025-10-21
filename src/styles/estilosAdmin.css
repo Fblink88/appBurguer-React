@@ -140,4 +140,53 @@
   border: 1px solid #444;
 }
 
+/* --- ESTILOS ESPECÍFICOS DEL DASHBOARD --- */
+
+.dashboard-container {
+  background-color: #1a1a1a;
+  color: #fff;
+  min-height: 100vh;
+}
+
+.dashboard-container h1,
+.dashboard-container h5,
+.dashboard-container h6 {
+  color: #fff;
+}
+
+/* Tarjetas de KPIs */
+.dashboard-container .card {
+  background-color: #2c2c2c;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+.dashboard-container .card h6 {
+  font-weight: 600;
+}
+
+.dashboard-container .card p {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #ffcc00; /* Amarillo de contraste */
+}
+
+/* Contenedor de los gráficos */
+.dashboard-container .chart-card {
+  background-color: #2c2c2c;
+  border: 1px solid #333;
+  padding: 1rem;
+  color: #fff;
+}
+
+.dashboard-container canvas {
+  width: 100% !important;
+  height: 300px !important;
+}
+
+/* Títulos dentro de las tarjetas de gráfico */
+.dashboard-container .chart-card h5 {
+  font-weight: bold;
+  color: #ffcc00;
+  margin-bottom: 1rem;
 }
