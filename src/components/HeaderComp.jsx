@@ -4,12 +4,15 @@ import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 
 // Importamos los componentes específicos de React-Bootstrap
-import { Navbar, Nav, Container, NavDropdown, Button } from 'react-bootstrap';
+import { Navbar, Nav, Container, NavDropdown, Button, Badge } from 'react-bootstrap';
 import logo from '/src/assets/img/Logo.JPG';
 
 export default function HeaderComp() {
   // --- 1. LÓGICA Y ESTADO (Esto no cambia) ---
   const [usuario, setUsuario] = useState(null);
+// estado para el contador del carrito
+  const [contadorCarrito, setContadorCarrito] = useState(0);
+//===============================================================================
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +23,28 @@ export default function HeaderComp() {
     }
   }, []);
 
+  // Escuchar cambios en el carrito para actualizar el contador
+  useEffect(() => {
+    const actualizarContador = () => {
+      const carritoGuardado = localStorage.getItem('carrito');
+      if (carritoGuardado) {
+        const carrito = JSON.parse(carritoGuardado);
+        const totalProductos = carrito.reduce((total, item) => 
+          total + item.cantidad, 0
+        );
+        setContadorCarrito(totalProductos);
+      } else {
+        setContadorCarrito(0);
+      }
+    };
+
+    actualizarContador();
+    window.addEventListener('storage', actualizarContador);
+    return () => window.removeEventListener('storage', actualizarContador);
+  }, []);
+//===============================================================================
+
+  // Función para cerrar sesión
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userName');
@@ -56,7 +81,16 @@ export default function HeaderComp() {
           <Nav className="align-items-center">
             <Nav.Link as={Link} to="/carrito" className="fs-5 position-relative">
               <i className="bi bi-cart"></i>
-              {/* Aquí irá la lógica del contador del carrito en el futuro */}
+              {contadorCarrito > 0 && (
+                <Badge 
+                  bg="danger" 
+                  pill 
+                  className="position-absolute top-0 start-100 translate-middle"
+                  style={{ fontSize: '0.7rem' }}
+                >
+                  {contadorCarrito}
+                </Badge>
+              )}
             </Nav.Link>
 
             {/* La lógica condicional de React se mantiene igual */}

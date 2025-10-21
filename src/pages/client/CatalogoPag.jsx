@@ -9,12 +9,14 @@ function CatalogoPag() {
 =======
 import React, { useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom'; 
 import HeaderComp from '../../components/HeaderComp';
 import FooterComp from '../../components/FooterComp';
 import { productosDB } from '../../data/dataBase';
 import '../../styles/estilos.css';
 
 function CatalogoPag() {
+  const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedSize, setSelectedSize] = useState('Simple');
@@ -199,9 +201,12 @@ function CatalogoPag() {
               <span className="checkout-total">
                 Total: <strong>${calcularTotal().toLocaleString('es-CL')}</strong>
               </span>
-              <a href="/carrito" className="btn-pagar">
+              <button 
+                className="btn-pagar" 
+                onClick={() => navigate('/carrito')}
+              >
                 Ir a pagar ({carrito.length})
-              </a>
+              </button>
             </div>
           </div>
         </div>
