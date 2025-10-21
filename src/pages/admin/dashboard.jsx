@@ -150,8 +150,3 @@ export default function Dashboard() {
     </div>
   );
 }
-<<<<<<< HEAD
-=======
-
-export default Dashboard;
->>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)

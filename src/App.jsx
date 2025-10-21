@@ -26,18 +26,11 @@ function App() {
         <Route path="/catalogo" element={<CatalogoPag />} />
         <Route path="/nosotros" element={<NosotrosPag />} />
         <Route path="/contacto" element={<ContactoPag />} />
-<<<<<<< HEAD
-=======
-         <Route path="/carrito" element={<CarroPag />} />
->>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/gestion-pedidos" element={<GestionPedidos />} />
         <Route path="/admin/gestion-productos" element={<GestionProductos />} />
         <Route path="/admin/gestion-usuarios" element={<GestionUsuarios />} />  
-<<<<<<< HEAD
         <Route path="/admin/usuarios/nuevo" element={<NuevoUsuario />} />
-=======
->>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
         
               
       </Routes>

@@ -99,8 +99,3 @@ export default function GestionUsuarios() {
     </div>
   );
 }
-<<<<<<< HEAD
-=======
-
-export default GestionUsuarios;
->>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
