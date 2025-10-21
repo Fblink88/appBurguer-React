@@ -17,6 +17,7 @@ export default function FooterComp() {
               <li className="mb-2"><i className="bi bi-envelope-fill me-2"></i>Goldenpagos2@gmail.com</li>
               <li className="mt-3 d-flex gap-3">
                 
+                {/* Para enlaces externos, seguimos usando <a> pero con seguridad adicional */}
                 <a href="https://www.instagram.com/goldenburger.cl?igsh=MWt4bjUxbTY4N3lp" className="fs-4 text-light" target="_blank" rel="noopener noreferrer">
                   <i className="bi bi-instagram"></i>
                 </a>

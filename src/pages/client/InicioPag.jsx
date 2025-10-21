@@ -7,7 +7,7 @@ import FooterComp from '../../components/FooterComp';
 import Carousel from 'react-bootstrap/Carousel';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
-import '../../styles/estilos.css'
+import '../../styles/inicio.css';
 
 // --- DATOS Y IMÁGENES ---
 import { productosDB } from '../../data/dataBase.js';
@@ -20,56 +20,59 @@ import carrusel3 from '/src/assets/img/Carrusel3.png';
 // Imágenes para las tarjetas de productos
 import goldenImg from '/src/assets/img/Golden.PNG';
 import baconBbqImg from '/src/assets/img/BaconBBQ.PNG';
-import tripleQuesoImg from '/src/assets/img/TripleQueso.PNG';
+import ClasicaImg from '/src/assets/img/Clasica.PNG';
 
 // Mapeo para conectar las rutas de texto de la DB con las imágenes importadas
 const imageMap = {
   '/src/assets/img/Golden.PNG': goldenImg,
   '/src/assets/img/BaconBBQ.PNG': baconBbqImg,
-  '/src/assets/img/TripleQueso.PNG': tripleQuesoImg,
+  '/src/assets/img/Clasica.PNG': ClasicaImg
 };
 
-// --- COMPONENTE REUTILIZABLE PARA LA TARJETA DE PRODUCTO ---
+// --- COMPONENTE TARJETA DE PRODUCTO ---
 function ProductoCard({ producto }) {
-  // Función para formatear el precio a moneda chilena
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(price);
+  const formatPrice = (price) =>
+    new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(price);
+
+  const handleAddToCart = () => {
+    // Aquí irá la lógica para agregar al carrito
   };
 
   return (
-    <Card className="h-100 shadow-sm">
-      <Card.Img variant="top" src={imageMap[producto.imagen]} />
-      <Card.Body className="d-flex flex-column">
-        <Card.Title>{producto.nombre}</Card.Title>
-        <Card.Text className="text-muted small">
-          {producto.descripcion}
-        </Card.Text>
-        <div className="mt-auto d-flex justify-content-between align-items-center">
-          <span className="price fw-bold">{formatPrice(producto.precio)}</span>
-          <Button as={Link} to="/catalogo" variant="warning" className="fw-bold">
-            Ver más
-          </Button>
+    <Card>
+      <div className="card-img-container">
+        <Card.Img src={imageMap[producto.imagen]} />
+      </div>
+      <Card.Body>
+        <div>
+          <Card.Title>{producto.nombre}</Card.Title>
+          <Card.Text>{producto.descripcion}</Card.Text>
+        </div>
+        <div className="card-footer">
+          <span className="price">{formatPrice(producto.precio)}</span>
+          <button className="btn-add-cart" onClick={handleAddToCart}>
+            +
+          </button>
         </div>
       </Card.Body>
     </Card>
   );
 }
 
-// --- COMPONENTE PRINCIPAL DE LA PÁGINA DE INICIO ---
+// --- COMPONENTE PRINCIPAL ---
 function InicioPag() {
-  // Filtramos la base de datos para obtener solo los productos "Más Vendidos"
-  const masVendidos = productosDB.filter(producto =>
-    producto.nombre === 'Golden' ||
-    producto.nombre === 'Bacon BBQ' ||
-    producto.nombre === 'Triple Queso'
+  const masVendidos = productosDB.filter(
+    (producto) =>
+      producto.nombre === 'Golden' ||
+      producto.nombre === 'Bacon BBQ' ||
+      producto.nombre === 'Triple Queso'
   );
 
   return (
     <div className="pagina-completa">
       <HeaderComp />
-
       <main className="contenido-principal">
-        <br />
+       
         <Carousel>
           <Carousel.Item interval={2000}>
             <img className="d-block w-100" src={carrusel1} alt="Promoción de hamburguesas" />
@@ -115,7 +118,6 @@ function InicioPag() {
           </div>
         </section>
       </main>
-
       <FooterComp />
     </div>
   );

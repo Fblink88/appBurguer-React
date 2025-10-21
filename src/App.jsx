@@ -15,18 +15,16 @@ import NuevoCliente from './pages/admin/nuevoCliente';
 import './App.css'
 
 function App() {
-  
   return (
-    
-    
     <div className="App">
-      
       <Routes>
-        <Route path="/" element={<InicioPag />} />  
+        <Route path="/" element={<InicioPag />} />
         <Route path="/inicio" element={<InicioPag />} />
         <Route path="/catalogo" element={<CatalogoPag />} />
         <Route path="/nosotros" element={<NosotrosPag />} />
         <Route path="/contacto" element={<ContactoPag />} />
+        <Route path="/carrito" element={<CarroPag />} />
+        <Route path="/checkout" element={<CheckOut />} />
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/gestion-pedidos" element={<GestionPedidos />} />
         <Route path="/admin/gestion-productos" element={<GestionProductos />} />
@@ -37,8 +35,7 @@ function App() {
               
       </Routes>
     </div>
-
   );
 }
 
-export default App
+export default App;
