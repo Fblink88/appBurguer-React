@@ -218,8 +218,4 @@ function CarroPag() {
   );
 }
 
-<<<<<<< HEAD
 export default CarroPag
-=======
-export default CarroPag;
->>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)

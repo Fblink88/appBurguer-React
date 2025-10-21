@@ -3,20 +3,11 @@ import InicioPag from './pages/client/InicioPag';
 import CatalogoPag from './pages/client/CatalogoPag';
 import NosotrosPag from './pages/client/NosotrosPag';
 import ContactoPag from './pages/client/ContactoPag';
-<<<<<<< HEAD
 import Dashboard from './pages/admin/Dashboard';
 import GestionPedidos from './pages/admin/GestionPedidos';
 import GestionProductos from './pages/admin/GestionProductos';
 import GestionUsuarios from './pages/admin/gestionUsuarios';
 import NuevoUsuario from './pages/admin/nuevoUsuario';
-=======
-import CarroPag from './pages/client/CarroPag';
-import Dashboard from './pages/admin/Dashboard';
-import GestionPedidos from './pages/admin/GestionPedidos';
-import GestionProductos from './pages/admin/GestionProductos';
-import GestionUsuarios from './pages/admin/GestionUsuarios';
-
->>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
 
 //import viteLogo from '/vite.svg'
 //import reactLogo from './assets/react.svg'

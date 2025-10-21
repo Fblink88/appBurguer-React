@@ -179,7 +179,6 @@ export const productosDB = [
         stock: 5,
         imagen: '/src/assets/img/Playqueso.PNG'
     }
-<<<<<<< HEAD
 ];
 
 // src/data/dataBase.js
@@ -264,6 +263,3 @@ export const productosStore = {
     }
   }
 };
-=======
-];
->>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
