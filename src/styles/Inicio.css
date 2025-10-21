@@ -10,18 +10,15 @@
 .contenido-principal {
   flex: 1;
   background-color: #000;
-  padding-top: 0; /* Elimina el padding superior */
-  margin-top: 0; /* Elimina el margen superior */
 }
 
 /* Estilos del carrusel */
 .carousel {
   margin-bottom: 2rem;
-  margin-top: 0; /* Elimina el espacio superior del carrusel */
 }
 
 .carousel-item {
-  max-height: 600px;
+  max-height: 800px;
 }
 
 .carousel-item img {
@@ -101,7 +98,7 @@
   height: 100%;
   object-fit: cover;
   object-position: center center;
-  transform: scale(1.1);
+  transform: scale(1.1); /* Hace zoom para que las hamburguesas se vean más uniformes */
 }
 
 .card-body {
