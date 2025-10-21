@@ -1,58 +1,36 @@
-import { Route, Routes } from 'react-router-dom'
-import InicioPag from './pages/client/InicioPag';
-import CatalogoPag from './pages/client/CatalogoPag';
-import NosotrosPag from './pages/client/NosotrosPag';
-import ContactoPag from './pages/client/ContactoPag';
-<<<<<<< HEAD
-import Dashboard from './pages/admin/Dashboard';
-import GestionPedidos from './pages/admin/GestionPedidos';
-import GestionProductos from './pages/admin/GestionProductos';
-import GestionUsuarios from './pages/admin/gestionUsuarios';
-import NuevoUsuario from './pages/admin/nuevoUsuario';
-=======
-import CarroPag from './pages/client/CarroPag';
-import Dashboard from './pages/admin/Dashboard';
-import GestionPedidos from './pages/admin/GestionPedidos';
-import GestionProductos from './pages/admin/GestionProductos';
-import GestionUsuarios from './pages/admin/GestionUsuarios';
-
->>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
-
-//import viteLogo from '/vite.svg'
-//import reactLogo from './assets/react.svg'
-import './App.css'
+import { Route, Routes } from "react-router-dom";
+import InicioPag from "./pages/client/InicioPag";
+import CatalogoPag from "./pages/client/CatalogoPag";
+import NosotrosPag from "./pages/client/NosotrosPag";
+import ContactoPag from "./pages/client/ContactoPag";
+import Dashboard from "./pages/admin/Dashboard";
+import GestionPedidos from "./pages/admin/GestionPedidos";
+import GestionProductos from "./pages/admin/GestionProductos";
+import GestionUsuarios from "./pages/admin/GestionUsuarios";
+import NuevoUsuario from "./pages/admin/nuevoUsuario";
+import CarroPag from "./pages/client/CarroPag";
+import CheckOut from "./pages/client/CheckOut";
+import "./App.css";
 
 function App() {
-  
   return (
-    
-    
     <div className="App">
-      
       <Routes>
-        <Route path="/" element={<InicioPag />} />  
+        <Route path="/" element={<InicioPag />} />
         <Route path="/inicio" element={<InicioPag />} />
         <Route path="/catalogo" element={<CatalogoPag />} />
         <Route path="/nosotros" element={<NosotrosPag />} />
         <Route path="/contacto" element={<ContactoPag />} />
-<<<<<<< HEAD
-=======
-         <Route path="/carrito" element={<CarroPag />} />
->>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
+        <Route path="/carrito" element={<CarroPag />} />
+        <Route path="/checkout" element={<CheckOut />} />
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/gestion-pedidos" element={<GestionPedidos />} />
         <Route path="/admin/gestion-productos" element={<GestionProductos />} />
-        <Route path="/admin/gestion-usuarios" element={<GestionUsuarios />} />  
-<<<<<<< HEAD
+        <Route path="/admin/gestion-usuarios" element={<GestionUsuarios />} />
         <Route path="/admin/usuarios/nuevo" element={<NuevoUsuario />} />
-=======
->>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
-        
-              
       </Routes>
     </div>
-
   );
 }
 
-export default App
+export default App;

@@ -16,11 +16,8 @@ export default function FooterComp() {
               <li className="mb-2"><i className="bi bi-telephone-fill me-2"></i>+569 71334173</li>
               <li className="mb-2"><i className="bi bi-envelope-fill me-2"></i>Goldenpagos2@gmail.com</li>
               <li className="mt-3 d-flex gap-3">
-<<<<<<< HEAD
                 
-=======
                 {/* Para enlaces externos, seguimos usando <a> pero con seguridad adicional */}
->>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
                 <a href="https://www.instagram.com/goldenburger.cl?igsh=MWt4bjUxbTY4N3lp" className="fs-4 text-light" target="_blank" rel="noopener noreferrer">
                   <i className="bi bi-instagram"></i>
                 </a>

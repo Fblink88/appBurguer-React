@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -8,7 +7,7 @@ import FooterComp from '../../components/FooterComp';
 import Carousel from 'react-bootstrap/Carousel';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
-import '../../styles/estilos.css'
+import '../../styles/estilos.css';
 
 // --- DATOS Y IMÁGENES ---
 import { productosDB } from '../../data/dataBase.js';
@@ -30,21 +29,17 @@ const imageMap = {
   '/src/assets/img/TripleQueso.PNG': tripleQuesoImg,
 };
 
-// --- COMPONENTE REUTILIZABLE PARA LA TARJETA DE PRODUCTO ---
+// --- COMPONENTE TARJETA DE PRODUCTO ---
 function ProductoCard({ producto }) {
-  // Función para formatear el precio a moneda chilena
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(price);
-  };
+  const formatPrice = (price) =>
+    new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(price);
 
   return (
     <Card className="h-100 shadow-sm">
       <Card.Img variant="top" src={imageMap[producto.imagen]} />
       <Card.Body className="d-flex flex-column">
         <Card.Title>{producto.nombre}</Card.Title>
-        <Card.Text className="text-muted small">
-          {producto.descripcion}
-        </Card.Text>
+        <Card.Text className="text-muted small">{producto.descripcion}</Card.Text>
         <div className="mt-auto d-flex justify-content-between align-items-center">
           <span className="price fw-bold">{formatPrice(producto.precio)}</span>
           <Button as={Link} to="/catalogo" variant="warning" className="fw-bold">
@@ -56,19 +51,18 @@ function ProductoCard({ producto }) {
   );
 }
 
-// --- COMPONENTE PRINCIPAL DE LA PÁGINA DE INICIO ---
+// --- COMPONENTE PRINCIPAL ---
 function InicioPag() {
-  // Filtramos la base de datos para obtener solo los productos "Más Vendidos"
-  const masVendidos = productosDB.filter(producto =>
-    producto.nombre === 'Golden' ||
-    producto.nombre === 'Bacon BBQ' ||
-    producto.nombre === 'Triple Queso'
+  const masVendidos = productosDB.filter(
+    (producto) =>
+      producto.nombre === 'Golden' ||
+      producto.nombre === 'Bacon BBQ' ||
+      producto.nombre === 'Triple Queso'
   );
 
   return (
     <div className="pagina-completa">
       <HeaderComp />
-
       <main className="contenido-principal">
         <br />
         <Carousel>
@@ -115,35 +109,10 @@ function InicioPag() {
             </div>
           </div>
         </section>
-=======
-import React from 'react'
-import HeaderComp from '../../components/HeaderComp'
-import FooterComp from '../../components/FooterComp'
-
-
-function InicioPag() {
-  return (
-    <div className="pagina-completa">
-      <HeaderComp />
-      <main className="contenido-principal">
-        <div className="container py-5 text-center">
-          <h1>Página de Inicio</h1>
-          <p>¡Bienvenido a Golden Burger!</p>
-          
-        </div>
->>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
       </main>
-
       <FooterComp />
     </div>
-<<<<<<< HEAD
   );
 }
 
 export default InicioPag;
-=======
-  )
-}
-
-export default InicioPag
->>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
