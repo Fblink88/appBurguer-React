@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import 'bootstrap-icons/font/bootstrap-icons.css';
+
 import '../../styles/login2.css';
 import { useNavigate } from 'react-router-dom';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 
 function Login() {
@@ -102,7 +103,7 @@ function Login() {
 
 
         {/* 👇 Clase dinámica para el panel */}
-        <div className={`container ${isRegisterActive ? 'right-panel-active' : ''}`} id="container">
+        <div className={`container ${isRegisterActive ? 'right-panel-active' : ''}`} id="login-container-box">
 
           {/* FORMULARIO REGISTRO */}
           <div className="form-container register-container">
