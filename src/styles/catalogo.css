@@ -31,12 +31,12 @@ body {
    NAVEGACIÓN DE CATEGORÍAS
    ======================================== */
 .categorias-nav {
-  background-color: var(--color-fondo-secundario);
-  border-bottom: 1px solid #333;
-  padding: 1rem 0;
-  position: sticky;
+  border-bottom: 10px solid #020101;
+  padding: 2rem 0;
+  position: sticky; /* Fija la barra en la parte superior */
   top: 56px;
   z-index: 100;
+  background-color: var(--color-fondo);
 }
 
 .categorias-wrapper {
@@ -44,6 +44,7 @@ body {
   gap: 0.75rem;
   flex-wrap: wrap;
   justify-content: flex-start;
+
 }
 
 .btn-categoria {
