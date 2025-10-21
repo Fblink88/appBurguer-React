@@ -1,4 +1,4 @@
-import { productosDB as productosSeedDB } from "./dataBase"; // Importamos tu lista original con un alias
+import { productosDB as productosSeedDB } from "./dataBase"; 
 
 const DB_KEY = 'productos_storage'; // Nombre para guardar en localStorage
 
@@ -8,7 +8,7 @@ const getDB = () => {
   
   // Si no hay nada en localStorage, usamos tu lista original para rellenarlo
   if (!db || db.length === 0) {
-    db = productosSeedDB; // Usamos la lista importada como semilla
+    db = productosSeedDB; 
     localStorage.setItem(DB_KEY, JSON.stringify(db));
   }
   return db;
@@ -30,8 +30,7 @@ export const listarProductos = () => {
     precio_producto: producto.precio,           
     descripcion_producto: producto.descripcion, 
     imagenSrc: producto.imagen,
-    // Nota: Tu 'listarProductos' original no tenía stock, lo cual podría ser un error
-    // Si la tabla no muestra el stock, agrégalo aquí:
+    
     stock_producto: producto.stock || 0 
   }));
 };
@@ -61,9 +60,8 @@ export const agregarProducto = (productoData) => {
 
   console.log('Producto agregado a DB:', nuevoProducto);
   
-  // Retornar para el componente (estructura del componente)
-  // (Tu código original devolvía la estructura de DB, lo cual causaba el error de UI)
-  // Lo corrijo para que devuelva la estructura que la UI espera:
+ 
+
   return {
     id: nuevoProducto.id,
     nombre_producto: nuevoProducto.nombre,

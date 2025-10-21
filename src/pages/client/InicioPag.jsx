@@ -1,3 +1,6 @@
+
+
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -114,10 +117,13 @@ function InicioPag() {
             </div>
           </div>
         </section>
+
       </main>
 
       <FooterComp />
     </div>
+
+
   );
 }
 
