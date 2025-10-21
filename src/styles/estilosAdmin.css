@@ -132,6 +132,7 @@
   .sidebar-footer .btn i {
     display: none;
   }
+<<<<<<< HEAD
 }
 
 .admin-content .card {
@@ -140,3 +141,6 @@
   border: 1px solid #444;
 }
 
+=======
+}
+>>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)

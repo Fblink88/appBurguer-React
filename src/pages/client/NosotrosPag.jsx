@@ -1,13 +1,20 @@
+<<<<<<< HEAD
 import React from 'react';
 import HeaderComp from '../../components/HeaderComp';
 import FooterComp from '../../components/FooterComp';
 import Card from 'react-bootstrap/Card'; // 1. Importa el componente Card
+=======
+import React from 'react'
+import HeaderComp from '../../components/HeaderComp'
+import FooterComp from '../../components/FooterComp'
+>>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
 
 function NosotrosPag() {
   return (
     <div className="pagina-completa">
       <HeaderComp />
 
+<<<<<<< HEAD
       <main>
         <div className="container py-5">
           {/* 2. Reemplaza el <div> por el componente <Card> */}
@@ -60,12 +67,25 @@ function NosotrosPag() {
               </div>
             </Card.Body>
           </Card>
+=======
+      <main className="contenido-principal">
+        <div className="container py-5 text-center">
+          <h1>Página de Nosotros</h1>
+          <p>¡Bienvenido a Golden Burger!</p>
+>>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
         </div>
       </main>
 
       <FooterComp />
     </div>
+<<<<<<< HEAD
   );
 }
 
 export default NosotrosPag;
+=======
+  )
+}
+
+export default NosotrosPag
+>>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)

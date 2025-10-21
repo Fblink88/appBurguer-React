@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -114,11 +115,35 @@ function InicioPag() {
             </div>
           </div>
         </section>
+=======
+import React from 'react'
+import HeaderComp from '../../components/HeaderComp'
+import FooterComp from '../../components/FooterComp'
+
+
+function InicioPag() {
+  return (
+    <div className="pagina-completa">
+      <HeaderComp />
+      <main className="contenido-principal">
+        <div className="container py-5 text-center">
+          <h1>Página de Inicio</h1>
+          <p>¡Bienvenido a Golden Burger!</p>
+          
+        </div>
+>>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
       </main>
 
       <FooterComp />
     </div>
+<<<<<<< HEAD
   );
 }
 
 export default InicioPag;
+=======
+  )
+}
+
+export default InicioPag
+>>>>>>> 6962bfb (Se agrega Catalogo.jsx y se modifica el archivo estilos.css)
