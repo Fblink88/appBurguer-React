@@ -3,7 +3,7 @@ import Sidebar from '../../components/Sidebar';
 import '../../styles/gestionPedidos.css';
 
 
-function GestionPedidos() {
+function gestionPedidos() {
   const handleAdminLogout = () => {
     console.log("Cerrando sesión del administrador...");
   };
@@ -81,4 +81,4 @@ function GestionPedidos() {
   );
 };
 
-export default AdminPedidos;
+export default gestionPedidos;

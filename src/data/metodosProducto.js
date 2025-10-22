@@ -85,3 +85,49 @@ export const eliminarProducto = (id) => {
   }
   return null;
 };
+
+const PEDIDOS_KEY = 'pedidos_storage';
+
+// Inicializa el storage si no existe
+const getPedidosDB = () => {
+  let pedidos = JSON.parse(localStorage.getItem(PEDIDOS_KEY));
+  if (!pedidos) {
+    pedidos = [];
+    localStorage.setItem(PEDIDOS_KEY, JSON.stringify(pedidos));
+  }
+  return pedidos;
+};
+
+const savePedidosDB = (pedidos) => {
+  localStorage.setItem(PEDIDOS_KEY, JSON.stringify(pedidos));
+};
+
+// --- CRUD de Pedidos ---
+
+export const listarPedidos = () => getPedidosDB();
+
+export const agregarPedido = (pedido) => {
+  const pedidos = getPedidosDB();
+  const nextId = pedidos.length > 0 ? Math.max(...pedidos.map(p => p.id)) + 1 : 1;
+
+  const nuevoPedido = {
+    id: nextId,
+    fecha: new Date().toLocaleString(),
+    nombre: pedido.nombre,
+    producto: pedido.producto,
+    monto: pedido.monto
+  };
+
+  pedidos.push(nuevoPedido);
+  savePedidosDB(pedidos);
+  return nuevoPedido;
+};
+
+export const eliminarPedido = (id) => {
+  const pedidos = getPedidosDB();
+  const index = pedidos.findIndex(p => p.id === id);
+  if (index !== -1) {
+    pedidos.splice(index, 1);
+    savePedidosDB(pedidos);
+  }
+};
