@@ -1,46 +1,73 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
-import { usuariosStore } from "../../data/dataBase";
+
+const readUsuarios = () => JSON.parse(localStorage.getItem("usuarios")) || [];
+
+const createUsuario = (usuario) => {
+  const usuarios = readUsuarios();
+  usuarios.push(usuario);
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+};
+
+const updateUsuario = (index, usuario) => {
+  const usuarios = readUsuarios();
+  usuarios[index] = usuario;
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+};
 
 export default function NuevoUsuario() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const editIndex = searchParams.get("edit"); // ?edit=IDX si es edición
+  const editIndex = searchParams.get("edit");
 
-  // Estado inicial del usuario
   const [usuario, setUsuario] = useState({
     run: "",
     nombre: "",
     apellidos: "",
     email: "",
-    rol: ""
+    rol: "",
   });
 
-  // Si hay parámetro edit, precargar datos
+  const [errores, setErrores] = useState({});
+
   useEffect(() => {
     if (editIndex !== null) {
-      const usuarios = usuariosStore.read();
-      if (usuarios[editIndex]) {
-        setUsuario(usuarios[editIndex]);
-      }
+      const usuarios = readUsuarios();
+      if (usuarios[editIndex]) setUsuario(usuarios[editIndex]);
     }
   }, [editIndex]);
 
-  // Manejo de cambios en los inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUsuario({ ...usuario, [name]: value });
+    setErrores({ ...errores, [name]: "" }); // Limpia el error al escribir
   };
 
-  // Guardar usuario
+  const validarCampos = () => {
+    const nuevosErrores = {};
+
+    if (!usuario.run.trim()) nuevosErrores.run = "Debe ingresar un RUN.";
+    if (!usuario.nombre.trim()) nuevosErrores.nombre = "Debe ingresar un nombre.";
+    if (!usuario.apellidos.trim()) nuevosErrores.apellidos = "Debe ingresar los apellidos.";
+    if (!usuario.email.trim()) nuevosErrores.email = "Debe ingresar un correo.";
+    if (!usuario.rol.trim()) nuevosErrores.rol = "Debe seleccionar un rol.";
+
+    setErrores(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    if (!validarCampos()) return;
+
     if (editIndex !== null) {
-      usuariosStore.update(editIndex, usuario);
+      updateUsuario(editIndex, usuario);
+      alert("Usuario actualizado correctamente.");
     } else {
-      usuariosStore.create(usuario);
+      createUsuario(usuario);
+      alert("Usuario creado correctamente.");
     }
 
     navigate("/admin/gestion-usuarios");
@@ -48,73 +75,77 @@ export default function NuevoUsuario() {
 
   return (
     <div className="admin-layout">
-      <Sidebar
-        adminName="Administrador"
-        onLogoutAdmin={() => alert("Cerrando sesión")}
-      />
+      <Sidebar adminName="Administrador" onLogoutAdmin={() => alert("Cerrando sesión")} />
 
       <main className="admin-content">
-        <h1 className="mb-4">
-          {editIndex !== null ? "Editar Usuario" : "Nuevo Usuario"}
-        </h1>
+        <h1 className="mb-4">{editIndex !== null ? "Editar Usuario" : "Nuevo Usuario"}</h1>
 
         <form className="card p-4 shadow-sm" onSubmit={handleSubmit}>
+          {/* RUN */}
           <div className="mb-3">
-            <label className="form-label">RUN</label>
+            <label htmlFor="run" className="form-label">RUN</label>
             <input
+              id="run"
               type="text"
               name="run"
               className="form-control"
               value={usuario.run}
               onChange={handleChange}
-              required
             />
+            {errores.run && <p className="text-danger">{errores.run}</p>}
           </div>
 
+          {/* Nombre */}
           <div className="mb-3">
-            <label className="form-label">Nombre</label>
+            <label htmlFor="nombre" className="form-label">Nombre</label>
             <input
+              id="nombre"
               type="text"
               name="nombre"
               className="form-control"
               value={usuario.nombre}
               onChange={handleChange}
-              required
             />
+            {errores.nombre && <p className="text-danger">{errores.nombre}</p>}
           </div>
 
+          {/* Apellidos */}
           <div className="mb-3">
-            <label className="form-label">Apellidos</label>
+            <label htmlFor="apellidos" className="form-label">Apellidos</label>
             <input
+              id="apellidos"
               type="text"
               name="apellidos"
               className="form-control"
               value={usuario.apellidos}
               onChange={handleChange}
-              required
             />
+            {errores.apellidos && <p className="text-danger">{errores.apellidos}</p>}
           </div>
 
+          {/* Correo */}
           <div className="mb-3">
-            <label className="form-label">Correo</label>
+            <label htmlFor="email" className="form-label">Correo</label>
             <input
+              id="email"
               type="email"
               name="email"
               className="form-control"
               value={usuario.email}
               onChange={handleChange}
-              required
             />
+            {errores.email && <p className="text-danger">{errores.email}</p>}
           </div>
 
+          {/* Rol */}
           <div className="mb-3">
-            <label className="form-label">Rol</label>
+            <label htmlFor="rol" className="form-label">Rol</label>
             <select
+              id="rol"
               name="rol"
               className="form-select"
               value={usuario.rol}
               onChange={handleChange}
-              required
             >
               <option value="">Seleccione un rol</option>
               <option value="Admin">Admin</option>
@@ -122,6 +153,7 @@ export default function NuevoUsuario() {
               <option value="Cocinero">Cocinero</option>
               <option value="Despacho">Despacho</option>
             </select>
+            {errores.rol && <p className="text-danger">{errores.rol}</p>}
           </div>
 
           <button type="submit" className="btn btn-success">

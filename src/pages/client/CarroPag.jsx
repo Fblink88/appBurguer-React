@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderComp from '../../components/HeaderComp';
 import FooterComp from '../../components/FooterComp';
-import '../../styles/estilos.css';
+import '../../styles/carrito.css';
 
 function CarroPag() {
   const navigate = useNavigate();
@@ -66,7 +66,7 @@ function CarroPag() {
       alert('El carrito está vacío');
       return;
     }
-    alert('Funcionalidad de pago en desarrollo');
+    navigate('/checkout');
   };
 
   return (
@@ -218,6 +218,4 @@ function CarroPag() {
   );
 }
 
-
 export default CarroPag;
-

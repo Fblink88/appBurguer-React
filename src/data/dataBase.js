@@ -180,85 +180,41 @@ export const productosDB = [
         imagen: '/src/assets/img/Playqueso.PNG'
     }
 ];
-// src/data/dataBase.js
-// src/data/dataBase.js
 
-// ---- Usuarios ----
-const KEY_USUARIOS = "usuarios";
-const seedUsuarios = [
-  { run: "11.111.111-1", nombre: "Ana", apellidos: "Pérez", email: "ana@example.com", rol: "Admin" },
-  { run: "22.222.222-2", nombre: "Juan", apellidos: "Soto", email: "juan@example.com", rol: "Cajero" }
+// src/database.js
+
+// Datos base de ejemplo
+export const usuarios = [
+  {
+    run: "12345678-9",
+    nombre: "Juan",
+    apellidos: "Pérez",
+    email: "juan@test.com",
+    rol: "Admin",
+  },
+  {
+    run: "98765432-1",
+    nombre: "María",
+    apellidos: "Gómez",
+    email: "maria@test.com",
+    rol: "Cajero",
+  },
+  {
+    run: "11222333-4",
+    nombre: "Pedro",
+    apellidos: "Rojas",
+    email: "pedro@test.com",
+    rol: "Cocinero",
+  },
 ];
 
-function ensureSeedUsuarios() {
-  if (!localStorage.getItem(KEY_USUARIOS)) {
-    localStorage.setItem(KEY_USUARIOS, JSON.stringify(seedUsuarios));
-  }
-}
-
-export const usuariosStore = {
-  key: KEY_USUARIOS,
-  read() {
-    ensureSeedUsuarios();
-    return JSON.parse(localStorage.getItem(KEY_USUARIOS)) || [];
+export const clientes = [
+  {
+    nombre: "Carlos",
+    correo: "carlos@cliente.com",
   },
-  create(usuario) {
-    const arr = usuariosStore.read();
-    arr.push(usuario);
-    localStorage.setItem(KEY_USUARIOS, JSON.stringify(arr));
+  {
+    nombre: "Ana",
+    correo: "ana@cliente.com",
   },
-  update(index, usuario) {
-    const arr = usuariosStore.read();
-    if (arr[index]) {
-      arr[index] = usuario;
-      localStorage.setItem(KEY_USUARIOS, JSON.stringify(arr));
-    }
-  },
-  remove(index) {
-    const arr = usuariosStore.read();
-    if (arr[index]) {
-      arr.splice(index, 1);
-      localStorage.setItem(KEY_USUARIOS, JSON.stringify(arr));
-    }
-  }
-};
-
-// ---- Productos ----
-const KEY_PRODUCTOS = "productos";
-const seedProductos = [
-  { id: 1, nombre: "Hamburguesa Clásica", precio: 4500, categoria: "Hamburguesas" },
-  { id: 2, nombre: "Papas Fritas", precio: 2000, categoria: "Acompañamientos" },
 ];
-
-function ensureSeedProductos() {
-  if (!localStorage.getItem(KEY_PRODUCTOS)) {
-    localStorage.setItem(KEY_PRODUCTOS, JSON.stringify(seedProductos));
-  }
-}
-
-export const productosStore = {
-  key: KEY_PRODUCTOS,
-  read() {
-    ensureSeedProductos();
-    return JSON.parse(localStorage.getItem(KEY_PRODUCTOS)) || [];
-  },
-  create(producto) {
-    const arr = productosStore.read();
-    arr.push(producto);
-    localStorage.setItem(KEY_PRODUCTOS, JSON.stringify(arr));
-  },
-  update(index, producto) {
-    const arr = productosStore.read();
-    if (arr[index]) {
-      arr[index] = producto;
-      localStorage.setItem(KEY_PRODUCTOS, JSON.stringify(arr));
-    }
-  },
-  remove(index) {
-    const arr = productosStore.read();
-    if (arr[index]) {
-      arr.splice(index, 1);
-      localStorage.setItem(KEY_PRODUCTOS, JSON.stringify(arr));
-    }
-  }
-};

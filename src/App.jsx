@@ -12,9 +12,8 @@ import GestionUsuarios from './pages/admin/gestionUsuarios';
 import NuevoUsuario from './pages/admin/nuevoUsuario';
 
 import CarroPag from './pages/client/CarroPag';
-
-
-
+import NuevoCliente from './pages/admin/nuevoCliente';
+import CheckOut from './pages/client/CheckOut';
 
 
 //import viteLogo from '/vite.svg'
@@ -22,12 +21,8 @@ import CarroPag from './pages/client/CarroPag';
 import './App.css'
 
 function App() {
-  
   return (
-    
-    
     <div className="App">
-      
       <Routes>
 
         <Route path="/" element={<InicioPag />} />  
@@ -35,25 +30,22 @@ function App() {
         <Route path="/inicio" element={<InicioPag />} />
         <Route path="/catalogo" element={<CatalogoPag />} />
         <Route path="/nosotros" element={<NosotrosPag />} />
+          
         <Route path="/contacto" element={<ContactoPag />} />
-       
-
-         <Route path="/carrito" element={<CarroPag />} />
-
+        <Route path="/carrito" element={<CarroPag />} />
+        <Route path="/checkout" element={<CheckOut />} />
+          
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/gestion-pedidos" element={<GestionPedidos />} />
         <Route path="/admin/gestion-productos" element={<GestionProductos />} />
         <Route path="/admin/gestion-usuarios" element={<GestionUsuarios />} />  
-
-        <Route path="/admin/usuarios/nuevo" element={<NuevoUsuario />} />
-
-
+        <Route path="/admin/nuevo-usuario" element={<NuevoUsuario />} />
+        <Route path="/admin/nuevo-cliente" element={<NuevoCliente />} />
         
               
       </Routes>
     </div>
-
   );
 }
 
-export default App
+export default App;

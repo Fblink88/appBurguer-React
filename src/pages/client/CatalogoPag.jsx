@@ -2,14 +2,12 @@
 
 import React, { useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom'; 
 import HeaderComp from '../../components/HeaderComp';
 import FooterComp from '../../components/FooterComp';
 import { productosDB } from '../../data/dataBase';
-import '../../styles/estilos.css';
+import '../../styles/catalogo.css';
 
 function CatalogoPag() {
-  const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedSize, setSelectedSize] = useState('Simple');
@@ -104,12 +102,9 @@ function CatalogoPag() {
     return carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0);
   };
 
-
-
   return (
     <div className="pagina-completa">
       <HeaderComp />
-
 
       {/* Barra de navegación por categorías */}
       <div className="categorias-nav">
@@ -165,9 +160,9 @@ function CatalogoPag() {
                         <button 
                           className="btn-producto-agregar"
                           onClick={() => handleQuickAdd(producto)}
-                          title="Agregar al carrito"
+                          title='Agregar al carrito'
                         >
-                          <i className="bi bi-plus-lg"></i>
+                          <i className="bi bi-blus-lg"></i>
                         </button>
                       </div>
                     </div>
@@ -187,12 +182,9 @@ function CatalogoPag() {
               <span className="checkout-total">
                 Total: <strong>${calcularTotal().toLocaleString('es-CL')}</strong>
               </span>
-              <button 
-                className="btn-pagar" 
-                onClick={() => navigate('/carrito')}
-              >
+              <a href="/carrito" className="btn-pagar">
                 Ir a pagar ({carrito.length})
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -276,7 +268,6 @@ function CatalogoPag() {
           )}
         </Modal.Body>
       </Modal>
-
 
       <FooterComp />
     </div>

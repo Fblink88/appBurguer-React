@@ -1,15 +1,13 @@
-
 import React from 'react';
 import HeaderComp from '../../components/HeaderComp';
 import FooterComp from '../../components/FooterComp';
 import Card from 'react-bootstrap/Card'; // 1. Importa el componente Card
 
-
 function NosotrosPag() {
   return (
     <div className="pagina-completa">
       <HeaderComp />
-      
+
       <main>
         <div className="container py-5">
           {/* 2. Reemplaza el <div> por el componente <Card> */}
@@ -62,18 +60,12 @@ function NosotrosPag() {
               </div>
             </Card.Body>
           </Card>
-
         </div>
       </main>
 
       <FooterComp />
     </div>
-
   );
 }
 
-
 export default NosotrosPag;
-
-
-//
