@@ -178,10 +178,10 @@
   font-style: italic;
 }
 
-/* Responsive - Compatible con tu sidebar responsive */
+
 @media (max-width: 992px) {
-  .admin-content {
-    margin-left: 150px; /* Mismo ancho que tu sidebar responsive */
+  .prod-admin-content {
+    margin-left: 150px; 
     width: calc(100% - 150px);
     padding: 1.5rem;
   }
@@ -196,14 +196,10 @@
 }
 
 @media (max-width: 768px) {
-  .gestion-admin-layout {
-    flex-direction: column;
-  }
   
-  .admin-content {
-    margin-left: 0;
+  .prod-admin-content {
     width: 100%;
-    padding: 1rem;
+   
   }
   
   .container {
@@ -239,7 +235,7 @@
 }
 
 @media (max-width: 480px) {
-  .admin-content {
+  .prod-admin-content {
     padding: 10px;
   }
   
@@ -271,7 +267,7 @@
 
 /* Estilos específicos para móviles muy pequeños */
 @media (max-width: 360px) {
-  .admin-content {
+  .prod-admin-content.admin-content {
     padding: 5px;
   }
   
