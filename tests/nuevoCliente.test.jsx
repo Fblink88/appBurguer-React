@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import NuevoCliente from "../pages/admin/nuevoCliente";
+import NuevoCliente from "../src/pages/admin/nuevoCliente";
 
 vi.mock("../components/Sidebar", () => ({
   default: () => <div>Sidebar mock</div>,
@@ -86,7 +86,7 @@ describe("NuevoCliente.jsx con validaciones visuales", () => {
       };
     });
 
-    const { default: NuevoClienteEdit } = await import("../pages/admin/nuevoCliente");
+    const { default: NuevoClienteEdit } = await import("../src/pages/admin/nuevoCliente");
     const alertMock = vi.spyOn(window, "alert").mockImplementation(() => {});
 
     render(

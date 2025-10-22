@@ -9,6 +9,9 @@ import GestionProductos from './pages/admin/GestionProductos';
 import GestionUsuarios from './pages/admin/gestionUsuarios';
 import NuevoUsuario from './pages/admin/nuevoUsuario';
 import NuevoCliente from './pages/admin/nuevoCliente';
+import CarroPag from './pages/client/CarroPag';
+import CheckOut from './pages/client/CheckOut';
+
 
 //import viteLogo from '/vite.svg'
 //import reactLogo from './assets/react.svg'

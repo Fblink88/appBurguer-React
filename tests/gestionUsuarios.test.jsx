@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MemoryRouter } from "react-router-dom";
-import GestionUsuarios from "../pages/admin/gestionUsuarios";
+import GestionUsuarios from "../src/pages/admin/gestionUsuarios";
 
 // Mock del Sidebar para evitar dependencias visuales
 vi.mock("../components/Sidebar", () => ({

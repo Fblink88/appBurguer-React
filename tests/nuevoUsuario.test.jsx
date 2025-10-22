@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import NuevoUsuario from "../pages/admin/nuevoUsuario";
+import NuevoUsuario from "../src/pages/admin/nuevoUsuario";
 
 // --- Mock del Sidebar ---
 vi.mock("../components/Sidebar", () => ({
@@ -80,7 +80,7 @@ describe("NuevoUsuario.jsx con validaciones y edición", () => {
   });
 
   it("debería cargar los datos en modo edición y actualizar correctamente", async () => {
-    // 🔹 Reinicia los módulos para aplicar el nuevo mock antes de la importación
+    // Reinicia los módulos para aplicar el nuevo mock antes de la importación
     vi.resetModules();
 
     // Pre-carga un usuario simulado
@@ -89,7 +89,7 @@ describe("NuevoUsuario.jsx con validaciones y edición", () => {
     ];
     localStorage.setItem("usuarios", JSON.stringify(usuarioOriginal));
 
-    // 🔹 Define el mock ANTES de importar el componente
+    // Define el mock ANTES de importar el componente
     vi.doMock("react-router-dom", async () => {
       const actual = await vi.importActual("react-router-dom");
       return {
@@ -100,7 +100,7 @@ describe("NuevoUsuario.jsx con validaciones y edición", () => {
     });
 
     // Importa el componente con el mock ya aplicado
-    const { default: NuevoUsuarioEdit } = await import("../pages/admin/nuevoUsuario");
+    const { default: NuevoUsuarioEdit } = await import("../src/pages/admin/nuevoUsuario");
 
     const alertMock = vi.spyOn(window, "alert").mockImplementation(() => { });
 

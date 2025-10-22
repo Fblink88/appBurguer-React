@@ -1,8 +1,8 @@
 import { render, screen, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import Dashboard from "../pages/admin/dashboard";
+import Dashboard from "../src/pages/admin/dashboard";
 
-/* 🧪 TESTS */
+/* TESTS */
 
 describe("Dashboard Admin", () => {
   afterEach(() => cleanup());
@@ -14,7 +14,7 @@ describe("Dashboard Admin", () => {
       </MemoryRouter>
     );
 
-    // 🔹 Busca el <h1> principal (evita conflicto con el saludo del Sidebar)
+    // Busca el <h1> principal (evita conflicto con el saludo del Sidebar)
     expect(
       screen.getByRole("heading", { level: 1, name: "Bienvenido, Administrador" })
     ).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe("Dashboard Admin", () => {
       </MemoryRouter>
     );
 
-    // 🔹 Busca el <aside> real que se usa como Sidebar
+    // Busca el <aside> real que se usa como Sidebar
     expect(screen.getByRole("complementary")).toBeInTheDocument();
   });
 
