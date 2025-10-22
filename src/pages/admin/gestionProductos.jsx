@@ -25,7 +25,7 @@ function GestionProductos() {
   useEffect(() => {
     setProductos(listarProductos());
   }, []);
-
+// Manejo de formulario
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
     setFormData(prev => ({
@@ -43,9 +43,7 @@ function GestionProductos() {
       imageUrl = URL.createObjectURL(formData.imagen_producto);
     }
 
-    // 2. Preparar los datos como los espera 'agregarProducto'
-    // Tu 'agregarProducto' espera los nombres de la UI (nombre_producto, etc.)
-    // y mapea 'imagenSrc' a 'imagen'
+    // 2. Preparar datos para agregar
     const dataParaAgregar = {
       nombre_producto: formData.nombre_producto,
       categoria_producto: formData.categoria_producto,
@@ -55,11 +53,11 @@ function GestionProductos() {
       imagenSrc: imageUrl, // Aquí mapeamos la URL de la imagen
     };
 
-    // 3. Agregar el producto a la DB
+    // 3. Agregar el producto a la DB , llamando al método
     agregarProducto(dataParaAgregar);
 
     // 4. ACTUALIZAR LA UI: Volver a listar todo
-    // Esto soluciona el problema de las estructuras de datos diferentes
+    
     setProductos(listarProductos());
 
     // 5. Limpiar formulario
@@ -182,6 +180,7 @@ function GestionProductos() {
             <tbody>
               {productos.map((prod) => (
                 <tr key={prod.id}>
+                  
                   <td data-label="Nombre">{prod.nombre_producto}</td>
                   <td data-label="Categoría">{prod.categoria_producto}</td>
                   <td data-label="Precio">${prod.precio_producto}</td>

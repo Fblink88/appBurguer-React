@@ -1,0 +1,183 @@
+/* === Layout general === */
+.admin-layout-pedidos {
+  display: flex;
+  min-height: 100vh;
+  background: #1a1a1a;
+  font-family: Arial, sans-serif;
+  color: #fdfdfd;
+}
+
+/* === Contenido principal === */
+.content {
+  flex-grow: 1;
+  background-color: #1a1a1a;
+  width: 100%;
+  padding: 40px 100px;
+  box-sizing: border-box;
+}
+
+.content h1 {
+  text-align: center;
+  color: #ffffff;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(255, 204, 0, 0.4);
+}
+
+/* === Formulario de pedidos === */
+form.formPedidos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  background: #2d2d2d;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  margin-bottom: 30px;
+}
+
+form.formPedidos input,
+form.formPedidos select {
+  flex: 1;
+  min-width: 180px;
+  padding: 12px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #333;
+  color: #fdfdfd;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+form.formPedidos input:focus,
+form.formPedidos select:focus {
+  border-color: #ffcc00;
+  box-shadow: 0 0 5px rgba(255, 204, 0, 0.4);
+  outline: none;
+  background: #3b3b3b;
+}
+
+/* === Botón agregar pedido === */
+.btn-agregar {
+  background-color: #ffcc00;
+  color: #0d0d0d;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.btn-agregar:hover {
+  background-color: #e6b800;
+}
+
+/* === Tabla de pedidos === */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #2d2d2d;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  margin-top: 20px;
+}
+
+th,
+td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #444;
+  text-align: left;
+}
+
+th {
+  background: #ffcc00;
+  color: #0d0d0d;
+  font-weight: 600;
+  border-bottom: 2px solid #e6b800;
+}
+
+td {
+  color: #fdfdfd;
+  font-size: 15px;
+}
+
+tr:nth-child(even) {
+  background-color: #333;
+}
+
+tr:hover {
+  background-color: #3d3d3d;
+  transition: background-color 0.3s ease;
+}
+
+/* === Botón eliminar === */
+button.deleteBtn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+button.deleteBtn:hover {
+  background-color: #b02a37;
+}
+
+/* === Mensaje cuando no hay pedidos === */
+td[colspan="6"] {
+  text-align: center;
+  color: #aaa;
+  padding: 30px 0;
+  font-style: italic;
+}
+
+/* === Responsividad === */
+@media (max-width: 992px) {
+  .content {
+    padding: 20px 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  form.formPedidos {
+    flex-direction: column;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    font-size: 14px;
+  }
+
+  th,
+  td {
+    padding: 10px 12px;
+  }
+
+  .btn-agregar {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 15px;
+  }
+
+  .content h1 {
+    font-size: 1.5rem;
+  }
+
+  .btn-agregar {
+    padding: 10px;
+    font-size: 14px;
+  }
+}

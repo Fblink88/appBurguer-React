@@ -1,3 +1,4 @@
+// src/pages/client/CatalogoPag.jsx
 
 import React, { useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
@@ -102,6 +103,7 @@ function CatalogoPag() {
   const calcularTotal = () => {
     return carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0);
   };
+
 
 
   return (
