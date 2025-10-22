@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
 
 // --- COMPONENTES ---
+import React, { useState } from 'react';
 import HeaderComp from '../../components/HeaderComp';
 import FooterComp from '../../components/FooterComp';
 
