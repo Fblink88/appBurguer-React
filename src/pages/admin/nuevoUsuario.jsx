@@ -1,26 +1,41 @@
+// ==========================================
+// Componente: NuevoUsuario.jsx
+// Descripción: Vista para crear o editar un usuario (trabajador)
+// dentro del sistema administrativo. Usa localStorage para guardar
+// la información y permite validación de campos antes de guardar.
+// ==========================================
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 
+// --- Funciones locales para manejo de usuarios en localStorage ---
+
+// Obtiene los usuarios almacenados o retorna un arreglo vacío si no hay datos
 const readUsuarios = () => JSON.parse(localStorage.getItem("usuarios")) || [];
 
+// Crea un nuevo usuario agregándolo al array existente
 const createUsuario = (usuario) => {
   const usuarios = readUsuarios();
   usuarios.push(usuario);
   localStorage.setItem("usuarios", JSON.stringify(usuarios));
 };
 
+// Actualiza un usuario existente en base a su índice
 const updateUsuario = (index, usuario) => {
   const usuarios = readUsuarios();
   usuarios[index] = usuario;
   localStorage.setItem("usuarios", JSON.stringify(usuarios));
 };
 
+// ================================================================
+// Componente principal: NuevoUsuario
+// ================================================================
 export default function NuevoUsuario() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const editIndex = searchParams.get("edit");
+  const navigate = useNavigate();// Hook de navegación entre rutas
+  const [searchParams] = useSearchParams();// Hook para leer parámetros de la URL
+  const editIndex = searchParams.get("edit");// Si existe, indica que se está editando un usuario
 
+  // Estado principal del usuario que se crea o edita
   const [usuario, setUsuario] = useState({
     run: "",
     nombre: "",
@@ -29,8 +44,10 @@ export default function NuevoUsuario() {
     rol: "",
   });
 
+  // Estado que almacena los errores de validación campo a campo
   const [errores, setErrores] = useState({});
 
+  // --- useEffect: Cargar datos si el componente se usa para edición ---
   useEffect(() => {
     if (editIndex !== null) {
       const usuarios = readUsuarios();
@@ -38,12 +55,16 @@ export default function NuevoUsuario() {
     }
   }, [editIndex]);
 
+  // --- Manejo de cambios en los inputs ---
+  // Actualiza el estado del usuario conforme se escribe
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUsuario({ ...usuario, [name]: value });
-    setErrores({ ...errores, [name]: "" }); // Limpia el error al escribir
+    // Limpia los errores del campo que se está editando
+    setErrores({ ...errores, [name]: "" });
   };
 
+  // --- Validación de todos los campos obligatorios ---
   const validarCampos = () => {
     const nuevosErrores = {};
 
@@ -54,14 +75,19 @@ export default function NuevoUsuario() {
     if (!usuario.rol.trim()) nuevosErrores.rol = "Debe seleccionar un rol.";
 
     setErrores(nuevosErrores);
+
+    // Devuelve true si no hay errores
     return Object.keys(nuevosErrores).length === 0;
   };
 
+  // --- Manejo del envío del formulario ---
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault();// Previene el comportamiento por defecto del formulario
 
+    // Si hay errores, se detiene la ejecución
     if (!validarCampos()) return;
 
+    // Si hay índice de edición, se actualiza el usuario existente
     if (editIndex !== null) {
       updateUsuario(editIndex, usuario);
       alert("Usuario actualizado correctamente.");
@@ -73,6 +99,9 @@ export default function NuevoUsuario() {
     navigate("/admin/gestion-usuarios");
   };
 
+  // ================================================================
+  // Renderizado del componente (estructura visual)
+  // ================================================================
   return (
     <div className="admin-layout">
       <Sidebar adminName="Administrador" onLogoutAdmin={() => alert("Cerrando sesión")} />
