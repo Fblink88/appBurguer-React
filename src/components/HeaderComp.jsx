@@ -79,7 +79,7 @@ export default function HeaderComp() {
 
           {/* Sección derecha de la barra de navegación */}
           <Nav className="align-items-center">
-            <Nav.Link as={Link} to="/carrito" className="fs-5 position-relative">
+            <Nav.Link as={Link} to="/carrito" className="fs-5 position-relative me-3">
               <i className="bi bi-cart"></i>
               {contadorCarrito > 0 && (
                 <Badge 
@@ -97,8 +97,6 @@ export default function HeaderComp() {
             {usuario ? (
               // Usamos el componente <NavDropdown> para el menú de usuario. Es mucho más limpio.
               <NavDropdown title={`Hola, ${usuario.nombre}`} id="basic-nav-dropdown" menuVariant="dark">
-                <NavDropdown.Item as={Link} to="/perfil">Mi perfil</NavDropdown.Item>
-                <NavDropdown.Divider />
                 <NavDropdown.Item onClick={handleLogout}>Cerrar sesión</NavDropdown.Item>
               </NavDropdown>
             ) : (

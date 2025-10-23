@@ -71,10 +71,10 @@ function ContactoPag() {
                       <span className="fs-5">Goldenpagos2@gmail.com</span>
                     </li>
                     <li className="mt-4 d-flex gap-4 justify-content-center">
-                      <a href="https://www.instagram.com/goldenburger.cl?igsh=MWt4bjUxbTY4N3lp" className="fs-3 text-light" target="_blank" rel="noopener noreferrer">
+                      <a href="https://www.instagram.com/goldenburger.cl?igsh=MWt4bjUxbTY4N3lp" className="fs-3 text-light" target="_blank" rel="noopener noreferrer" data-testid="instagram-link">
                         <i className="bi bi-instagram"></i>
                       </a>
-                      <a href="https://www.facebook.com/?locale=es_LA" className="fs-3 text-light" target="_blank" rel="noopener noreferrer">
+                      <a href="https://www.facebook.com/?locale=es_LA" className="fs-3 text-light" target="_blank" rel="noopener noreferrer" data-testid="facebook-link">
                         <i className="bi bi-facebook"></i>
                       </a>
                     </li>
