@@ -1,13 +1,11 @@
-
 // --- COMPONENTES ---
 import React, { useState } from 'react';
 import HeaderComp from '../../components/HeaderComp';
 import FooterComp from '../../components/FooterComp';
 
-// 1. Importa Row y Col de React-Bootstrap para el grid
+// 1. Importa Row y Col (¡Ya no necesitamos importar Card!)
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import Card from 'react-bootstrap/Card';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
@@ -20,6 +18,7 @@ function ContactoPag() {
   });
 
   const handleChange = (event) => {
+    // ... (tu función handleChange se queda igual)
     const { id, value } = event.target;
     setFormData({
       ...formData,
@@ -28,16 +27,15 @@ function ContactoPag() {
   };
 
   const handleSubmit = (event) => {
+    // ... (tu función handleSubmit se queda igual)
     const form = event.currentTarget;
     event.preventDefault();
-
     if (form.checkValidity() === false) {
       event.stopPropagation();
     } else {
       console.log("Formulario enviado:", formData);
       alert("¡Gracias por tu mensaje!");
     }
-
     setValidated(true);
   };
 
@@ -47,14 +45,17 @@ function ContactoPag() {
 
       <main>
         <div className="container my-5 py-5">
-          {/* 2. Usamos <Row> para crear la fila de dos columnas */}
-          {/* 'g-4' añade un espacio entre las columnas */}
           <Row className="g-4">
 
             {/* --- COLUMNA IZQUIERDA (Información de Contacto) --- */}
             <Col md={5}>
-              <Card bg="dark" text="light" className="h-100 shadow-lg p-4" style={{ backgroundColor: '#3a4343' }}>
-                <Card.Body className="text-center d-flex flex-column justify-content-center">
+
+              <div 
+                className="h-100 shadow-lg p-4 text-light rounded" 
+                style={{ backgroundColor: '#3a3c43' }}
+              >
+                {/* CAMBIO: Reemplazamos <Card.Body> por <div> */}
+                <div className="text-center d-flex flex-column justify-content-center">
                   <h2 className="text-center mb-4" style={{ color: '#ffc107' }}>Información de Contacto</h2>
                   <ul className="list-unstyled">
                     <li className="mb-4 d-flex flex-column align-items-center">
@@ -78,16 +79,22 @@ function ContactoPag() {
                       </a>
                     </li>
                   </ul>
-                </Card.Body>
-              </Card>
+                </div>
+              </div>
             </Col>
 
             {/* --- COLUMNA DERECHA (Formulario) --- */}
             <Col md={7}>
-              <Card bg="dark" text="light" className="shadow-lg p-4" style={{ backgroundColor: '#3a3c43' }}>
-                <Card.Body>
+              {/* CAMBIO: Reemplazamos <Card> por <div> */}
+              <div 
+                className="shadow-lg p-4 text-light rounded" 
+                style={{ backgroundColor: '#3a3c43' }}
+              >
+                {/* CAMBIO: Reemplazamos <Card.Body> por <div> */}
+                <div>
                   <h2 className="text-center mb-4" style={{ color: '#ffc107' }}>Formulario de Contacto</h2>
                   <Form noValidate validated={validated} onSubmit={handleSubmit}>
+                    {/* El formulario no cambia en absoluto */}
                     <Form.Group className="mb-3" controlId="nombre">
                       <Form.Label>Nombre</Form.Label>
                       <Form.Control
@@ -130,8 +137,8 @@ function ContactoPag() {
                       <Button type="submit" variant="warning" className="px-5">Enviar</Button>
                     </div>
                   </Form>
-                </Card.Body>
-              </Card>
+                </div>
+              </div>
             </Col>
 
           </Row>
