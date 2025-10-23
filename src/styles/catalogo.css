@@ -187,7 +187,7 @@ body {
 /* Botón agregar con signo + */
 .btn-producto-agregar {
   background-color: var(--color-fondo-secundario);
-  color: #000;
+  color: white;
   border: none;
   padding: 0;
   width: 40px;

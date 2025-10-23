@@ -162,7 +162,7 @@ function CatalogoPag() {
                           onClick={() => handleQuickAdd(producto)}
                           title='Agregar al carrito'
                         >
-                          <i className="bi bi-blus-lg"></i>
+                          <i className="bi bi-plus-lg"></i>
                         </button>
                       </div>
                     </div>
