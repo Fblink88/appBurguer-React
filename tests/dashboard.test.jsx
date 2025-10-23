@@ -1,4 +1,11 @@
 // Importaciones necesarias para ejecutar las pruebas
+
+
+
+import { describe, it, expect, afterEach, } from "vitest";
+
+
+
 import { render, screen, cleanup } from "@testing-library/react"; // renderiza el componente y permite hacer consultas sobre el DOM
 import { MemoryRouter } from "react-router-dom"; // simula un entorno de enrutamiento
 import Dashboard from "../src/pages/admin/dashboard"; // componente principal del panel de administración que se probará

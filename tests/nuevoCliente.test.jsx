@@ -1,4 +1,6 @@
 // Importaciones principales necesarias para las pruebas
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+
 import { render, screen, fireEvent } from "@testing-library/react"; // Permite renderizar el componente y simular acciones del usuario
 import { BrowserRouter } from "react-router-dom"; // Simula el contexto de enrutamiento
 import NuevoCliente from "../src/pages/admin/nuevoCliente"; // Componente que se va a probar
