@@ -41,7 +41,9 @@ function ProductoCard({ producto }) {
       precio: producto.precio,
       cantidad: 1
     };
+    console.log('Añadiendo al carrito:', nuevoItem); 
   };
+  
 
   return (
     <Card>
