@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/71</span>
+                <span class='fraction'>0/83</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/71</span>
+                <span class='fraction'>0/83</span>
             </div>
         
             
@@ -134,7 +134,18 @@
 <a name='L69'></a><a href='#L69'>69</a>
 <a name='L70'></a><a href='#L70'>70</a>
 <a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -205,10 +216,21 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import React from 'react';</span></span></span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import React from 'react';</span></span></span>
 <span class="cstat-no" title="statement not covered" >import HeaderComp from '../../components/HeaderComp';</span>
 <span class="cstat-no" title="statement not covered" >import FooterComp from '../../components/FooterComp';</span>
-<span class="cstat-no" title="statement not covered" >import Card from 'react-bootstrap/Card'; // 1. Importa el componente Card</span>
+<span class="cstat-no" title="statement not covered" >// 1. Eliminamos la importación de 'Card'</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >function NosotrosPag() {</span>
 <span class="cstat-no" title="statement not covered" >  return (</span>
@@ -217,9 +239,14 @@
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >      &lt;main&gt;</span>
 <span class="cstat-no" title="statement not covered" >        &lt;div className="container py-5"&gt;</span>
-<span class="cstat-no" title="statement not covered" >          {/* 2. Reemplaza el &lt;div&gt; por el componente &lt;Card&gt; */}</span>
-<span class="cstat-no" title="statement not covered" >          &lt;Card bg="dark" text="light" className="shadow-lg p-4 mx-auto" style={{ maxWidth: '900px', backgroundColor: '#3a3c43' }}&gt;</span>
-<span class="cstat-no" title="statement not covered" >            &lt;Card.Body&gt;</span>
+<span class="cstat-no" title="statement not covered" >          {/* 2. Reemplazamos &lt;Card&gt; por &lt;div&gt; */}</span>
+<span class="cstat-no" title="statement not covered" >          {/* Añadimos 'text-light' y 'rounded' para mantener el estilo */}</span>
+<span class="cstat-no" title="statement not covered" >          &lt;div </span>
+<span class="cstat-no" title="statement not covered" >            className="shadow-lg p-4 mx-auto text-light rounded" </span>
+<span class="cstat-no" title="statement not covered" >            style={{ maxWidth: '900px', backgroundColor: '#3a3c43' }}</span>
+<span class="cstat-no" title="statement not covered" >          &gt;</span>
+<span class="cstat-no" title="statement not covered" >            {/* 3. Reemplazamos &lt;Card.Body&gt; por &lt;div&gt; */}</span>
+<span class="cstat-no" title="statement not covered" >            &lt;div&gt;</span>
 <span class="cstat-no" title="statement not covered" >              &lt;h2 className="text-center mb-4" style={{ color: '#ffc107' }}&gt;Sobre Nosotros&lt;/h2&gt;</span>
 <span class="cstat-no" title="statement not covered" >              &lt;p className="text-center"&gt;</span>
 <span class="cstat-no" title="statement not covered" >                Bienvenidos a &lt;strong&gt;Golden Burger&lt;/strong&gt;, tu lugar favorito para disfrutar de hamburguesas únicas...</span>
@@ -229,34 +256,41 @@
 <span class="cstat-no" title="statement not covered" >                &lt;div className="col-md-4 mb-4"&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;i className="bi bi-bullseye display-4 mb-2" style={{ color: '#ffc107' }}&gt;&lt;/i&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;h5 className="mt-2"&gt;Misión&lt;/h5&gt;</span>
-<span class="cstat-no" title="statement not covered" >                  &lt;p&gt;Brindar hamburguesas deliciosas y un servicio cálido, creando experiencias memorables en cada visita.&lt;/p&gt;</span>
+<span class="cstat-no" title="statement not covered" >                  &lt;p&gt;Brindar hamburguesas deliciosas y un servicio cálido...&lt;/p&gt;</span>
 <span class="cstat-no" title="statement not covered" >                &lt;/div&gt;</span>
 <span class="cstat-no" title="statement not covered" >                &lt;div className="col-md-4 mb-4"&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;i className="bi bi-eye display-4 mb-2" style={{ color: '#ffc107' }}&gt;&lt;/i&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;h5 className="mt-2"&gt;Visión&lt;/h5&gt;</span>
-<span class="cstat-no" title="statement not covered" >                  &lt;p&gt;Ser la cadena de hamburguesas preferida en nuestra ciudad, destacando por sabor, innovación y frescura.&lt;/p&gt;</span>
+<span class="cstat-no" title="statement not covered" >                  &lt;p&gt;Ser la cadena de hamburguesas preferida en nuestra ciudad...&lt;/p&gt;</span>
 <span class="cstat-no" title="statement not covered" >                &lt;/div&gt;</span>
 <span class="cstat-no" title="statement not covered" >                &lt;div className="col-md-4 mb-4"&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;i className="bi bi-heart-fill display-4 mb-2" style={{ color: '#ffc107' }}&gt;&lt;/i&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;h5 className="mt-2"&gt;Valores&lt;/h5&gt;</span>
-<span class="cstat-no" title="statement not covered" >                  &lt;p&gt;Calidad, compromiso, creatividad y pasión por la gastronomía y nuestros clientes.&lt;/p&gt;</span>
+<span class="cstat-no" title="statement not covered" >                  &lt;p&gt;Calidad, compromiso, creatividad y pasión...&lt;/p&gt;</span>
 <span class="cstat-no" title="statement not covered" >                &lt;/div&gt;</span>
 <span class="cstat-no" title="statement not covered" >              &lt;/div&gt;</span>
-<span class="cstat-no" title="statement not covered" >            &lt;/Card.Body&gt;</span>
-<span class="cstat-no" title="statement not covered" >          &lt;/Card&gt;</span>
+<span class="cstat-no" title="statement not covered" >            &lt;/div&gt;</span>
+<span class="cstat-no" title="statement not covered" >          &lt;/div&gt;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >          &lt;br /&gt;&lt;br /&gt;&lt;br /&gt;</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >          {/* Hacemos lo mismo para la segunda tarjeta */}</span>
-<span class="cstat-no" title="statement not covered" >          &lt;Card bg="dark" text="light" className="shadow-lg p-4 mx-auto" style={{ maxWidth: '900px', backgroundColor: '#3a3c43' }}&gt;</span>
-<span class="cstat-no" title="statement not covered" >            &lt;Card.Body&gt;</span>
+<span class="cstat-no" title="statement not covered" >          {/* 2. Hacemos lo mismo para la segunda tarjeta */}</span>
+<span class="cstat-no" title="statement not covered" >          &lt;div </span>
+<span class="cstat-no" title="statement not covered" >            className="shadow-lg p-4 mx-auto text-light rounded" </span>
+<span class="cstat-no" title="statement not covered" >            style={{ maxWidth: '900px', backgroundColor: '#3a3c43' }}</span>
+<span class="cstat-no" title="statement not covered" >          &gt;</span>
+<span class="cstat-no" title="statement not covered" >            {/* 3. Reemplazamos &lt;Card.Body&gt; por &lt;div&gt; */}</span>
+<span class="cstat-no" title="statement not covered" >            &lt;div&gt;</span>
 <span class="cstat-no" title="statement not covered" >              &lt;p className="text-center"&gt;</span>
 <span class="cstat-no" title="statement not covered" >                &lt;strong&gt;Dirección: &lt;/strong&gt; Etchevers 210, Viña del Mar&lt;br /&gt;</span>
-<span class="cstat-no" title="statement not covered" >                {/* ... resto de la información de contacto ... */}</span>
+<span class="cstat-no" title="statement not covered" >                &lt;strong&gt;Teléfono: &lt;/strong&gt; +569 71334173&lt;br /&gt;</span>
+<span class="cstat-no" title="statement not covered" >                &lt;strong&gt;Email: &lt;/strong&gt; Goldenpagos2@gmail.com&lt;br /&gt;</span>
+<span class="cstat-no" title="statement not covered" >                &lt;a href="https://www.instagram.com/goldenburger.cl?igsh=MWt4bjUxbTY4N3lp" className="fs-4 text-light" target="_blank" rel="noopener noreferrer"&gt;&lt;i className="bi bi-instagram"&gt;&lt;/i&gt;&lt;/a&gt;</span>
+<span class="cstat-no" title="statement not covered" >                &lt;a href="https://www.facebook.com/?locale=es_LA" className="fs-4 text-light" target="_blank" rel="noopener noreferrer"&gt;&lt;i className="bi bi-facebook"&gt;&lt;/i&gt;&lt;/a&gt;</span>
 <span class="cstat-no" title="statement not covered" >              &lt;/p&gt;</span>
 <span class="cstat-no" title="statement not covered" >              &lt;div className="text-center"&gt;</span>
 <span class="cstat-no" title="statement not covered" >                &lt;iframe </span>
-<span class="cstat-no" title="statement not covered" >                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3344.331213451557!2d-71.55018868481115!3d-33.04781798089204!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9689dde138b169c7%3A0x8a70c6b12f1f8b3d!2sEtchevers%20210%2C%20Vi%C3%B1a%20del%20Mar%2C%20Valpara%C3%ADso!5e0!3m2!1ses!2scl!4v1668524430761!5m2!1ses!2scl"</span>
+<span class="cstat-no" title="statement not covered" >                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3344.471676839659!2d-71.55422088481105!3d-33.04409398089209!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9689de0e5153a5cd%3A0x6b8f3b0e3b0e3b0e!2sEtchevers%20210%2C%20Vi%C3%B1a%20del%20Mar%2C%20Valpara%C3%ADso!5e0!3m2!1ses!2scl!4v1668520000000"</span>
 <span class="cstat-no" title="statement not covered" >                  width="600" </span>
 <span class="cstat-no" title="statement not covered" >                  height="450" </span>
 <span class="cstat-no" title="statement not covered" >                  style={{ border: 0, maxWidth: '100%' }} </span>
@@ -265,8 +299,8 @@
 <span class="cstat-no" title="statement not covered" >                  referrerPolicy="no-referrer-when-downgrade"&gt;</span>
 <span class="cstat-no" title="statement not covered" >                &lt;/iframe&gt;</span>
 <span class="cstat-no" title="statement not covered" >              &lt;/div&gt;</span>
-<span class="cstat-no" title="statement not covered" >            &lt;/Card.Body&gt;</span>
-<span class="cstat-no" title="statement not covered" >          &lt;/Card&gt;</span>
+<span class="cstat-no" title="statement not covered" >            &lt;/div&gt;</span>
+<span class="cstat-no" title="statement not covered" >          &lt;/div&gt;</span>
 <span class="cstat-no" title="statement not covered" >        &lt;/div&gt;</span>
 <span class="cstat-no" title="statement not covered" >      &lt;/main&gt;</span>
 <span class="cstat-no" title="statement not covered" ></span>
@@ -275,15 +309,14 @@
 <span class="cstat-no" title="statement not covered" >  );</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export default NosotrosPag;</span>
-&nbsp;</pre></td></tr></table></pre>
+<span class="cstat-no" title="statement not covered" >export default NosotrosPag;</span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-23T02:29:35.325Z
+                at 2025-10-23T04:20:44.765Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
