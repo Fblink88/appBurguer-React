@@ -6,12 +6,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 // Importaciones
 import GestionProductos from '../src/pages/admin/gestionProductos';
 
-// Mock del Sidebar
+// Mock del Sidebar para evitar dependencias externas
 vi.mock('../src/components/Sidebar', () => ({
     default: () => <div data-testid="mocked-sidebar">Sidebar</div>,
 }));
 
-// Mock de funciones globales
+// Mock de funciones
 beforeEach(() => {
     localStorage.clear();
     window.confirm = vi.fn(() => true);
@@ -43,7 +43,7 @@ describe('Componente GestionProductos', () => {
         const inputPrecio = screen.getByPlaceholderText('Precio');
         expect(inputPrecio).toHaveAttribute('type', 'number');
     });
-
+// Verificar que el botón de agregar producto está presente
     it('debería renderizar el botón "Agregar Producto"', () => {
         render(<GestionProductos />);
         
@@ -80,6 +80,7 @@ describe('Componente GestionProductos', () => {
     });
 
     it('debería mostrar confirmación al eliminar un producto', async () => {
+        //se crea un usuario simulado
         const user = userEvent.setup();
         render(<GestionProductos />);
 

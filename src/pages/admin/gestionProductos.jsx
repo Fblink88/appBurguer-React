@@ -86,7 +86,7 @@ function GestionProductos() {
     <>  
     
     <section className="gestion-admin-layout">
-      <Sidebar onLogoutAdmin={handleAdminLogout} />
+     <Sidebar adminName="Administrador" onLogoutAdmin={() => console.log("Cerrando sesión")} />
       
 
       <main className="prod-admin-content">
@@ -111,6 +111,7 @@ function GestionProductos() {
 
               <label htmlFor="categoria_producto">Categoria</label>
               <input
+                id="categoria_producto"
                 type="text"
                 name="categoria_producto"
                 placeholder="Categoria"
@@ -121,6 +122,7 @@ function GestionProductos() {
 
               <label htmlFor="precio_producto">Precio</label>
               <input
+                id="precio_producto"
                 type="number"
                 name="precio_producto"
                 placeholder="Precio"
@@ -131,6 +133,7 @@ function GestionProductos() {
 
               <label htmlFor="descripcion_producto">Descripcion</label>
               <input
+                id="descripcion_producto"
                 type="text"
                 name="descripcion_producto"
                 placeholder="Descripcion"
@@ -141,6 +144,7 @@ function GestionProductos() {
 
               <label htmlFor="stock_producto">Stock</label>
               <input
+                id="stock_producto"
                 type="number"
                 name="stock_producto"
                 placeholder="Stock"
@@ -151,7 +155,7 @@ function GestionProductos() {
 
               <label htmlFor="imagen_producto">Imagen</label>
               <input
-               id="imagen_producto"
+                id="imagen_producto"
                 type="file"
                 name="imagen_producto"
                 onChange={handleChange}

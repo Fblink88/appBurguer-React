@@ -61,7 +61,7 @@ function GestionPedidos() {
 
   return (
     <div className="admin-layout-pedidos">
-      <Sidebar onLogoutAdmin={handleAdminLogout} />
+      <Sidebar adminName="Administrador" onLogoutAdmin={() => console.log("Cerrando sesión")} />
 
       <div className="content">
         <h1>Gestión de Pedidos</h1>

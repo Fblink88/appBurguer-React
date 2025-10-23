@@ -107,10 +107,7 @@ export default function NuevoCliente() {
   // ================================================================
   return (
     <div className="admin-layout">
-      <Sidebar
-        adminName="Administrador"
-        onLogoutAdmin={() => alert("Cerrando sesión")}
-      />
+      <Sidebar adminName="Administrador" onLogoutAdmin={() => console.log("Cerrando sesión")} />
 
       <main className="admin-content">
         <h1 className="mb-4">
