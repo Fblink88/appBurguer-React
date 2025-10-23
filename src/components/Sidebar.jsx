@@ -1,9 +1,18 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link ,useNavigate} from 'react-router-dom';
 import '../styles/estilosAdmin.css';
 import Nav from 'react-bootstrap/Nav';
 
 export default function Sidebar({ adminName, onLogoutAdmin }) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    if (onLogoutAdmin) {
+      onLogoutAdmin();
+    }
+    navigate('/');
+  };
+
   return (
     <aside className="sidebar-admin"> 
       <div className="sidebar-header">
@@ -46,7 +55,7 @@ export default function Sidebar({ adminName, onLogoutAdmin }) {
       </Nav>
 
       <div className="sidebar-footer">
-        <button className="btn btn-warning text-dark fw-semibold w-100" onClick={onLogoutAdmin}>
+        <button className="btn btn-warning text-dark fw-semibold w-100" onClick={handleLogout}>
           <i className="bi bi-box-arrow-left me-2"></i> 
           {/* CAMBIO 2: Separamos Cerrar y Admin */}
           <span className="btn-text-stacked">

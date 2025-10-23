@@ -100,6 +100,7 @@ function GestionProductos() {
               <h1 className="titulo-gp" >Gestión de Productos</h1>
               <label htmlFor="nombre_producto">Nombre</label>
               <input
+                id="nombre_producto"
                 type="text"
                 name="nombre_producto"
                 placeholder="Nombre"
@@ -150,6 +151,7 @@ function GestionProductos() {
 
               <label htmlFor="imagen_producto">Imagen</label>
               <input
+               id="imagen_producto"
                 type="file"
                 name="imagen_producto"
                 onChange={handleChange}
