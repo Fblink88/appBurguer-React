@@ -284,13 +284,13 @@
 <a name='L219'></a><a href='#L219'>219</a>
 <a name='L220'></a><a href='#L220'>220</a>
 <a name='L221'></a><a href='#L221'>221</a>
-<a name='L222'></a><a href='#L222'>222</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L222'></a><a href='#L222'>222</a>
+<a name='L223'></a><a href='#L223'>223</a>
+<a name='L224'></a><a href='#L224'>224</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
@@ -334,18 +334,14 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -353,6 +349,14 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
@@ -491,6 +495,7 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -504,78 +509,79 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/pages/client/CarroPag.jsx
-&nbsp;
-import React, { useState, useEffect } from 'react';
+<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderComp from '../../components/HeaderComp';
 import FooterComp from '../../components/FooterComp';
 import '../../styles/carrito.css';
-&nbsp;
+// Componente de la página del carrito de compras
 function CarroPag() {
   const navigate = useNavigate();
   const [carrito, setCarrito] = useState([]);
 &nbsp;
-  useEffect(() =&gt; {
-    const carritoGuardado = localStorage.getItem('carrito');
-    if (carritoGuardado) {
-      setCarrito(JSON.parse(carritoGuardado));
+  useEffect(() =&gt; { // Carga el carrito desde el localStorage al montar el componente
+    const carritoGuardado = localStorage.getItem('carrito'); // Obtiene el carrito guardado en localStorage
+    if (carritoGuardado) { // Si existe un carrito guardado
+      setCarrito(JSON.parse(carritoGuardado)); // coNVIERTE  el JSON y lo establece en carritoGuardado
     }
   }, []);
 &nbsp;
   useEffect(() =&gt; {
-    if (carrito.length &gt; 0) {
-      localStorage.setItem('carrito', JSON.stringify(carrito));
-      window.dispatchEvent(new Event('storage'));
+    if (carrito.length &gt; 0) { // Guarda el carrito en localStorage cada vez que cambia
+      localStorage.setItem('carrito', JSON.stringify(carrito)); // Convierte el carrito a JSON y lo guarda
+      window.dispatchEvent(new Event('storage'));// Notifica a otros componentes del cambio en el carrito
     }
-  }, [carrito]);
+  }, [carrito]); // Se ejecuta cada vez que cambia el carrito, PORQUE ESTA DENTRO DE UN USEEFFECT, por ejemplo cuando se agrega o elimina un producto
 &nbsp;
-  const calcularSubtotal = () =&gt; {
-    return carrito.reduce((total, item) =&gt; total + (item.precio * item.cantidad), 0);
+  const calcularSubtotal = () =&gt; { //
+    return carrito.reduce((total, item) =&gt; total + (item.precio * item.cantidad), 0); // Calcula el subtotal sumando el precio por cantidad de cada item
   };
 &nbsp;
   const calcularTotal = () =&gt; {
     return calcularSubtotal();
   };
-&nbsp;
+  // Funciones para aumentar, disminuir y eliminar productos del carrito
   const aumentarCantidad = <span class="fstat-no" title="function not covered" >(itemId) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setCarrito(carrito.map(item =&gt;</span>
-<span class="cstat-no" title="statement not covered" >      item.id === itemId</span>
-<span class="cstat-no" title="statement not covered" >        ? { ...item, cantidad: item.cantidad + 1 }</span>
-<span class="cstat-no" title="statement not covered" >        : item</span>
+<span class="cstat-no" title="statement not covered" >      item.id === itemId </span>
+<span class="cstat-no" title="statement not covered" >        ? { ...item, cantidad: item.cantidad + 1 }// Aumenta la cantidad del item en 1, se activa cuando el usuario hace click en el botón +</span>
+<span class="cstat-no" title="statement not covered" >        : item// Mantiene el item sin cambios si no coincide el ID</span>
 <span class="cstat-no" title="statement not covered" >    ));</span>
 <span class="cstat-no" title="statement not covered" >  };</span>
-&nbsp;
+// Disminuye la cantidad del producto en 1, pero no permite que sea menor a 1, porque o si no tendría sentido tener 0 productos en el carrito
   const disminuirCantidad = <span class="fstat-no" title="function not covered" >(itemId) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    setCarrito(carrito.map(item =&gt;</span>
-<span class="cstat-no" title="statement not covered" >      item.id === itemId &amp;&amp; item.cantidad &gt; 1</span>
-<span class="cstat-no" title="statement not covered" >        ? { ...item, cantidad: item.cantidad - 1 }</span>
-<span class="cstat-no" title="statement not covered" >        : item</span>
+<span class="cstat-no" title="statement not covered" >    setCarrito(carrito.map(item =&gt; // Recorre los items del carrito y actualiza la cantidad del item con el id que coincide</span>
+<span class="cstat-no" title="statement not covered" >      item.id === itemId &amp;&amp; item.cantidad &gt; 1 //solo va a disminuir si la cantidad es mayor a 1</span>
+<span class="cstat-no" title="statement not covered" >        ? { ...item, cantidad: item.cantidad - 1 } // Disminuye la cantidad del item en 1, se activa cuando el usuario hace click en el botón -</span>
+<span class="cstat-no" title="statement not covered" >        : item // Mantiene el item sin cambios si no coincide el ID o si la cantidad es 1</span>
 <span class="cstat-no" title="statement not covered" >    ));</span>
 <span class="cstat-no" title="statement not covered" >  };</span>
-&nbsp;
+  // Elimina un producto del carrito después de que el usuario agrego productos
+  //  y confirma que quiere eliminarlo
   const eliminarProducto = <span class="fstat-no" title="function not covered" >(itemId) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (confirm('¿Estás seguro de eliminar este producto?')) {</span>
 <span class="cstat-no" title="statement not covered" >      setCarrito(carrito.filter(item =&gt; item.id !== itemId));</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" >  };</span>
-&nbsp;
+  // Vacía todo el carrito Se le pregunta 
+  // al usuario si está seguro antes de vaciarlo
+  // y luego hace un removeItem en el localStorage
   const vaciarCarrito = <span class="fstat-no" title="function not covered" >() =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (confirm('¿Estás seguro de vaciar todo el carrito?')) {</span>
 <span class="cstat-no" title="statement not covered" >      setCarrito([]);</span>
 <span class="cstat-no" title="statement not covered" >      localStorage.removeItem('carrito');</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" >  };</span>
-&nbsp;
+  // Procede al pago redirigiendo
+  //  a la página de checkout
   const procederAlPago = <span class="fstat-no" title="function not covered" >() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (carrito.length === 0) {</span>
+<span class="cstat-no" title="statement not covered" >    if (carrito.length === 0) { //primero verifica si el carrito está vacío</span>
 <span class="cstat-no" title="statement not covered" >      alert('El carrito está vacío');</span>
-<span class="cstat-no" title="statement not covered" >      return;</span>
+<span class="cstat-no" title="statement not covered" >      return;// si está vacío, muestra una alerta y no hace nada más</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
-<span class="cstat-no" title="statement not covered" >    navigate('/checkout');</span>
+<span class="cstat-no" title="statement not covered" >    navigate('/checkout'); // Si el carrito tiene productos, te lleva a la página de checkout</span>
 <span class="cstat-no" title="statement not covered" >  };</span>
-&nbsp;
+ // Renderiza la página del carrito de compras
   return (
     &lt;div className="pagina-completa"&gt;
       &lt;HeaderComp /&gt;
@@ -615,8 +621,8 @@ function CarroPag() {
                   &lt;/button&gt;
                 &lt;/div&gt;
 &nbsp;
-                {carrito.map((item) =&gt; (
-                  &lt;div key={item.id} className="carrito-item"&gt;
+                {carrito.map((item) =&gt; ( // Recorre los productos en el carrito y los muestra
+                  &lt;div key={item.id} className="carrito-item"&gt; 
                     
                     &lt;div 
                       className="carrito-item-imagen"
@@ -632,9 +638,9 @@ function CarroPag() {
                     &lt;/div&gt;
 &nbsp;
                     &lt;div className="carrito-item-precio"&gt;
-                      &lt;span className="precio-label"&gt;Precio&lt;/span&gt;
+                      &lt;span className="precio-label"&gt;Precio&lt;/span&gt; 
                       &lt;span className="precio-valor"&gt;
-                        ${item.precio.toLocaleString('es-CL')}
+                        ${item.precio.toLocaleString('es-CL')} 
                       &lt;/span&gt;
                     &lt;/div&gt;
 &nbsp;
@@ -642,18 +648,18 @@ function CarroPag() {
                       &lt;span className="cantidad-label"&gt;Cantidad&lt;/span&gt;
                       &lt;div className="cantidad-controles"&gt;
                         &lt;button 
-                          className="btn-cantidad"
-                          onClick={<span class="fstat-no" title="function not covered" >() =&gt; disminuirCantidad(item.id)}</span>
-                          disabled={item.cantidad &lt;= 1}
+                          className="btn-cantidad" // Botón para disminuir la cantidad, botstraps icono de dash
+                          onClick={<span class="fstat-no" title="function not covered" >() =&gt; disminuirCantidad(item.id)} // llama a la función disminuirCantidad con el id del item</span>
+                          disabled={item.cantidad &lt;=1} //desactiva el botón si la cantidad es 1 o menos
                         &gt;
-                          &lt;i className="bi bi-dash"&gt;&lt;/i&gt;
+                          &lt;i className="bi bi-dash"&gt;&lt;/i&gt; 
                         &lt;/button&gt;
                         &lt;span className="cantidad-numero"&gt;{item.cantidad}&lt;/span&gt;
                         &lt;button 
                           className="btn-cantidad"
                           onClick={<span class="fstat-no" title="function not covered" >() =&gt; aumentarCantidad(item.id)}</span>
                         &gt;
-                          &lt;i className="bi bi-plus"&gt;&lt;/i&gt;
+                          &lt;i className="bi bi-plus-lg"&gt;&lt;/i&gt; 
                         &lt;/button&gt;
                       &lt;/div&gt;
                     &lt;/div&gt;
@@ -708,10 +714,11 @@ function CarroPag() {
                   &lt;/button&gt;
 &nbsp;
                   &lt;button 
-                    className="btn-seguir-comprando"
+                    className="btn-seguir-comprando" 
                     onClick={<span class="fstat-no" title="function not covered" >() =&gt; navigate('/catalogo')}</span>
                   &gt;
-                    &lt;i className="bi bi-arrow-left"&gt;&lt;/i&gt; Seguir Comprando
+                    &lt;i className="bi bi-arrow-left"&gt;&lt;/i&gt; 
+                    Seguir Comprando
                   &lt;/button&gt;
                 &lt;/div&gt;
               &lt;/div&gt;
@@ -725,15 +732,14 @@ function CarroPag() {
   );
 }
 &nbsp;
-export default CarroPag;
-&nbsp;</pre></td></tr></table></pre>
+export default CarroPag;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-23T02:29:35.325Z
+                at 2025-10-23T21:30:32.076Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

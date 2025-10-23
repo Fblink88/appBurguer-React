@@ -190,7 +190,7 @@ body {
   height: 50px;
   border-radius: 50%;
   background-color: var(--color-fondo-secundario);
-  color: #ffffff;
+  color: white;
   border: none;
   display: flex;
   align-items: center;

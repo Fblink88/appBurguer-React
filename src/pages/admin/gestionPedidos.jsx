@@ -1,22 +1,29 @@
+// src/pages/admin/GestionPedidos.jsx
+
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
-import { listarProductos, agregarPedido, eliminarPedido } from '../../data/metodosProducto';
+// Asegúrate de que listarClientes esté importado y funcione correctamente en metodosProducto.js
+import { listarProductos, agregarPedido, eliminarPedido, listarPedidos, listarClientes } from '../../data/metodosProducto';
 import '../../styles/gestionPedidos.css';
 
 function GestionPedidos() {
   // Estados para el formulario
-  const [nombre, setNombre] = useState('');
+  const [nombreClienteSeleccionado, setNombreClienteSeleccionado] = useState(''); // Estado para el cliente seleccionado
   const [productoId, setProductoId] = useState('');
-  const [pedidos, setPedidos] = useState([]);
+  // Inicializa pedidos llamando a listarPedidos (que lee localStorage)
+  const [pedidos, setPedidos] = useState(() => listarPedidos());
   const [productos, setProductos] = useState([]);
+  // Inicializa clientes como array vacío, se llenará en useEffect
+  const [clientes, setClientes] = useState([]);
 
-  // Cargar productos y pedidos al montar el componente
+  // Cargar productos Y clientes al montar el componente
   useEffect(() => {
     const productosData = listarProductos();
-    
+    // Llama a listarClientes, que AHORA devuelve la lista combinada
+    const clientesData = listarClientes();
     setProductos(productosData);
-    
-  }, []);
+    setClientes(clientesData); // Guarda la lista combinada en el estado
+  }, []); // El array vacío asegura que esto solo se ejecute una vez al montar
 
   const handleAdminLogout = () => {
     console.log("Cerrando sesión del administrador...");
@@ -25,40 +32,38 @@ function GestionPedidos() {
   // Función para manejar el envío del formulario
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (nombre && productoId) {
-      // Buscar el producto seleccionado para obtener sus datos
+
+    if (nombreClienteSeleccionado && productoId) {
       const productoSeleccionado = productos.find(p => p.id === parseInt(productoId));
-      
+
       if (productoSeleccionado) {
         const nuevoPedido = {
-          nombre: nombre,
+          nombre: nombreClienteSeleccionado, // Usa el nombre del cliente seleccionado
           producto: productoSeleccionado.nombre_producto,
           monto: productoSeleccionado.precio_producto
         };
-        
-        // Agregar pedido a la base de datos
-        const pedidoCreado = agregarPedido(nuevoPedido);
-        
-        // Actualizar estado local
-        setPedidos([...pedidos, pedidoCreado]);
-        
+
+        const pedidoCreado = agregarPedido(nuevoPedido); // Guarda en localStorage a través de la función
+        setPedidos(prevPedidos => [...prevPedidos, pedidoCreado]); // Actualiza estado local
+
         // Limpiar formulario
-        setNombre('');
+        setNombreClienteSeleccionado('');
         setProductoId('');
+      } else {
+         console.error("Producto seleccionado no encontrado");
       }
+    } else {
+       alert("Por favor, seleccione un cliente y un producto.");
     }
   };
 
   // Función para eliminar pedido
   const handleEliminarPedido = (id) => {
-    // Eliminar de la base de datos
-    eliminarPedido(id);
-    
-    // Actualizar estado local
-    setPedidos(pedidos.filter(p => p.id !== id));
+    eliminarPedido(id); // Elimina de localStorage a través de la función
+    setPedidos(prevPedidos => prevPedidos.filter(p => p.id !== id)); // Actualiza estado local
   };
 
+  // --- Renderizado del Componente ---
   return (
     <div className="admin-layout-pedidos">
       <Sidebar onLogoutAdmin={handleAdminLogout} />
@@ -67,15 +72,24 @@ function GestionPedidos() {
         <h1>Gestión de Pedidos</h1>
 
         <form id="formPedido" className="formPedidos" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            id="nombre"
-            placeholder="Nombre Cliente"
-            required
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-          />
 
+          {/* Select para Clientes */}
+          <select
+            id="cliente"
+            required
+            value={nombreClienteSeleccionado}
+            onChange={(e) => setNombreClienteSeleccionado(e.target.value)}
+          >
+            <option value="">Seleccione Cliente</option>
+            {/* Mapea sobre la lista de clientes (que ya viene combinada) */}
+            {clientes.map((cliente, index) => (
+              <option key={cliente.correo || index} value={cliente.nombre}>
+                {cliente.nombre} ({cliente.correo})
+              </option>
+            ))}
+          </select>
+
+          {/* Select para Productos */}
           <select
             id="producto"
             required
@@ -95,6 +109,7 @@ function GestionPedidos() {
           </button>
         </form>
 
+        {/* Tabla de Pedidos */}
         <table id="tablaPedidos">
           <thead>
             <tr>
@@ -124,6 +139,12 @@ function GestionPedidos() {
                 </td>
               </tr>
             ))}
+            {/* Mensaje si no hay pedidos */}
+            {pedidos.length === 0 && (
+                <tr>
+                    <td colSpan="6" className="text-center text-muted">No hay pedidos registrados.</td>
+                </tr>
+            )}
           </tbody>
         </table>
       </div>
