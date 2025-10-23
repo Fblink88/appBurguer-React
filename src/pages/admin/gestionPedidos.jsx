@@ -1,15 +1,65 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
+import { listarProductos, agregarPedido, eliminarPedido } from '../../data/metodosProducto';
 import '../../styles/gestionPedidos.css';
 
+function GestionPedidos() {
+  // Estados para el formulario
+  const [nombre, setNombre] = useState('');
+  const [productoId, setProductoId] = useState('');
+  const [pedidos, setPedidos] = useState([]);
+  const [productos, setProductos] = useState([]);
 
-function gestionPedidos() {
+  // Cargar productos y pedidos al montar el componente
+  useEffect(() => {
+    const productosData = listarProductos();
+    
+    setProductos(productosData);
+    
+  }, []);
+
   const handleAdminLogout = () => {
     console.log("Cerrando sesión del administrador...");
   };
 
-  return (
+  // Función para manejar el envío del formulario
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (nombre && productoId) {
+      // Buscar el producto seleccionado para obtener sus datos
+      const productoSeleccionado = productos.find(p => p.id === parseInt(productoId));
+      
+      if (productoSeleccionado) {
+        const nuevoPedido = {
+          nombre: nombre,
+          producto: productoSeleccionado.nombre_producto,
+          monto: productoSeleccionado.precio_producto
+        };
+        
+        // Agregar pedido a la base de datos
+        const pedidoCreado = agregarPedido(nuevoPedido);
+        
+        // Actualizar estado local
+        setPedidos([...pedidos, pedidoCreado]);
+        
+        // Limpiar formulario
+        setNombre('');
+        setProductoId('');
+      }
+    }
+  };
 
+  // Función para eliminar pedido
+  const handleEliminarPedido = (id) => {
+    // Eliminar de la base de datos
+    eliminarPedido(id);
+    
+    // Actualizar estado local
+    setPedidos(pedidos.filter(p => p.id !== id));
+  };
+
+  return (
     <div className="admin-layout-pedidos">
       <Sidebar onLogoutAdmin={handleAdminLogout} />
 
@@ -29,13 +79,15 @@ function gestionPedidos() {
           <select
             id="producto"
             required
-            value={producto}
-            onChange={(e) => setProducto(e.target.value)}
+            value={productoId}
+            onChange={(e) => setProductoId(e.target.value)}
           >
             <option value="">Seleccione Producto</option>
-            <option value="Hamburguesa">Hamburguesa</option>
-            <option value="Papas Fritas">Papas Fritas</option>
-            <option value="Bebida">Bebida</option>
+            {productos.map((producto) => (
+              <option key={producto.id} value={producto.id}>
+                {producto.nombre_producto} - ${producto.precio_producto.toLocaleString()}
+              </option>
+            ))}
           </select>
 
           <button type="submit" className="btn-agregar">
@@ -65,9 +117,7 @@ function gestionPedidos() {
                 <td>
                   <button
                     className="btn-eliminar"
-                    onClick={() =>
-                      setPedidos(pedidos.filter((p) => p.id !== pedido.id))
-                    }
+                    onClick={() => handleEliminarPedido(pedido.id)}
                   >
                     Eliminar
                   </button>
@@ -79,6 +129,6 @@ function gestionPedidos() {
       </div>
     </div>
   );
-};
+}
 
-export default gestionPedidos;
+export default GestionPedidos;

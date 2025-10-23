@@ -1,26 +1,39 @@
+// ==========================================
+// Componente: Dashboard.jsx
+// Descripción: Panel principal del administrador.
+// Muestra métricas (KPIs) y gráficos de desempeño,
+// incluyendo ventas mensuales, progreso de objetivos
+// y ventas por categoría.
+// ==========================================
+
 import React, { useEffect, useRef } from "react";
 import Sidebar from "../../components/Sidebar";
 import Chart from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
 export default function Dashboard() {
+  // --- Referencias a los elementos <canvas> de los gráficos ---
   const ventasRef = useRef(null);
   const progresoRef = useRef(null);
   const categoriasRef = useRef(null);
 
+  // --- useEffect: se ejecuta una vez al montar el componente ---
   useEffect(() => {
+    // Se registra el plugin de etiquetas en Chart.js
     Chart.register(ChartDataLabels);
 
-    // === Gráfico de barras - Ventas por mes ===
+    // ============================================================
+    // === Gráfico de barras: Ventas por mes ===
+    // ============================================================
     const ventasChart = new Chart(ventasRef.current, {
-      type: "bar",
+      type: "bar",// Tipo de gráfico
       data: {
-        labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],
+        labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],// Meses
         datasets: [
           {
             label: "Ventas ($)",
-            data: [12000, 15000, 18000, 10000, 22000, 25000],
-            backgroundColor: "#f39c12",
+            data: [12000, 15000, 18000, 10000, 22000, 25000],// Datos de ejemplo
+            backgroundColor: "#f39c12",// Color de las barras
           },
         ],
       },
@@ -29,12 +42,12 @@ export default function Dashboard() {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            labels: { color: "#fff", font: { weight: "bold" } },
+            labels: { color: "#fff", font: { weight: "bold" } },// Colores de leyenda
           },
           datalabels: {
             color: "#fff",
             anchor: "end",
-            align: "top",
+            align: "top",// Muestra etiquetas sobre las barras
           },
           title: {
             display: true,
@@ -43,6 +56,7 @@ export default function Dashboard() {
             font: { size: 16, weight: "bold" },
           },
         },
+        // Estilos de ejes X y Y
         scales: {
           x: {
             ticks: { color: "#fff" },
@@ -56,15 +70,17 @@ export default function Dashboard() {
       },
     });
 
-    // === Gráfico doughnut - Progreso de objetivos ===
+    // ============================================================
+    // === Gráfico doughnut: Progreso de objetivos ===
+    // ============================================================
     const progresoChart = new Chart(progresoRef.current, {
       type: "doughnut",
       data: {
         labels: ["Completado", "Pendiente"],
         datasets: [
           {
-            data: [75, 25],
-            backgroundColor: ["#27ae60", "#c0392b"],
+            data: [75, 25],// Porcentaje de progreso
+            backgroundColor: ["#27ae60", "#c0392b"],// Colores
             borderColor: "#fff",
           },
         ],
@@ -74,7 +90,7 @@ export default function Dashboard() {
           legend: { labels: { color: "#fff" } },
           datalabels: {
             color: "#fff",
-            formatter: (value) => value + "%",
+            formatter: (value) => value + "%",// Muestra porcentaje en el gráfico
           },
           title: {
             display: true,
@@ -86,14 +102,16 @@ export default function Dashboard() {
       },
     });
 
-    // === Gráfico pie - Ventas por categoría ===
+    // ============================================================
+    // === Gráfico pie: Ventas por categoría ===
+    // ============================================================
     const categoriasChart = new Chart(categoriasRef.current, {
       type: "pie",
       data: {
-        labels: ["Hamburguesas", "Acompañamientos", "Bebestibles"],
+        labels: ["Hamburguesas", "Acompañamientos", "Bebestibles"],// Categorías del menú
         datasets: [
           {
-            data: [40, 35, 25],
+            data: [40, 35, 25],// Porcentaje por categoría
             backgroundColor: ["#2980b9", "#f1c40f", "#8e44ad"],
             borderColor: "#fff",
           },
@@ -104,6 +122,7 @@ export default function Dashboard() {
           legend: { labels: { color: "#fff" } },
           datalabels: {
             color: "#fff",
+            // Calcula y muestra el porcentaje relativo a cada categoría
             formatter: (value, ctx) => {
               const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
               return ((value / total) * 100).toFixed(1) + "%";
@@ -119,16 +138,17 @@ export default function Dashboard() {
       },
     });
 
+    // --- Limpieza: destruye los gráficos al desmontar el componente ---
     return () => {
       ventasChart.destroy();
       progresoChart.destroy();
       categoriasChart.destroy();
     };
-  }, []);
+  }, []);// [] → se ejecuta solo una vez (al montar el componente)
 
   return (
     <div className="d-flex dashboard-container">
-      <Sidebar adminName="Administrador" onLogoutAdmin={() => alert("Cerrando sesión")} />
+      <Sidebar adminName="Administrador" onLogoutAdmin={() => console.log("Cerrando sesión")} />
       <main className="flex-fill p-4">
         <h1 className="mb-4 fw-bold">Bienvenido, Administrador</h1>
 

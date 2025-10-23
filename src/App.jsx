@@ -6,8 +6,9 @@ import ContactoPag from './pages/client/ContactoPag';
 import Login from './pages/client/Login';
 
 import Dashboard from './pages/admin/dashboard';
-import GestionPedidos from './pages/admin/gestionPedidos';
+
 import GestionProductos from './pages/admin/gestionProductos';
+import GestionPedidos from './pages/admin/gestionPedidos';
 import GestionUsuarios from './pages/admin/gestionUsuarios';
 import NuevoUsuario from './pages/admin/nuevoUsuario';
 
