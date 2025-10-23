@@ -35,7 +35,12 @@ function ProductoCard({ producto }) {
     new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(price);
 
   const handleAddToCart = () => {
-    // Aquí irá la lógica para agregar al carrito
+    const nuevoItem = {
+      id: producto.id,
+      nombre: producto.nombre,
+      precio: producto.precio,
+      cantidad: 1
+    };
   };
 
   return (
@@ -65,7 +70,7 @@ function InicioPag() {
     (producto) =>
       producto.nombre === 'Golden' ||
       producto.nombre === 'Bacon BBQ' ||
-      producto.nombre === 'Triple Queso'
+      producto.nombre === 'Clásica'
   );
 
   return (
