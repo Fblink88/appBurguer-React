@@ -89,10 +89,7 @@ export default function GestionUsuarios() {
    // --- Renderizado del componente principal ---
   return (
     <div className="admin-layout">
-      <Sidebar
-        adminName="Administrador"
-        onLogoutAdmin={() => alert("Cerrando sesión")}
-      />
+      <Sidebar adminName="Administrador" onLogoutAdmin={() => console.log("Cerrando sesión")} />
 
       <main className="admin-content">
         <h1 className="mb-4">Gestión de Usuarios y Clientes</h1>

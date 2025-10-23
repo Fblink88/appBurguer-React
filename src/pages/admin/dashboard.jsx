@@ -148,7 +148,7 @@ export default function Dashboard() {
 
   return (
     <div className="d-flex dashboard-container">
-      <Sidebar adminName="Administrador" onLogoutAdmin={() => alert("Cerrando sesión")} />
+      <Sidebar adminName="Administrador" onLogoutAdmin={() => console.log("Cerrando sesión")} />
       <main className="flex-fill p-4">
         <h1 className="mb-4 fw-bold">Bienvenido, Administrador</h1>
 
