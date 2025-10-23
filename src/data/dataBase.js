@@ -206,6 +206,7 @@ export const usuarios = [
     email: "pedro@test.com",
     rol: "Cocinero",
   },
+  
 ];
 
 export const clientes = [

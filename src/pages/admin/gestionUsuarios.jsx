@@ -1,92 +1,119 @@
-// ==========================================
-// Componente: GestionUsuarios.jsx
-// Descripción: Módulo de administración que
-// permite gestionar usuarios (trabajadores)
-// y clientes dentro del sistema.
-// Incluye CRUD básico usando localStorage.
-// ==========================================
 
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react"; 
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import { usuarios as baseUsuarios, clientes as baseClientes } from "../../data/dataBase";
 
 // --- Funciones de almacenamiento local ---
-// Lee datos del localStorage y los convierte desde JSON.
-// Si no hay datos, retorna un arreglo vacío.
-const readData = (key) => JSON.parse(localStorage.getItem(key)) || [];
+const readData = (key) => {
+  try {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error(`Error al leer ${key} desde localStorage:`, error);
+    return [];
+  }
+};
 
-// Guarda datos en localStorage en formato JSON.
-const saveData = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+const saveData = (key, data) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.error(`Error al guardar ${key} en localStorage:`, error);
+  }
+};
 
+// --- Función para combinar datos de localStorage y base ---
+function mergeAndInitializeData(key, baseData, uniqueIdKey) {
+  let storedData = readData(key);
+  let needsUpdate = false;
+
+  if (!storedData || storedData.length === 0) {
+    storedData = baseData;
+    needsUpdate = true;
+  } else {
+    const storedIds = new Set(storedData.map(item => item[uniqueIdKey]));
+    baseData.forEach(baseItem => {
+      if (!storedIds.has(baseItem[uniqueIdKey])) {
+        storedData.push(baseItem);
+        needsUpdate = true;
+      }
+    });
+  }
+
+  if (needsUpdate) {
+    saveData(key, storedData);
+  }
+  
+  return storedData;
+}
+
+
+// --- Componente Principal ---
 export default function GestionUsuarios() {
   const navigate = useNavigate();
 
-  // --- useEffect para inicializar datos base ---
-  // Si no existen usuarios o clientes en localStorage, se cargan los de la base inicial.
-  useEffect(() => {
-    if (!localStorage.getItem("usuarios")) {
-      localStorage.setItem("usuarios", JSON.stringify(baseUsuarios));
-    }
-    if (!localStorage.getItem("clientes")) {
-      localStorage.setItem("clientes", JSON.stringify(baseClientes));
-    }
-  }, []);
-
   // --- Estados del componente ---
-  // Almacenan los datos de usuarios y clientes obtenidos del localStorage.
-  const [usuarios, setUsuarios] = useState(readData("usuarios"));
-  const [clientes, setClientes] = useState(readData("clientes"));
-  const [filtroRol, setFiltroRol] = useState("Todos");
+  const [usuarios, setUsuarios] = useState(() => mergeAndInitializeData("usuarios", baseUsuarios, "run"));
+  const [clientes, setClientes] = useState(() => mergeAndInitializeData("clientes", baseClientes, "correo"));
+  const [filtroRol, setFiltroRol] = useState("Todos"); // setFiltroRol SÍ se usa en el onChange del select
 
-  // --- Sincroniza los datos cuando el componente se monta ---
-  useEffect(() => {
-    setUsuarios(readData("usuarios"));
-    setClientes(readData("clientes"));
-  }, []);
-
-  // --- Filtro de trabajadores según el rol seleccionado ---
+  // --- Filtro de trabajadores ---
   const usuariosFiltrados =
     filtroRol === "Todos"
       ? usuarios
       : usuarios.filter((u) => u.rol === filtroRol);
 
-  // --- Función genérica para eliminar registros ---
-  const handleEliminar = (key, index) => {
+  // --- Función para eliminar registros usando ID ÚNICO ---
+  const handleEliminar = (key, idAEliminar, uniqueIdKey) => {
     if (window.confirm("¿Seguro que deseas eliminar este registro?")) {
-      const data = readData(key); // Obtiene datos del localStorage.
-      data.splice(index, 1);// Elimina el elemento según el índice.
-      saveData(key, data);// Guarda los datos actualizados.
-      // Actualiza el estado correspondiente (usuarios o clientes).
-      key === "usuarios" ? setUsuarios(data) : setClientes(data);
+      let data = readData(key);
+      const dataActualizada = data.filter(item => item[uniqueIdKey] !== idAEliminar);
+      
+      if (dataActualizada.length < data.length) {
+        saveData(key, dataActualizada);
+        key === "usuarios" ? setUsuarios(dataActualizada) : setClientes(dataActualizada);
+      } else {
+        console.warn(`No se encontró el registro con ${uniqueIdKey}=${idAEliminar} para eliminar.`);
+      }
     }
   };
 
-  // --- Navega a la página de edición de usuario ---
-  const handleEditarUsuario = (index) => {
-    navigate(`/admin/nuevo-usuario?edit=${index}`);
+  // --- Navega a la página de edición de usuario usando el RUN ---
+  const handleEditarUsuario = (run) => {
+    const index = usuarios.findIndex(u => u.run === run);
+    if (index !== -1) {
+       navigate(`/admin/nuevo-usuario?edit=${index}`);
+    } else {
+       console.error("No se encontró el usuario para editar con run:", run);
+    }
   };
 
   // --- Navega al formulario para crear un nuevo usuario ---
+  // handleNuevoUsuario SÍ se usa en el onClick del botón
   const handleNuevoUsuario = () => {
     navigate("/admin/nuevo-usuario");
   };
 
-  // --- Crea un nuevo cliente mediante prompts simples ---
+  // --- Crea un nuevo cliente ---
+  // handleNuevoCliente SÍ se usa en el onClick del botón
   const handleNuevoCliente = () => {
     const nombre = prompt("Ingrese nombre del cliente:");
     const correo = prompt("Ingrese correo del cliente:");
     
-    // Valida que los datos no estén vacíos.
     if (!nombre || !correo) return alert("Datos incompletos.");
     
-    // Agrega el nuevo cliente al arreglo existente.
+    if (clientes.some(c => c.correo === correo)) {
+       return alert("Ya existe un cliente con ese correo.");
+    }
+
     const nuevosClientes = [...clientes, { nombre, correo }];
     saveData("clientes", nuevosClientes);
     setClientes(nuevosClientes);
   };
 
-   // --- Renderizado del componente principal ---
+   // --- Renderizado ---
   return (
     <div className="admin-layout">
       <Sidebar adminName="Administrador" onLogoutAdmin={() => console.log("Cerrando sesión")} />
@@ -100,7 +127,7 @@ export default function GestionUsuarios() {
             <h2>Trabajadores</h2>
             <button
               className="btn btn-warning fw-semibold"
-              onClick={handleNuevoUsuario}
+              onClick={handleNuevoUsuario} // Uso de handleNuevoUsuario
             >
               <i className="bi bi-person-plus-fill me-2"></i>Nuevo Trabajador
             </button>
@@ -115,13 +142,13 @@ export default function GestionUsuarios() {
               id="filtroRol"
               className="form-select d-inline-block w-auto"
               value={filtroRol}
-              onChange={(e) => setFiltroRol(e.target.value)}
+              onChange={(e) => setFiltroRol(e.target.value)} // Uso de setFiltroRol
             >
               <option value="Todos">Todos</option>
               <option value="Admin">Admin</option>
               <option value="Cajero">Cajero</option>
               <option value="Cocinero">Cocinero</option>
-              <option value="Despacho">Despacho</option>
+              <option value="Despacho">Despacho</option> {/* Asegúrate que este rol exista en tus datos */}
             </select>
           </div>
 
@@ -140,8 +167,8 @@ export default function GestionUsuarios() {
               </thead>
               <tbody>
                 {usuariosFiltrados.length > 0 ? (
-                  usuariosFiltrados.map((u, index) => (
-                    <tr key={index}>
+                  usuariosFiltrados.map((u) => ( 
+                    <tr key={u.run}> {/* Usar RUN como key */}
                       <td>{u.run}</td>
                       <td>{u.nombre}</td>
                       <td>{u.apellidos}</td>
@@ -150,13 +177,13 @@ export default function GestionUsuarios() {
                       <td className="text-center">
                         <button
                           className="btn btn-sm btn-outline-light me-2"
-                          onClick={() => handleEditarUsuario(index)}
+                          onClick={() => handleEditarUsuario(u.run)} // Pasar RUN
                         >
                           <i className="bi bi-pencil-square"></i>
                         </button>
                         <button
                           className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleEliminar("usuarios", index)}
+                          onClick={() => handleEliminar("usuarios", u.run, "run")} // Pasar RUN
                         >
                           <i className="bi bi-trash3"></i>
                         </button>
@@ -166,7 +193,7 @@ export default function GestionUsuarios() {
                 ) : (
                   <tr>
                     <td colSpan="6" className="text-center text-muted">
-                      No hay trabajadores registrados
+                      No hay trabajadores registrados {filtroRol !== "Todos" ? `con el rol ${filtroRol}` : ''}
                     </td>
                   </tr>
                 )}
@@ -181,7 +208,7 @@ export default function GestionUsuarios() {
             <h2>Clientes</h2>
             <button
               className="btn btn-success fw-semibold"
-              onClick={handleNuevoCliente}
+              onClick={handleNuevoCliente} // Uso de handleNuevoCliente
             >
               <i className="bi bi-person-plus-fill me-2"></i>Nuevo Cliente
             </button>
@@ -199,14 +226,14 @@ export default function GestionUsuarios() {
               </thead>
               <tbody>
                 {clientes.length > 0 ? (
-                  clientes.map((c, index) => (
-                    <tr key={index}>
+                  clientes.map((c) => (
+                    <tr key={c.correo}> {/* Usar CORREO como key */}
                       <td>{c.nombre}</td>
                       <td>{c.correo}</td>
                       <td className="text-center">
                         <button
                           className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleEliminar("clientes", index)}
+                          onClick={() => handleEliminar("clientes", c.correo, "correo")} // Pasar CORREO
                         >
                           <i className="bi bi-trash3"></i>
                         </button>

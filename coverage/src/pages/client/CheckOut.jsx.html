@@ -431,7 +431,11 @@
 <a name='L366'></a><a href='#L366'>366</a>
 <a name='L367'></a><a href='#L367'>367</a>
 <a name='L368'></a><a href='#L368'>368</a>
-<a name='L369'></a><a href='#L369'>369</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L369'></a><a href='#L369'>369</a>
+<a name='L370'></a><a href='#L370'>370</a>
+<a name='L371'></a><a href='#L371'>371</a>
+<a name='L372'></a><a href='#L372'>372</a>
+<a name='L373'></a><a href='#L373'>373</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -439,6 +443,7 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
@@ -446,7 +451,9 @@
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
@@ -557,6 +564,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -801,20 +809,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">// src/pages/client/CheckoutPag.jsx
 &nbsp;
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'; //se usa useState para manejar el estado del formulario y useEffect para cargar el carrito desde el localStorage cuando el componente se arma
+import { useNavigate } from 'react-router-dom'; //Se usa para la navegación programática entre páginas
 import HeaderComp from '../../components/HeaderComp';
 import FooterComp from '../../components/FooterComp';
 import '../../styles/checkout.css';
 &nbsp;
-function CheckoutPag() {
-  const navigate = useNavigate();
-  const [carrito, setCarrito] = useState([]);
-  const [tipoPedido, setTipoPedido] = useState('delivery');
-  const [metodoPago, setMetodoPago] = useState('efectivo');
-  const [aceptaTerminos, setAceptaTerminos] = useState(false);
+&nbsp;
+function CheckoutPag() {// Componente principal de la página de checkout
+  const navigate = useNavigate(); // Hook para la navegación programática , el hook es parte de react-router-dom, permite redirigir al usuario a diferentes rutas dentro de la aplicación
+  const [carrito, setCarrito] = useState([]); // si no se pone el useState el carrito sería constante y no se podría modificar
+  const [tipoPedido, setTipoPedido] = useState('delivery'); // Estado para el tipo de pedido (delivery o retiro), es necesario para manejar la lógica del formulario
+  const [metodoPago, setMetodoPago] = useState('efectivo'); // Estado para el método de pago (efectivo, webpay, mercadopago).
+  const [aceptaTerminos, setAceptaTerminos] = useState(false); // Estado para el checkbox de aceptación de términos y condiciones.
+  //en todos los estados es false al inicio porque no hay nada seleccionado y true cuando el usuario selecciona alguna opción
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({ // Estado para los datos del formulario de checkout 
+  // y se inicializa con campos vacíos, se usa para almacenar la información que el usuario ingresa en el formulario
     nombre: '',
     apellido: '',
     telefono: '',
@@ -824,40 +835,40 @@ function CheckoutPag() {
     codigoPostal: ''
   });
 &nbsp;
-  useEffect(() =&gt; {
-    const carritoGuardado = localStorage.getItem('carrito');
-    if (carritoGuardado) {
-      const carritoParseado = JSON.parse(carritoGuardado);
-      if (carritoParseado.length === 0) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
-<span class="cstat-no" title="statement not covered" >        navigate('/catalogo');</span>
+  useEffect(() =&gt; { // Hook que se ejecuta cuando se carga la página o se refresca
+    const carritoGuardado = localStorage.getItem('carrito');//si se ejecuta, obtiene el carrito guardado en el localStorage del navegador
+    if (carritoGuardado) { //si hay un carrito guardado
+      const carritoParseado = JSON.parse(carritoGuardado); // Parse convierte el string JSON en un objeto JavaScript, se guarda en la constante carritoParseado
+      if (carritoParseado.length === 0) <span class="branch-0 cbranch-no" title="branch not covered" >{ //si el carrito está vacío</span>
+<span class="cstat-no" title="statement not covered" >        navigate('/catalogo');// redirige al usuario a la página del catálogo</span>
 <span class="cstat-no" title="statement not covered" >      }</span>
-      setCarrito(carritoParseado);
+      setCarrito(carritoParseado); //si el carrito no está vacío, actualiza el estado del carrito con los datos obtenidos del localStorage
 <span class="branch-0 cbranch-no" title="branch not covered" >    } else {</span>
-<span class="cstat-no" title="statement not covered" >      navigate('/catalogo');</span>
+<span class="cstat-no" title="statement not covered" >      navigate('/catalogo');// si no hay carrito guardado, redirige al usuario al catálogo</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
-  }, [navigate]);
+  }, [navigate]); // este efecto solo se ejecuta una vez al cargar la página y no depende de ningún otro estado. el componete se carga una sola vez cuando el usuario entra a la página de checkout
 &nbsp;
   const calcularSubtotal = () =&gt; {
     return carrito.reduce((total, item) =&gt; total + (item.precio * item.cantidad), 0);
   };
 &nbsp;
   const calcularDelivery = () =&gt; {
-    return tipoPedido === 'delivery' ? 2990 : 0;
+    return tipoPedido === 'delivery' ? 2990 : 0;// si el tipo de pedido es delivery, se cobra 2500, si es retiro en tienda, no se cobra nada
   };
 &nbsp;
   const calcularTotal = () =&gt; {
     return calcularSubtotal() + calcularDelivery();
   };
-&nbsp;
-  const handleInputChange = <span class="fstat-no" title="function not covered" >(e) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    const { name, value } = e.target;</span>
-<span class="cstat-no" title="statement not covered" >    setFormData({</span>
-<span class="cstat-no" title="statement not covered" >      ...formData,</span>
-<span class="cstat-no" title="statement not covered" >      [name]: value</span>
+  // Función para manejar los cambios en los campos del formulario
+  const handleInputChange = <span class="fstat-no" title="function not covered" >(e) =&gt; { // e es el evento que se genera al cambiar un campo del formulario</span>
+<span class="cstat-no" title="statement not covered" >    const { name, value } = e.target;// obtiene el nombre y valor del campo que se está modificando.</span>
+<span class="cstat-no" title="statement not covered" >    setFormData({// actualiza el estado del formulario con el nuevo valor</span>
+<span class="cstat-no" title="statement not covered" >      ...formData,//Se usa para mantener los valores actuales del formulario y solo actualizar el campo que ha cambiado</span>
+<span class="cstat-no" title="statement not covered" >      [name]: value// Se usa para actualizar dinámicamente el campo correspondiente en el estado del formulario</span>
 <span class="cstat-no" title="statement not covered" >    });</span>
 <span class="cstat-no" title="statement not covered" >  };</span>
 &nbsp;
-  const validarFormulario = <span class="fstat-no" title="function not covered" >() =&gt; {</span>
+  const validarFormulario = <span class="fstat-no" title="function not covered" >() =&gt; { // Función para validar los campos del formulario antes de confirmar el pedido</span>
 <span class="cstat-no" title="statement not covered" >    if (!formData.nombre.trim()) {</span>
 <span class="cstat-no" title="statement not covered" >      alert('Por favor ingresa tu nombre');</span>
 <span class="cstat-no" title="statement not covered" >      return false;</span>
@@ -875,15 +886,15 @@ function CheckoutPag() {
 <span class="cstat-no" title="statement not covered" >      return false;</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;</span>
+<span class="cstat-no" title="statement not covered" >    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;// Expresión regular básica para validar el formato del email</span>
 <span class="cstat-no" title="statement not covered" >    if (!emailRegex.test(formData.email)) {</span>
 <span class="cstat-no" title="statement not covered" >      alert('Por favor ingresa un email válido');</span>
 <span class="cstat-no" title="statement not covered" >      return false;</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if (tipoPedido === 'delivery') {</span>
-<span class="cstat-no" title="statement not covered" >      if (!formData.direccion.trim()) {</span>
-<span class="cstat-no" title="statement not covered" >        alert('Por favor ingresa tu dirección de entrega');</span>
+<span class="cstat-no" title="statement not covered" >    if (tipoPedido === 'delivery') {// Si el tipo de pedido es delivery, se validan los campos de dirección y ciudad</span>
+<span class="cstat-no" title="statement not covered" >      if (!formData.direccion.trim()) {//trim hace que se eliminen los espacios en blanco al inicio y al final del string, por ejemplo "  hola  " se convierte en "hola"</span>
+<span class="cstat-no" title="statement not covered" >        alert('Por favor ingresa tu dirección de entrega'); </span>
 <span class="cstat-no" title="statement not covered" >        return false;</span>
 <span class="cstat-no" title="statement not covered" >      }</span>
 <span class="cstat-no" title="statement not covered" >      if (!formData.ciudad.trim()) {</span>
@@ -899,44 +910,45 @@ function CheckoutPag() {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return true;</span>
 <span class="cstat-no" title="statement not covered" >  };</span>
-&nbsp;
-  const handleConfirmarPedido = <span class="fstat-no" title="function not covered" >(e) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    e.preventDefault();</span>
+//  para manejar la confirmación del pedido
+  const handleConfirmarPedido = <span class="fstat-no" title="function not covered" >(e) =&gt; { </span>
+<span class="cstat-no" title="statement not covered" >    e.preventDefault(); </span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    if (!validarFormulario()) {</span>
 <span class="cstat-no" title="statement not covered" >      return;</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    const pedido = {</span>
-<span class="cstat-no" title="statement not covered" >      id: Date.now(),</span>
-<span class="cstat-no" title="statement not covered" >      fecha: new Date().toISOString(),</span>
-<span class="cstat-no" title="statement not covered" >      cliente: formData,</span>
+<span class="cstat-no" title="statement not covered" >    const pedido = { // Crea un objeto con los detalles del pedido , se activa cuando el usuario confirma el pedido en el carrito y se muestra un mensaje de confirmación</span>
+<span class="cstat-no" title="statement not covered" >      id: Date.now(), // Usa la fecha y hora actual como ID único del pedido</span>
+<span class="cstat-no" title="statement not covered" >      fecha: new Date().toISOString(), // Fecha y hora del pedido en formato ISO que es estándar y fácil de manejar, palabra reservada de JavaScript</span>
+<span class="cstat-no" title="statement not covered" >      cliente: formData, // Información del cliente que viene del formulario</span>
 <span class="cstat-no" title="statement not covered" >      productos: carrito,</span>
 <span class="cstat-no" title="statement not covered" >      tipoPedido: tipoPedido,</span>
 <span class="cstat-no" title="statement not covered" >      metodoPago: metodoPago,</span>
-<span class="cstat-no" title="statement not covered" >      subtotal: calcularSubtotal(),</span>
+<span class="cstat-no" title="statement not covered" >      subtotal: calcularSubtotal(), </span>
 <span class="cstat-no" title="statement not covered" >      delivery: calcularDelivery(),</span>
 <span class="cstat-no" title="statement not covered" >      total: calcularTotal()</span>
 <span class="cstat-no" title="statement not covered" >    };</span>
+    // se genera un mensaje de confirmación con los detalles del pedido
+<span class="cstat-no" title="statement not covered" >    const pedidosGuardados = JSON.parse(localStorage.getItem('pedidos') || '[]');// Obtiene los pedidos guardados en el localStorage o un array vacío si no hay ninguno</span>
+<span class="cstat-no" title="statement not covered" >    pedidosGuardados.push(pedido);  //push agrega el nuevo pedido al array de pedidos guardados</span>
+<span class="cstat-no" title="statement not covered" >    localStorage.setItem('pedidos', JSON.stringify(pedidosGuardados));// Guarda el array actualizado de pedidos en el localStorage y convierte el array en un string JSON para almacenarlo correctamente</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    const pedidosGuardados = JSON.parse(localStorage.getItem('pedidos') || '[]');</span>
-<span class="cstat-no" title="statement not covered" >    pedidosGuardados.push(pedido);</span>
-<span class="cstat-no" title="statement not covered" >    localStorage.setItem('pedidos', JSON.stringify(pedidosGuardados));</span>
+<span class="cstat-no" title="statement not covered" >    localStorage.removeItem('carrito');// Limpia el carrito del localStorage ya que el pedido ha sido confirmado</span>
+<span class="cstat-no" title="statement not covered" >    window.dispatchEvent(new Event('storage'));// dispatchEvent se usa para notificar a otros componentes que el carrito ha cambiado, </span>
+    // esto es muy útil si hay otros componentes que dependen del estado del carrito,, por ejemplo el icono del carrito en el header si está vacío o no
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    localStorage.removeItem('carrito');</span>
-<span class="cstat-no" title="statement not covered" >    window.dispatchEvent(new Event('storage'));</span>
+<span class="cstat-no" title="statement not covered" >    alert(`¡Pedido confirmado!\n\nNúmero de pedido: ${pedido.id}\nTotal: $${pedido.total.toLocaleString('es-CL')}\n\nTe enviaremos un email de confirmación.`); //Se genera el mensaje solo si se confirma el pedido</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    alert(`¡Pedido confirmado!\n\nNúmero de pedido: ${pedido.id}\nTotal: $${pedido.total.toLocaleString('es-CL')}\n\nTe enviaremos un email de confirmación.`);</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >    navigate('/inicio');</span>
+<span class="cstat-no" title="statement not covered" >    navigate('/inicio'); // Redirige al usuario a la página de inicio después de confirmar el pedido</span>
 <span class="cstat-no" title="statement not covered" >  };</span>
-&nbsp;
+ // Estructura del componente JSX
   return (
     &lt;div className="pagina-completa"&gt;
       &lt;HeaderComp /&gt;
 &nbsp;
       &lt;main className="contenido-principal"&gt;
-        &lt;div className="container py-5"&gt;
+        &lt;div className="container py-5"&gt; 
           &lt;h1 className="checkout-titulo"&gt;Finalizar Compra&lt;/h1&gt;
 &nbsp;
           &lt;div className="checkout-grid"&gt;
@@ -1034,8 +1046,8 @@ function CheckoutPag() {
                         type="text"
                         name="direccion"
                         placeholder="Calle, número, comuna"
-                        value={formData.direccion}
-                        onChange={handleInputChange}
+                        value={formData.direccion} // valor del campo dirección, que viene del estado formData
+                        onChange={handleInputChange} // si el tipo de pedido es delivery, se muestran estos campos adicionales
                         required
                       /&gt;
                     &lt;/div&gt;
@@ -1046,9 +1058,9 @@ function CheckoutPag() {
                         &lt;input
                           type="text"
                           name="ciudad"
-                          value={formData.ciudad}
-                          onChange={handleInputChange}
-                          required
+                          value={formData.ciudad} // almacena el valor del campo ciudad
+                          onChange={handleInputChange} // maneja los cambios en el campo ciudad
+                          required // campo obligatorio
                         /&gt;
                       &lt;/div&gt;
 &nbsp;
@@ -1058,7 +1070,7 @@ function CheckoutPag() {
                           type="text"
                           name="codigoPostal"
                           value={formData.codigoPostal}
-                          onChange={handleInputChange}
+                          onChange={handleInputChange} 
                         /&gt;
                       &lt;/div&gt;
                     &lt;/div&gt;
@@ -1076,7 +1088,7 @@ function CheckoutPag() {
                         name="metodoPago"
                         value="efectivo"
                         checked={metodoPago === 'efectivo'}
-                        onChange={<span class="fstat-no" title="function not covered" >(e) =&gt; setMetodoPago(e.target.value)}</span>
+                        onChange={<span class="fstat-no" title="function not covered" >(e) =&gt; setMetodoPago(e.target.value)} </span>
                       /&gt;
                       &lt;div className="metodo-info"&gt;
                         &lt;i className="bi bi-cash"&gt;&lt;/i&gt;
@@ -1174,7 +1186,7 @@ export default CheckoutPag;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-23T04:20:44.765Z
+                at 2025-10-23T21:30:32.076Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
