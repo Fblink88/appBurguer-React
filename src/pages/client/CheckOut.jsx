@@ -40,11 +40,11 @@ function CheckoutPag() {// Componente principal de la página de checkout
   }, [navigate]); // este efecto solo se ejecuta una vez al cargar la página y no depende de ningún otro estado. el componete se carga una sola vez cuando el usuario entra a la página de checkout
 
   const calcularSubtotal = () => {
-    return carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0);
+    return carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0); 
   };
 
   const calcularDelivery = () => {
-    return tipoPedido === 'delivery' ? 2990 : 0;// si el tipo de pedido es delivery, se cobra 2500, si es retiro en tienda, no se cobra nada
+    return tipoPedido === 'delivery' ? 2500 : 0;// si el tipo de pedido es delivery, se cobra 2500, si es retiro en tienda, no se cobra nada
   };
 
   const calcularTotal = () => {
@@ -290,7 +290,7 @@ function CheckoutPag() {// Componente principal de la página de checkout
 
                     <label className={`metodo-pago ${metodoPago === 'webpay' ? 'active' : ''}`}>
                       <input
-                        type="radio"
+                        type="radio" 
                         name="metodoPago"
                         value="webpay"
                         checked={metodoPago === 'webpay'}

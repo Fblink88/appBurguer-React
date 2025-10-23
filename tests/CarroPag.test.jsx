@@ -1,20 +1,23 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { render, screen } from "@testing-library/react"; //se importa en el archivo setupTests.jsx
+import { describe, it, expect, beforeEach, vi } from "vitest"; // se usa vitest como framework de pruebas unitarias
 import CarroPag from "../src/pages/client/CarroPag";
 import { BrowserRouter } from "react-router-dom";
 
-// Mock de useNavigate
+//Se crea un mock para simular la navegacion
 const mockNavigate = vi.fn();
-vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual("react-router-dom");
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
+vi.mock("react-router-dom", async () => { //se usa un vi.mock para mockear el módulo react-router-dom
+  const actual = await vi.importActual("react-router-dom"); //Se importa la implementación real del módulo
+  return { //se retorna un objeto con todas las exportaciones reales y se sobreescribe useNavigate
+    ...actual, // actual contiene todas las exportaciones reales de react-router-dom
+    useNavigate: () => mockNavigate, //te lleva a la función mockNavigate cuando se llame useNavigate
   };
 });
 
 // Mock de un producto en el carrito
+// se crea un objeto que representa un producto
+//  en el carrito de compras, con sus atributos,
+//  igual que en carroPag.jsx
 const mockProducto = {
   id: "1-Simple",
   nombre: "Golden",
@@ -25,12 +28,12 @@ const mockProducto = {
   descripcion: "Hamburguesa Golden"
 };
 
-// Función auxiliar para renderizar el componente con Router
+// sirve para renderizar el componente CarroPag con un producto en el carrito
 const renderCarrito = () => {
   // Simular un producto en el carrito
   localStorage.setItem('carrito', JSON.stringify([mockProducto]));
-  render(
-    <BrowserRouter>
+  render( //se renderiza el componente CarroPag dentro de un BrowserRouter
+    <BrowserRouter> 
       <CarroPag />
     </BrowserRouter>
   );

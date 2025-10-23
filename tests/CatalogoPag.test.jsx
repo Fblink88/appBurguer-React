@@ -1,5 +1,5 @@
-import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import React from "react"; 
+import { render, screen, fireEvent } from "@testing-library/react";  //
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import CatalogoPag from "../src/pages/client/CatalogoPag";
 import { BrowserRouter } from "react-router-dom";
@@ -14,9 +14,9 @@ const renderCatalogo = () => {
 };
 
 describe("Componente Catálogo", () => {
-  beforeEach(() => {
-    // Mock de la función scrollIntoView
-    Element.prototype.scrollIntoView = vi.fn();
+  beforeEach(() => { // Antes de cada prueba, se debe mockear scrollIntoView,
+  //  para evitar errores en pruebas que involucran navegación por categorías
+    Element.prototype.scrollIntoView = vi.fn(); //
   });
 
   it("renderiza el título de categoría Combos", () => {
@@ -32,7 +32,7 @@ describe("Componente Catálogo", () => {
   });
 
   it("hace scroll a la categoría al hacer click en el botón de categoría", () => {
-    renderCatalogo();
+    renderCatalogo(); // Renderiza el componente CatalogoPag dentro de un BrowserRouter
     // Buscar el botón "Burgers"
     const botonCategoria = screen.getByRole('link', { name: /Burgers/i });
     expect(botonCategoria.getAttribute('href')).toBe('#burgers');

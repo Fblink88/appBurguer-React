@@ -43,7 +43,7 @@ describe("Componente CheckOut", () => {
     renderWithRouter(<CheckOut />);
     
     // Verificar que inicialmente muestra el precio de delivery
-    expect(screen.getByText("$2.990")).toBeInTheDocument();
+    expect(screen.getByText("$2.500")).toBeInTheDocument();
     
     // Hacer clic en la opción de "Retiro en tienda"
     const retiroRadio = screen.getByRole("radio", { name: /retiro en tienda/i });
