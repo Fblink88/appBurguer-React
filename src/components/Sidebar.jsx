@@ -33,11 +33,17 @@ export default function Sidebar({ adminName, onLogoutAdmin }) {
           <span className="nav-link-text-full">Dashboard</span>
           <span className="nav-link-text-short">Dashboard</span>
         </Nav.Link>
-        
-        <Nav.Link as={NavLink} to="/admin/gestion-usuarios">
-          <i className="bi bi-people me-2"></i>
-          <span className="nav-link-text-full">Gestión Usuarios</span>
-          <span className="nav-link-text-short">Usuarios</span>
+
+        <Nav.Link as={NavLink} to="/admin/gestion-clientes">
+          <i className="bi bi-person-check me-2"></i>
+          <span className="nav-link-text-full">Gestión Clientes</span>
+          <span className="nav-link-text-short">Clientes</span>
+        </Nav.Link>
+
+        <Nav.Link as={NavLink} to="/admin/gestion-trabajadores">
+          <i className="bi bi-person-badge me-2"></i>
+          <span className="nav-link-text-full">Gestión Trabajadores</span>
+          <span className="nav-link-text-short">Trabajadores</span>
         </Nav.Link>
         
         <Nav.Link as={NavLink} to="/admin/gestion-pedidos">
