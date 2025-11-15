@@ -97,7 +97,15 @@ export default function HeaderComp() {
             {usuario ? (
               // Usamos el componente <NavDropdown> para el menú de usuario. Es mucho más limpio.
               <NavDropdown title={`Hola, ${usuario.nombre}`} id="basic-nav-dropdown" menuVariant="dark">
-                <NavDropdown.Item onClick={handleLogout}>Cerrar sesión</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/mi-perfil">
+                  <i className="bi bi-person-circle me-2"></i>
+                  Mi Perfil
+                </NavDropdown.Item>
+                <NavDropdown.Divider />
+                <NavDropdown.Item onClick={handleLogout}>
+                  <i className="bi bi-box-arrow-right me-2"></i>
+                  Cerrar sesión
+                </NavDropdown.Item>
               </NavDropdown>
             ) : (
               // Usamos un componente <Button> para el login, que convertimos en un Link.

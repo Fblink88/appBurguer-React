@@ -4,6 +4,7 @@ import CatalogoPag from './pages/client/CatalogoPag';
 import NosotrosPag from './pages/client/NosotrosPag';
 import ContactoPag from './pages/client/ContactoPag';
 import Login from './pages/client/Login';
+import MiPerfilPag from './pages/client/MiPerfilPag';
 
 import Dashboard from './pages/admin/dashboard';
 
@@ -35,6 +36,7 @@ function App() {
         <Route path="/contacto" element={<ContactoPag />} />
         <Route path="/carrito" element={<CarroPag />} />
         <Route path="/checkout" element={<CheckOut />} />
+        <Route path="/mi-perfil" element={<MiPerfilPag />} />
           
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/gestion-pedidos" element={<GestionPedidos />} />
