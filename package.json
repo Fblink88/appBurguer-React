@@ -13,10 +13,12 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "axios": "^1.13.2",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "chart.js": "^4.5.1",
     "chartjs-plugin-datalabels": "^2.2.0",
+    "firebase": "^12.6.0",
     "react": "^19.1.1",
     "react-bootstrap": "^2.10.10",
     "react-chartjs-2": "^5.3.0",
