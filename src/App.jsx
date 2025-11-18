@@ -4,12 +4,14 @@ import CatalogoPag from './pages/client/CatalogoPag';
 import NosotrosPag from './pages/client/NosotrosPag';
 import ContactoPag from './pages/client/ContactoPag';
 import Login from './pages/client/Login';
+import MiPerfilPag from './pages/client/MiPerfilPag';
 
 import Dashboard from './pages/admin/dashboard';
 
 import GestionProductos from './pages/admin/gestionProductos';
 import GestionPedidos from './pages/admin/gestionPedidos';
-import GestionUsuarios from './pages/admin/gestionUsuarios';
+import GestionClientes from './pages/admin/gestionClientes';
+import GestionTrabajadores from './pages/admin/gestionTrabajadores';
 import NuevoUsuario from './pages/admin/nuevoUsuario';
 
 import CarroPag from './pages/client/CarroPag';
@@ -35,11 +37,13 @@ function App() {
         <Route path="/contacto" element={<ContactoPag />} />
         <Route path="/carrito" element={<CarroPag />} />
         <Route path="/checkout" element={<CheckOut />} />
+        <Route path="/mi-perfil" element={<MiPerfilPag />} />
           
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/gestion-pedidos" element={<GestionPedidos />} />
         <Route path="/admin/gestion-productos" element={<GestionProductos />} />
-        <Route path="/admin/gestion-usuarios" element={<GestionUsuarios />} />  
+        <Route path="/admin/gestion-clientes" element={<GestionClientes />} />
+        <Route path="/admin/gestion-trabajadores" element={<GestionTrabajadores />} />
         <Route path="/admin/nuevo-usuario" element={<NuevoUsuario />} />
         <Route path="/admin/nuevo-cliente" element={<NuevoCliente />} />
         
