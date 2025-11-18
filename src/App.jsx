@@ -7,6 +7,8 @@ import Login from './pages/client/Login';
 import MiPerfilPag from './pages/client/MiPerfilPag';
 
 import Dashboard from './pages/admin/dashboard';
+import AdminLogin from './pages/admin/AdminLogin';
+import DebugPage from './pages/admin/DebugPage';
 
 import GestionProductos from './pages/admin/gestionProductos';
 import GestionPedidos from './pages/admin/gestionPedidos';
@@ -17,6 +19,7 @@ import NuevoUsuario from './pages/admin/nuevoUsuario';
 import CarroPag from './pages/client/CarroPag';
 import NuevoCliente from './pages/admin/nuevoCliente';
 import CheckOut from './pages/client/CheckOut';
+import ProtectedRoute from './components/ProtectedRoute';
 
 
 //import viteLogo from '/vite.svg'
@@ -39,13 +42,15 @@ function App() {
         <Route path="/checkout" element={<CheckOut />} />
         <Route path="/mi-perfil" element={<MiPerfilPag />} />
           
-        <Route path="/admin/dashboard" element={<Dashboard />} />
-        <Route path="/admin/gestion-pedidos" element={<GestionPedidos />} />
-        <Route path="/admin/gestion-productos" element={<GestionProductos />} />
-        <Route path="/admin/gestion-clientes" element={<GestionClientes />} />
-        <Route path="/admin/gestion-trabajadores" element={<GestionTrabajadores />} />
-        <Route path="/admin/nuevo-usuario" element={<NuevoUsuario />} />
-        <Route path="/admin/nuevo-cliente" element={<NuevoCliente />} />
+        <Route path="/admin/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/debug" element={<DebugPage />} />
+        <Route path="/admin/gestion-pedidos" element={<ProtectedRoute><GestionPedidos /></ProtectedRoute>} />
+        <Route path="/admin/gestion-productos" element={<ProtectedRoute><GestionProductos /></ProtectedRoute>} />
+        <Route path="/admin/gestion-clientes" element={<ProtectedRoute><GestionClientes /></ProtectedRoute>} />
+        <Route path="/admin/gestion-trabajadores" element={<ProtectedRoute><GestionTrabajadores /></ProtectedRoute>} />
+        <Route path="/admin/nuevo-usuario" element={<ProtectedRoute><NuevoUsuario /></ProtectedRoute>} />
+        <Route path="/admin/nuevo-cliente" element={<ProtectedRoute><NuevoCliente /></ProtectedRoute>} />
         
               
       </Routes>

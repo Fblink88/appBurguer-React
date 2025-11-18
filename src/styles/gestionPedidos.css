@@ -1,3 +1,5 @@
+/* === styles/gestionPedidos.css === */
+
 /* === Layout general === */
 .admin-layout-pedidos {
   display: flex;
@@ -14,6 +16,7 @@
   width: 100%;
   padding: 40px 100px;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .content h1 {
@@ -25,116 +28,467 @@
   text-shadow: 0 0 5px rgba(255, 204, 0, 0.4);
 }
 
-/* === Formulario de pedidos === */
-form.formPedidos {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  background: #2d2d2d;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  margin-bottom: 30px;
+.content h2 {
+  color: #ffcc00;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-shadow: 0 0 3px rgba(255, 204, 0, 0.3);
 }
 
-form.formPedidos input,
-form.formPedidos select {
-  flex: 1;
-  min-width: 180px;
-  padding: 12px;
-  border: 1px solid #555;
-  border-radius: 6px;
+.content h3 {
+  color: #ffffff;
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.content h4 {
+  color: #fdfdfd;
+  margin-bottom: 12px;
   font-size: 1rem;
+  font-weight: 600;
+}
+
+/* === Formularios === */
+.form-container {
+  background-color: #2d2d2d;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  margin-bottom: 40px;
+}
+
+.formPedidos {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  width: 100%;
+}
+
+.form-row.full {
+  grid-template-columns: 1fr;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #ffcc00;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-input,
+.form-textarea {
+  padding: 10px 12px;
+  border: 1px solid #555;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-family: Arial, sans-serif;
   background: #333;
   color: #fdfdfd;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-form.formPedidos input:focus,
-form.formPedidos select:focus {
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
   border-color: #ffcc00;
   box-shadow: 0 0 5px rgba(255, 204, 0, 0.4);
-  outline: none;
   background: #3b3b3b;
 }
 
-/* === Botón agregar pedido === */
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* === Sección de Productos === */
+.productos-section {
+  background-color: #1f1f1f;
+  padding: 20px;
+  border-radius: 6px;
+  border-left: 4px solid #ffcc00;
+  margin-top: 20px;
+}
+
+.productos-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #ffcc00;
+  font-size: 1.1rem;
+}
+
+.form-button {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.btn-agregar-producto {
+  padding: 10px 20px;
+  background-color: #ffcc00;
+  color: #0d0d0d;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-agregar-producto:hover {
+  background-color: #e6b800;
+}
+
+.btn-agregar-producto:active {
+  transform: scale(0.98);
+}
+
+/* === Tabla de Productos Temporales === */
+.productos-agregados {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 2px solid #444;
+}
+
+.tabla-productos-temp {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: #2d2d2d;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.tabla-productos-temp thead {
+  background-color: #ffcc00;
+}
+
+.tabla-productos-temp th {
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #0d0d0d;
+  border-bottom: 2px solid #e6b800;
+  font-size: 0.9rem;
+}
+
+.tabla-productos-temp td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #444;
+  color: #fdfdfd;
+}
+
+.tabla-productos-temp tbody tr:nth-child(even) {
+  background-color: #333;
+}
+
+.tabla-productos-temp tbody tr:hover {
+  background-color: #3d3d3d;
+}
+
+.btn-eliminar-temp {
+  padding: 8px 14px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: 600;
+}
+
+.btn-eliminar-temp:hover {
+  background-color: #b02a37;
+}
+
+/* === Resumen de Montos === */
+.resumen-montos {
+  background-color: #333;
+  padding: 15px 20px;
+  border-radius: 6px;
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+  margin-left: auto;
+  border: 1px solid #444;
+}
+
+.monto-fila {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  color: #fdfdfd;
+}
+
+.monto-fila span:first-child {
+  font-weight: 600;
+}
+
+.monto-fila span:last-child {
+  font-weight: 500;
+  color: #ffcc00;
+}
+
+.monto-fila.total {
+  border-top: 2px solid #444;
+  padding-top: 10px;
+  margin-top: 10px;
+  font-size: 1.1rem;
+  color: #ffcc00;
+}
+
+.monto-fila.total span:last-child {
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+/* === Botones de Acciones === */
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.btn-agregar,
+.btn-limpiar {
+  padding: 12px 30px;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .btn-agregar {
   background-color: #ffcc00;
   color: #0d0d0d;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
+  flex: 1;
+  min-width: 150px;
 }
 
 .btn-agregar:hover {
   background-color: #e6b800;
+  box-shadow: 0 4px 8px rgba(255, 204, 0, 0.3);
 }
 
-/* === Tabla de pedidos === */
-table {
+.btn-agregar:active {
+  transform: scale(0.98);
+}
+
+.btn-limpiar {
+  background-color: #555;
+  color: #fdfdfd;
+  flex: 1;
+  min-width: 150px;
+}
+
+.btn-limpiar:hover {
+  background-color: #666;
+}
+
+/* === Tabla de Pedidos === */
+.table-container {
+  background-color: #2d2d2d;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  margin-top: 30px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.tabla-pedidos {
   width: 100%;
   border-collapse: collapse;
-  background: #2d2d2d;
+  background-color: #2d2d2d;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  margin-top: 20px;
 }
 
-th,
-td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #444;
-  text-align: left;
-}
-
-th {
-  background: #ffcc00;
+.tabla-pedidos thead {
+  background-color: #ffcc00;
   color: #0d0d0d;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tabla-pedidos th {
+  padding: 12px 15px;
+  text-align: left;
   font-weight: 600;
+  font-size: 0.9rem;
   border-bottom: 2px solid #e6b800;
 }
 
-td {
+.tabla-pedidos td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #444;
+  font-size: 0.9rem;
   color: #fdfdfd;
-  font-size: 15px;
 }
 
-tr:nth-child(even) {
+.pedido-row:nth-child(even) {
   background-color: #333;
 }
 
-tr:hover {
+.pedido-row:hover {
   background-color: #3d3d3d;
   transition: background-color 0.3s ease;
 }
 
-/* === Botón eliminar === */
-button.deleteBtn {
+/* === Celdas Especiales === */
+.cell-id {
+  font-weight: 600;
+  color: #ffcc00;
+}
+
+.cell-monto {
+  text-align: right;
+  font-weight: 500;
+  color: #fdfdfd;
+}
+
+.cell-monto.total {
+  color: #ffcc00;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.cell-estado {
+  text-align: center;
+}
+
+.badge-estado {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: #ffcc00;
+  color: #0d0d0d;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid #e6b800;
+}
+
+.cell-nota {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #aaa;
+}
+
+/* === Detalles de Productos === */
+.detalle-productos {
+  cursor: pointer;
+}
+
+.summary-productos {
+  padding: 6px 10px;
+  background-color: #333;
+  border-radius: 5px;
+  border: 1px solid #555;
+  list-style: none;
+  outline: none;
+  font-weight: 600;
+  color: #ffcc00;
+  transition: background-color 0.2s ease;
+}
+
+.summary-productos:hover {
+  background-color: #3d3d3d;
+}
+
+.summary-productos::marker {
+  display: none;
+}
+
+.lista-productos {
+  list-style: none;
+  padding: 10px;
+  margin: 10px 0 0 0;
+  background-color: #1f1f1f;
+  border-left: 3px solid #ffcc00;
+  border-radius: 4px;
+}
+
+.item-producto {
+  padding: 6px 0;
+  color: #fdfdfd;
+  font-size: 0.85rem;
+}
+
+.item-producto:before {
+  content: "✓ ";
+  color: #ffcc00;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+/* === Botón Eliminar === */
+.btn-eliminar {
+  padding: 8px 14px;
   background-color: #dc3545;
   color: white;
   border: none;
-  padding: 8px 14px;
   border-radius: 5px;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 14px;
   transition: background-color 0.3s ease;
+  white-space: nowrap;
 }
 
-button.deleteBtn:hover {
+.btn-eliminar:hover {
   background-color: #b02a37;
 }
 
-/* === Mensaje cuando no hay pedidos === */
-td[colspan="6"] {
+.btn-eliminar:active {
+  transform: scale(0.95);
+}
+
+/* === Textos Auxiliares === */
+.text-center {
   text-align: center;
+}
+
+.text-muted {
   color: #aaa;
-  padding: 30px 0;
   font-style: italic;
 }
 
@@ -146,24 +500,57 @@ td[colspan="6"] {
 }
 
 @media (max-width: 768px) {
-  form.formPedidos {
+  .content {
+    padding: 20px;
+  }
+
+  .content h1 {
+    font-size: 1.5rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .formPedidos {
+    flex-wrap: wrap;
+  }
+
+  .form-actions {
     flex-direction: column;
   }
 
-  table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-    font-size: 14px;
-  }
-
-  th,
-  td {
-    padding: 10px 12px;
-  }
-
-  .btn-agregar {
+  .btn-agregar,
+  .btn-limpiar,
+  .btn-agregar-producto {
     width: 100%;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tabla-pedidos {
+    font-size: 0.8rem;
+  }
+
+  .tabla-pedidos th,
+  .tabla-pedidos td {
+    padding: 10px 8px;
+  }
+
+  .cell-nota {
+    max-width: 100px;
+  }
+
+  .resumen-montos {
+    max-width: 100%;
+  }
+
+  .badge-estado {
+    font-size: 0.7rem;
+    padding: 4px 8px;
   }
 }
 
@@ -173,11 +560,84 @@ td[colspan="6"] {
   }
 
   .content h1 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
   }
 
-  .btn-agregar {
+  .content h2 {
+    font-size: 1.1rem;
+  }
+
+  .form-container,
+  .table-container {
+    padding: 15px;
+  }
+
+  .tabla-pedidos {
+    font-size: 0.75rem;
+  }
+
+  .tabla-pedidos th,
+  .tabla-pedidos td {
+    padding: 8px 6px;
+  }
+
+  .btn-eliminar {
+    padding: 6px 10px;
+    font-size: 0.7rem;
+  }
+
+  .btn-agregar,
+  .btn-limpiar {
     padding: 10px;
-    font-size: 14px;
+    font-size: 0.9rem;
+  }
+}
+
+/* === Contenedor Principal (Wrapper) === */
+.pedidos-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+/* === Contenedor Crear Pedido === */
+.crear-pedido-container {
+  background: #2a2a2a;
+  padding: 30px;
+  border-radius: 8px;
+  border-left: 5px solid #ffcc00;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.crear-pedido-container h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  color: #ffcc00;
+  border-bottom: 2px solid #ffcc00;
+  padding-bottom: 15px;
+}
+
+/* === Contenedor Lista Pedidos === */
+.lista-pedidos-container {
+  background: #2a2a2a;
+  padding: 30px;
+  border-radius: 8px;
+  border-left: 5px solid #4caf50;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.lista-pedidos-container h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  color: #4caf50;
+  border-bottom: 2px solid #4caf50;
+  padding-bottom: 15px;
+}
+
+/* === Responsividad para dos columnas === */
+@media (max-width: 1200px) {
+  .pedidos-wrapper {
+    grid-template-columns: 1fr;
   }
 }
