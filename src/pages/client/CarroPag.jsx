@@ -17,9 +17,11 @@ function CarroPag() {
 
   useEffect(() => {
     if (carrito.length > 0) { // Guarda el carrito en localStorage cada vez que cambia
-      localStorage.setItem('carrito', JSON.stringify(carrito)); // Convierte el carrito a JSON y lo guarda
-      window.dispatchEvent(new Event('storage'));// Notifica a otros componentes del cambio en el carrito
+      localStorage.setItem('carrito', JSON.stringify(carrito)); // Convierte el carrito a JSON y lo guarda     
+    } else {
+      localStorage.removeItem('carrito'); // Si el carrito está vacío, lo elimina del localStorage
     }
+    window.dispatchEvent(new Event('storage')); // Dispara un evento de almacenamiento para actualizar otros componentes (como el contador del carrito en el header)
   }, [carrito]); // Se ejecuta cada vez que cambia el carrito, PORQUE ESTA DENTRO DE UN USEEFFECT, por ejemplo cuando se agrega o elimina un producto
 
   const calcularSubtotal = () => { //
