@@ -3,13 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import '../../styles/gestionPedidos.css';
-import {
-  productosAPI,
-  clientesAPI,
-  pedidosAPI,
-  catalogosAPI,
-  cargarDatosIniciales as cargarDatos
-} from '../../api';
+import * as pedidosService from '../../services/pedidosService';
+import * as usuariosService from '../../services/usuariosService';
 
 function GestionPedidos() {
   // Estados del formulario
@@ -57,19 +52,17 @@ function GestionPedidos() {
     setError(null);
     try {
       console.log('Cargando datos iniciales...');
-      const datos = await cargarDatos();
-      console.log('Datos recibidos:', datos);
       
-      setProductos(datos.productos || []);
-      setClientes(datos.clientes || []);
-      setPedidos(datos.pedidos || []);
-      setEstadosPedido(datos.estadosPedido || []);
-      setMetodosPago(datos.metodosPago || []);
-      setTiposEntrega(datos.tiposEntrega || []);
+      // Cargar pedidos
+      const pedidosData = await pedidosService.getPedidos();
+      setPedidos(Array.isArray(pedidosData) ? pedidosData : []);
       
-      console.log('Productos:', datos.productos);
-      console.log('Clientes:', datos.clientes);
-      console.log('Estados:', datos.estadosPedido);
+      // Cargar clientes
+      const clientesData = await usuariosService.obtenerTodosClientes();
+      setClientes(Array.isArray(clientesData) ? clientesData : []);
+      
+      console.log('Pedidos:', pedidosData);
+      console.log('Clientes:', clientesData);
     } catch (err) {
       setError(err.message);
       console.error('Error cargando datos:', err);
@@ -81,8 +74,8 @@ function GestionPedidos() {
   // Cargar direcciones de un cliente
   const cargarDireccionesCliente = async (id) => {
     try {
-      const response = await clientesAPI.obtenerDirecciones(id);
-      setDireccionesCliente(response.data);
+      const response = await usuariosService.obtenerDireccionesPorCliente(id);
+      setDireccionesCliente(Array.isArray(response) ? response : []);
     } catch (err) {
       console.error('Error cargando direcciones:', err);
       setDireccionesCliente([]);
@@ -143,8 +136,8 @@ function GestionPedidos() {
 
     setLoading(true);
     try {
-      const response = await pedidosAPI.crear(nuevoPedido);
-      setPedidos([...pedidos, response.data]);
+      const response = await pedidosService.crearPedido(nuevoPedido);
+      setPedidos([...pedidos, response]);
       alert('Pedido creado exitosamente');
 
       // Limpiar formulario
@@ -170,7 +163,7 @@ function GestionPedidos() {
     if (window.confirm('¿Está seguro de que desea eliminar este pedido?')) {
       setLoading(true);
       try {
-        await pedidosAPI.eliminar(id);
+        await pedidosService.eliminarPedido(id);
         setPedidos(pedidos.filter(p => (p.idPedido || p.id) !== id));
         alert('Pedido eliminado');
       } catch (err) {
