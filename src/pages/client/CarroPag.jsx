@@ -41,13 +41,22 @@ function CarroPag() {
         : item// Mantiene el item sin cambios si no coincide el ID
     ));
   };
-// Disminuye la cantidad del producto en 1, pero no permite que sea menor a 1, porque o si no tendría sentido tener 0 productos en el carrito
-  const disminuirCantidad = (itemId) => {
-    setCarrito(carrito.map(item => // Recorre los items del carrito y actualiza la cantidad del item con el id que coincide
-      item.id === itemId && item.cantidad > 1 //solo va a disminuir si la cantidad es mayor a 1
-        ? { ...item, cantidad: item.cantidad - 1 } // Disminuye la cantidad del item en 1, se activa cuando el usuario hace click en el botón -
-        : item // Mantiene el item sin cambios si no coincide el ID o si la cantidad es 1
-    ));
+
+  // Disminuye la cantidad de un producto en el carrito
+  const disminuirCantidad = (itemId) => { //recibe el id del item que se va a disminuir
+    const item = carrito.find(i => i.id === itemId);
+  
+    if (item.cantidad === 1) {
+    // Si la cantidad es 1, eliminar el producto
+      eliminarProducto(itemId);
+    } else {
+    // Si la cantidad es mayor a 1, solo disminuir
+      setCarrito(carrito.map(i =>
+        i.id === itemId
+          ? { ...i, cantidad: i.cantidad - 1 }
+          : i
+      ));
+    }
   };
   // Elimina un producto del carrito después de que el usuario agrego productos
   //  y confirma que quiere eliminarlo
@@ -152,7 +161,6 @@ function CarroPag() {
                         <button 
                           className="btn-cantidad" // Botón para disminuir la cantidad, botstraps icono de dash
                           onClick={() => disminuirCantidad(item.id)} // llama a la función disminuirCantidad con el id del item
-                          disabled={item.cantidad <=1} //desactiva el botón si la cantidad es 1 o menos
                         >
                           <i className="bi bi-dash"></i> 
                         </button>
