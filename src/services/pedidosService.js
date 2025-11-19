@@ -80,20 +80,14 @@ export const actualizarEstadoPedido = async (idPedido, idEstado) => {
 //Actualizar pedido a pagado con la venta realizada mediante un token
 export const actualizarPedidoAPagado = async (idPedido) => {
   try {
-    const response = await api.put(
-      `/pedidos/procesar/${idPedido}`,
-      {}, // body vacío
-      {
-        headers: {
-          "X-Internal-Token": "INTERNAL_SECRET_TOKEN" // <-- aquí pones el token que definiste
-        }
-      }
-    );
-
+    // NOTA: El backend requiere X-Internal-Token pero causa error CORS
+    // Intentando solo con Authorization: Bearer (ya incluido en api.js)
+    const response = await api.put(`/pedidos/procesar/${idPedido}`);
+    
     return response.data;
-
   } catch (error) {
     console.error(`Error al actualizar pedido a pagado ${idPedido}:`, error);
+    console.error('Response:', error.response?.data);
     throw error;
   }
 };

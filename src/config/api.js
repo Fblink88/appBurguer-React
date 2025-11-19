@@ -2,8 +2,8 @@ import axios from "axios";
 
 // Configuración de URLs según el ambiente
 const API_URLS = {
-  // En desarrollo, usa el proxy de Vite
-  development: "/api",
+  // En desarrollo, usa directamente la VM (el proxy no funciona bien con autenticación)
+  development: "http://161.153.219.128:8080/api",
 
   // En producción, apunta directamente a la VM del backend exactamente a la apigateway
   production: "http://161.153.219.128:8080/api"
@@ -26,13 +26,14 @@ const api = axios.create({
   withCredentials: false // Cambiar a true si usas cookies
 });
 
-// Interceptor para agregar el token JWT en cada request
+// Interceptor para agregar el token JWT en cada request para rutas protegidas, valida el rol del usuario segun la autenticación
 api.interceptors.request.use(
   (config) => {
     // Obtener token del localStorage
     const token = localStorage.getItem("authToken");
 
     if (token) {
+      // Agregar token en el header Authorization (estándar)
       config.headers.Authorization = `Bearer ${token}`;
     }
 

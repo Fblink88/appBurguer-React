@@ -5,18 +5,22 @@ import Sidebar from '../../components/Sidebar';
 import '../../styles/gestionPedidos.css';
 import * as pedidosService from '../../services/pedidosService';
 import * as usuariosService from '../../services/usuariosService';
+import * as productosService from '../../services/productosService';
 
 function GestionPedidos() {
   // Estados del formulario
   const [idCliente, setIdCliente] = useState('');
   const [idProducto, setIdProducto] = useState('');
   const [cantidad, setCantidad] = useState('1');
-  const [idEstadoPedido, setIdEstadoPedido] = useState('');
+  const [idEstadoPedido, setIdEstadoPedido] = useState('1');
   const [idMetodoPago, setIdMetodoPago] = useState('');
   const [idTipoEntrega, setIdTipoEntrega] = useState('');
   const [idDireccion, setIdDireccion] = useState('');
   const [montoEnvio, setMontoEnvio] = useState('0');
   const [notaCliente, setNotaCliente] = useState('');
+  
+  // Estado para carrito temporal de productos
+  const [productosCarrito, setProductosCarrito] = useState([]);
 
   // Estados para datos
   const [clientes, setClientes] = useState([]);
@@ -36,6 +40,18 @@ function GestionPedidos() {
     inicializarDatos();
   }, []);
 
+  // Monitorear cambios en clientes
+  useEffect(() => {
+    console.log('🔄 Estado de clientes actualizado. Total:', clientes.length);
+    if (clientes.length > 0) {
+      console.log('👥 Lista de clientes disponibles:', clientes.map(c => ({ 
+        id: c.idCliente || c.id, 
+        nombre: c.nombre || c.nombreCliente || c.NOMBRE_CLIENTE,
+        todosLosCampos: c
+      })));
+    }
+  }, [clientes]);
+
   // Cargar direcciones cuando cambia el cliente
   useEffect(() => {
     if (idCliente) {
@@ -46,6 +62,57 @@ function GestionPedidos() {
     }
   }, [idCliente]);
 
+  // Helper: Obtener nombre del cliente por ID
+  const getNombreCliente = (idCliente) => {
+    if (!idCliente || !clientes.length) return 'N/A';
+    const cliente = clientes.find(c => (c.ID_CLIENTE || c.idCliente) === idCliente);
+    return cliente?.NOMBRE_CLIENTE || cliente?.nombreCliente || 'N/A';
+  };
+
+  // Helper: Obtener nombre del método de pago por ID
+  const getNombreMetodoPago = (idMetodoPago) => {
+    if (!idMetodoPago) return '-';
+    
+    // Mapeo según la BD: ID_METODO_PAGO (1=Webpay, 2=Efectivo, 3=Mercado Pago)
+    const mapeoMetodosPago = {
+      1: 'Webpay',
+      2: 'Efectivo',
+      3: 'Mercado Pago'
+    };
+    
+    return mapeoMetodosPago[idMetodoPago] || `Método ${idMetodoPago}`;
+  };
+
+  // Helper: Obtener nombre del tipo de entrega por ID
+  const getNombreTipoEntrega = (idTipoEntrega) => {
+    if (!idTipoEntrega) return '-';
+    
+    // Mapeo según la BD: ID_TIPO_ENTREGA (1=Delivery, 2=Retiro en Local)
+    const mapeoTiposEntrega = {
+      1: 'Delivery',
+      2: 'Retiro en Local'
+    };
+    
+    return mapeoTiposEntrega[idTipoEntrega] || `Tipo ${idTipoEntrega}`;
+  };
+
+  // Helper: Obtener nombre del estado por ID
+  const getNombreEstadoPedido = (idEstadoPedido) => {
+    if (!idEstadoPedido) return 'Pendiente';
+    
+    // Mapeo según la BD: ID_ESTADO_PEDIDO
+    const mapeoEstados = {
+      1: 'Pendiente de Pago',
+      2: 'Pagado',
+      3: 'En Preparación',
+      4: 'En Camino',
+      5: 'Entregado',
+      6: 'Cancelado'
+    };
+    
+    return mapeoEstados[idEstadoPedido] || `Estado ${idEstadoPedido}`;
+  };
+
   // Inicializar todos los datos
   const inicializarDatos = async () => {
     setLoading(true);
@@ -53,16 +120,109 @@ function GestionPedidos() {
     try {
       console.log('Cargando datos iniciales...');
       
+      // Verificar token
+      const token = localStorage.getItem('authToken');
+      const user = localStorage.getItem('user');
+      console.log('Token disponible:', !!token);
+      console.log('Token (primeros 50 chars):', token?.substring(0, 50) + '...');
+      console.log('Usuario:', user);
+      
+      // Primero hacer un test simple para verificar que el backend responde
+      try {
+        console.log('Test: Enviando petición a /pedidos (plural)...');
+        const testResponse = await fetch('http://161.153.219.128:8080/api/pedidos', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('Test response status:', testResponse.status);
+        if (!testResponse.ok) {
+          const errorData = await testResponse.text();
+          console.log('Test response error:', errorData);
+        } else {
+          const data = await testResponse.json();
+          console.log('Test response OK - Items:', data.length);
+        }
+      } catch (testErr) {
+        console.error('Error en test fetch:', testErr);
+      }
+      
       // Cargar pedidos
-      const pedidosData = await pedidosService.getPedidos();
-      setPedidos(Array.isArray(pedidosData) ? pedidosData : []);
+      try {
+        console.log('Llamando a getPedidos()...');
+        const pedidosData = await pedidosService.getPedidos();
+        const pedidosOrdenados = Array.isArray(pedidosData) 
+          ? pedidosData.sort((a, b) => (a.ID_PEDIDO || a.idPedido) - (b.ID_PEDIDO || b.idPedido))
+          : [];
+        setPedidos(pedidosOrdenados);
+        console.log('Pedidos cargados correctamente:', pedidosData.length, 'items');
+      } catch (err) {
+        console.warn('Error cargando pedidos:', err);
+        console.warn('Status:', err.response?.status);
+        console.warn('Data:', err.response?.data);
+        console.warn('Mensaje:', err.response?.data?.message || err.message);
+        setPedidos([]);
+        setError(`Error al cargar pedidos: ${err.response?.status || 'desconocido'} - ${err.response?.data?.message || err.message}`)
+      }
       
       // Cargar clientes
-      const clientesData = await usuariosService.obtenerTodosClientes();
-      setClientes(Array.isArray(clientesData) ? clientesData : []);
+      try {
+        console.log('Llamando a obtenerTodosClientes()...');
+        const clientesData = await usuariosService.obtenerTodosClientes();
+        setClientes(Array.isArray(clientesData) ? clientesData : []);
+        console.log('✅ Clientes cargados:', clientesData.length, 'clientes');
+        console.log('📋 Detalle clientes:', clientesData);
+      } catch (err) {
+        console.warn('Error cargando clientes:', err);
+        console.warn('Status:', err.response?.status);
+        console.warn('Mensaje:', err.response?.data?.message || err.message);
+        setClientes([]);
+        if (!error) {
+          setError('No se pudieron cargar los clientes. Error 500 en el backend.');
+        }
+      }
       
-      console.log('Pedidos:', pedidosData);
-      console.log('Clientes:', clientesData);
+      // Datos hardcodeados - Cuando tengas endpoints en el backend, reemplaza estos
+      setEstadosPedido([
+        { idEstadoPedido: 1, nombre: 'Pendiente de Pago' },
+        { idEstadoPedido: 2, nombre: 'Pagado' },
+        { idEstadoPedido: 3, nombre: 'En Preparación' },
+        { idEstadoPedido: 4, nombre: 'En Camino' },
+        { idEstadoPedido: 5, nombre: 'Entregado' },
+        { idEstadoPedido: 6, nombre: 'Cancelado' }
+      ]);
+      
+      setMetodosPago([
+        { idMetodoPago: 1, nombre: 'Webpay' },
+        { idMetodoPago: 2, nombre: 'Efectivo' },
+        { idMetodoPago: 3, nombre: 'Mercado Pago' }
+      ]);
+      
+      setTiposEntrega([
+        { idTipoEntrega: 1, nombre: 'Delivery' },
+        { idTipoEntrega: 2, nombre: 'Retiro en Local' }
+      ]);
+      
+      // Cargar productos desde backend
+      // Endpoint: /api/catalogo/productos (público según SecurityConfig)
+      try {
+        console.log('Cargando productos desde /api/catalogo/productos...');
+        const productosData = await productosService.obtenerProductosDisponibles();
+        setProductos(Array.isArray(productosData) ? productosData : []);
+        console.log('✅ Productos cargados desde backend:', productosData.length, 'productos');
+        console.log('📋 Muestra de productos:', productosData.slice(0, 2));
+      } catch (err) {
+        console.error('❌ Error cargando productos desde backend:', err);
+        console.error('Status:', err.response?.status);
+        console.error('Mensaje:', err.response?.data?.message || err.message);
+        setProductos([]);
+        setError('No se pudieron cargar los productos del catálogo.');
+      }
+      
+      console.log('🎯 Estado final de clientes después de cargar todo:', clientes.length);
+      
     } catch (err) {
       setError(err.message);
       console.error('Error cargando datos:', err);
@@ -83,9 +243,54 @@ function GestionPedidos() {
   };
 
   // Obtener precio del producto
-  const obtenerPrecioProducto = () => {
-    const producto = productos.find(p => (p.idProducto || p.id) == idProducto);
-    return producto ? (producto.precioProducto || producto.precio_producto || 0) : 0;
+  const obtenerPrecioProducto = (productoId = idProducto) => {
+    const producto = productos.find(p => (p.ID_PRODUCTO || p.idProducto || p.id) == productoId);
+    return producto ? (producto.PRECIO_BASE || producto.precioBase || producto.precio || 0) : 0;
+  };
+  
+  // Obtener nombre del producto
+  const getNombreProducto = (productoId) => {
+    const producto = productos.find(p => (p.ID_PRODUCTO || p.idProducto || p.id) == productoId);
+    return producto ? (producto.NOMBRE_PRODUCTO || producto.nombreProducto || producto.nombre || 'Producto') : 'Producto';
+  };
+  
+  // Agregar producto al carrito temporal
+  const handleAgregarProducto = (e) => {
+    e.preventDefault();
+    
+    if (!idProducto || !cantidad || cantidad <= 0) {
+      alert('Seleccione un producto y cantidad válida');
+      return;
+    }
+    
+    const precioUnitario = obtenerPrecioProducto(idProducto);
+    const cantidadNum = parseInt(cantidad);
+    const subtotal = precioUnitario * cantidadNum;
+    
+    const nuevoProducto = {
+      id: Date.now(), // ID temporal para el carrito
+      idProducto: idProducto,
+      nombreProducto: getNombreProducto(idProducto),
+      cantidad: cantidadNum,
+      precioUnitario: precioUnitario,
+      subtotal: subtotal
+    };
+    
+    setProductosCarrito([...productosCarrito, nuevoProducto]);
+    
+    // Limpiar selección de producto
+    setIdProducto('');
+    setCantidad('1');
+  };
+  
+  // Eliminar producto del carrito temporal
+  const handleEliminarProductoCarrito = (id) => {
+    setProductosCarrito(productosCarrito.filter(p => p.id !== id));
+  };
+  
+  // Calcular subtotal del carrito
+  const calcularSubtotalCarrito = () => {
+    return productosCarrito.reduce((sum, p) => sum + p.subtotal, 0); //suma los subtotales de cada producto
   };
 
   // Calcular subtotal
@@ -101,56 +306,88 @@ function GestionPedidos() {
     return subtotal + envio;
   };
 
-  // Manejar envío del formulario
+  // ========================================
+  // CREAR PEDIDO - Consumir API del Backend
+  // ========================================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!idCliente || !idProducto || !idEstadoPedido || !idMetodoPago || !idTipoEntrega) {
-      alert('Por favor, completa todos los campos requeridos');
+    // 1. VALIDAR que todos los campos requeridos estén llenos
+    if (!idCliente || productosCarrito.length === 0 || !idEstadoPedido || !idMetodoPago || !idTipoEntrega) {
+      alert('Por favor, complete todos los campos y agregue al menos un producto');
       return;
     }
 
-    const subtotal = calcularSubtotal();
+    // 2. CALCULAR montos del pedido
+    const subtotal = calcularSubtotalCarrito();
     const envio = parseFloat(montoEnvio) || 0;
     const total = subtotal + envio;
 
+    // 3. CONSTRUIR el objeto del pedido según la estructura que espera el backend
+    //    Este objeto se enviará al endpoint POST /api/pedidos/completo
+    //    Los campos deben coincidir con lo que espera el backend (nombres en camelCase)
     const nuevoPedido = {
-      idCliente: parseInt(idCliente),
-      idEstadoPedido: parseInt(idEstadoPedido),
-      idMetodoPago: parseInt(idMetodoPago),
-      idTipoEntrega: parseInt(idTipoEntrega),
-      idDireccionEntrega: idDireccion ? parseInt(idDireccion) : null,
-      montoSubtotal: subtotal,
-      montoEnvio: envio,
-      montoTotal: total,
-      notaCliente: notaCliente,
-      detalles: [
-        {
-          idProducto: parseInt(idProducto),
-          cantidad: parseInt(cantidad),
-          precioUnitario: obtenerPrecioProducto(),
-          subtotalLinea: subtotal
-        }
-      ]
+      // IDs de las relaciones (FK en la BD)
+      idCliente: parseInt(idCliente),              // FK a tabla CLIENTE
+      idEstadoPedido: parseInt(idEstadoPedido),    // FK a tabla ESTADOPEDIDO
+      idMetodoPago: parseInt(idMetodoPago),        // FK a tabla METODOPAGO (1=Webpay, 2=Efectivo, 3=Mercado Pago)
+      idTipoEntrega: parseInt(idTipoEntrega),      // FK a tabla TIPOENTREGA (1=Delivery, 2=Retiro)
+      
+      // Dirección de entrega (puede ser null si es retiro en local)
+      idDireccionEntrega: idDireccion ? parseInt(idDireccion) : null, // FK a tabla DIRECCIONCLIENTE
+      
+      // Montos calculados
+      montoSubtotal: subtotal,                     // Campo MONTO_SUBTOTAL en BD
+      montoEnvio: envio,                           // Campo MONTO_ENVIO en BD
+      montoTotal: total,                           // Campo MONTO_TOTAL en BD
+      
+      // Nota adicional del cliente
+      notaCliente: notaCliente,                    // Campo NOTA_CLIENTE en BD
+      
+      // Array de detalles del pedido (tabla DETALLEPEDIDO)
+      // Cada detalle representa un producto en el pedido
+      detalles: productosCarrito.map(p => ({
+        idProducto: parseInt(p.idProducto),        // FK a tabla PRODUCTO
+        cantidad: p.cantidad,                      // Campo CANTIDAD en DETALLEPEDIDO
+        precioUnitario: p.precioUnitario,          // Campo PRECIO_UNITARIO en DETALLEPEDIDO
+        subtotalLinea: p.subtotal                  // Campo SUBTOTAL_LINEA en DETALLEPEDIDO
+      }))
     };
 
+    // 4. ENVIAR el pedido al backend mediante la API
     setLoading(true);
     try {
+      // Llamada al servicio que hace POST /api/pedidos/completo
+      // El backend creará:
+      // - 1 registro en tabla PEDIDO
+      // - 1 o más registros en tabla DETALLEPEDIDO
+      console.log('📤 Enviando pedido al backend:', nuevoPedido);
       const response = await pedidosService.crearPedido(nuevoPedido);
-      setPedidos([...pedidos, response]);
+      console.log('📥 Respuesta del backend:', response);
+      
+      // 5. RECARGAR todos los pedidos desde el backend para asegurar datos correctos
+      const pedidosActualizados = await pedidosService.getPedidos();
+      const pedidosOrdenados = Array.isArray(pedidosActualizados)
+        ? pedidosActualizados.sort((a, b) => (a.ID_PEDIDO || a.idPedido) - (b.ID_PEDIDO || b.idPedido))
+        : [];
+      setPedidos(pedidosOrdenados);
+      
       alert('Pedido creado exitosamente');
 
-      // Limpiar formulario
+      // 6. LIMPIAR el formulario y carrito después de crear el pedido
       setIdCliente('');
       setIdProducto('');
       setCantidad('1');
-      setIdEstadoPedido('');
+      setIdEstadoPedido('1');
       setIdMetodoPago('');
       setIdTipoEntrega('');
       setIdDireccion('');
       setMontoEnvio('0');
       setNotaCliente('');
+      setProductosCarrito([]);
     } catch (err) {
+      // 7. MANEJAR errores de la API
+      console.error('❌ Error al crear pedido:', err);
       setError(err.message);
       alert('Error al crear pedido: ' + err.message);
     } finally {
@@ -164,10 +401,36 @@ function GestionPedidos() {
       setLoading(true);
       try {
         await pedidosService.eliminarPedido(id);
-        setPedidos(pedidos.filter(p => (p.idPedido || p.id) !== id));
+        setPedidos(pedidos.filter(p => (p.ID_PEDIDO || p.idPedido || p.id) !== id));
         alert('Pedido eliminado');
       } catch (err) {
         alert('Error al eliminar: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  // Marcar pedido como pagado y crear venta automática
+  const handleMarcarComoPagado = async (idPedido) => {
+    if (window.confirm('¿Confirmar pago del pedido? Esto creará la venta automáticamente.')) {
+      setLoading(true);
+      try {
+        // Llama al endpoint PUT /pedidos/procesar/{idPedido}
+        // Este endpoint cambia el estado a "Pagado" (ID 2) y crea la venta
+        await pedidosService.actualizarPedidoAPagado(idPedido);
+        
+        // Actualizar el estado del pedido en la lista local
+        setPedidos(pedidos.map(p => 
+          (p.ID_PEDIDO || p.idPedido) === idPedido 
+            ? { ...p, ID_ESTADO_PEDIDO: 2, idEstadoPedido: 2 } // Cambiar a estado "Pagado"
+            : p
+        ));
+        
+        alert('✅ Pedido marcado como pagado y venta registrada exitosamente');
+      } catch (err) {
+        console.error('Error al procesar pago:', err);
+        alert('❌ Error al procesar pago: ' + (err.response?.data?.message || err.message));
       } finally {
         setLoading(false);
       }
@@ -197,10 +460,10 @@ function GestionPedidos() {
           </div>
         )}
 
-        {/* CONTENEDOR PRINCIPAL */}
-        <div className="pedidos-wrapper">
-          {/* CONTENEDOR 1: CREAR PEDIDO */}
-          <div className="crear-pedido-container">
+        {/* CONTENEDOR PRINCIPAL - LAYOUT VERTICAL */}
+        <div className="pedidos-wrapper-vertical">
+          {/* CONTENEDOR 1: CREAR PEDIDO (ANCHO COMPLETO) */}
+          <div className="crear-pedido-container-full">
             <h2>Crear Nuevo Pedido</h2>
 
             <form className="formPedidos" onSubmit={handleSubmit}>
@@ -217,8 +480,11 @@ function GestionPedidos() {
                   >
                     <option value="">Seleccione Cliente</option>
                     {clientes.map(cliente => (
-                      <option key={cliente.idCliente || cliente.id} value={cliente.idCliente || cliente.id}>
-                        {cliente.nombre}
+                      <option 
+                        key={cliente.ID_CLIENTE || cliente.idCliente || cliente.id} 
+                        value={cliente.ID_CLIENTE || cliente.idCliente || cliente.id}
+                      >
+                        {cliente.NOMBRE_CLIENTE || cliente.nombreCliente || cliente.nombre}
                       </option>
                     ))}
                   </select>
@@ -246,28 +512,30 @@ function GestionPedidos() {
               {/* Fila 2: Producto y Cantidad */}
               <div className="form-row">
                 <div className="form-group">
-                  <label>Producto *</label>
+                  <label>Producto</label>
                   <select
-                    required
                     value={idProducto}
                     onChange={(e) => setIdProducto(e.target.value)}
                     className="form-input"
                     disabled={loading}
                   >
-                    <option value="">Seleccione Producto</option>
-                    {productos.map(producto => (
-                      <option key={producto.idProducto || producto.id} value={producto.idProducto || producto.id}>
-                        {producto.nombreProducto || producto.nombre_producto} - ${(producto.precioProducto || producto.precio_producto).toFixed(2)}
-                      </option>
-                    ))}
+                  <option value="">Seleccione Producto</option>
+                  {productos.map(producto => (
+                    <option 
+                      key={producto.ID_PRODUCTO || producto.idProducto || producto.id} 
+                      value={producto.ID_PRODUCTO || producto.idProducto || producto.id}
+                    >
+                      {producto.NOMBRE_PRODUCTO || producto.nombreProducto || producto.nombre} - 
+                      ${(producto.PRECIO_BASE || producto.precioBase || producto.precio || 0).toFixed(2)}
+                    </option>
+                  ))}
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label>Cantidad *</label>
+                  <label>Cantidad</label>
                   <input
                     type="number"
-                    required
                     min="1"
                     value={cantidad}
                     onChange={(e) => setCantidad(e.target.value)}
@@ -276,6 +544,9 @@ function GestionPedidos() {
                   />
                 </div>
               </div>
+              
+              {/* Botón para agregar producto al carrito */}
+             
 
               {/* Fila 3: Método de Pago y Tipo de Entrega */}
               <div className="form-row">
@@ -324,15 +595,20 @@ function GestionPedidos() {
                     value={idDireccion}
                     onChange={(e) => setIdDireccion(e.target.value)}
                     className="form-input"
-                    disabled={!idCliente || loading}
+                    disabled={loading || !idCliente || direccionesCliente.length === 0}
                   >
-                    <option value="">Seleccione Dirección</option>
-                    {direccionesCliente.map(direccion => (
-                      <option key={direccion.idDireccion || direccion.id} value={direccion.idDireccion || direccion.id}>
-                        {direccion.calle}, {direccion.ciudad}
+                    <option value="">Seleccione dirección</option>
+                    {direccionesCliente.map(dir => (
+                      <option key={dir.idDireccion} value={dir.idDireccion}>
+                        {dir.alias ? `${dir.alias} - ` : ''}{dir.direccion}
                       </option>
                     ))}
                   </select>
+                  {idCliente && direccionesCliente.length === 0 && (
+                    <small style={{ color: '#999', fontSize: '0.85rem', marginTop: '4px', display: 'block' }}>
+                      El cliente no tiene direcciones registradas
+                    </small>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -364,35 +640,74 @@ function GestionPedidos() {
                 </div>
               </div>
 
+              
+              {/* Carrito de productos - Detalles debajo del resumen */}
+              {productosCarrito.length > 0 && (
+                <div className="carrito-productos">
+                  <h3>Productos en el Pedido</h3>
+                  <div className="tabla-carrito-wrapper">
+                    <table className="tabla-carrito">
+                      <thead>
+                        <tr>
+                          <th>Producto</th>
+                          <th>Precio Unit.</th>
+                          <th>Cantidad</th>
+                          <th>Subtotal</th>       
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {productosCarrito.map((item) => (
+                          <tr key={item.id}>
+                            <td>{item.nombreProducto}</td>
+                            <td>${item.precioUnitario.toFixed(2)}</td>
+                            <td>{item.cantidad}</td>
+                            <td><strong>${item.subtotal.toFixed(2)}</strong></td>
+                            <td>
+                              <button 
+                                type="button"
+                                className="btn-eliminar-item"
+                                onClick={() => handleEliminarProductoCarrito(item.id)}
+                              >
+                                🗑️
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
               {/* RESUMEN DE MONTOS */}
               <div className="resumen-pedido">
                 <div className="resumen-fila">
-                  <span className="resumen-label">Precio Unitario:</span>
-                  <span className="resumen-valor">${obtenerPrecioProducto().toFixed(2)}</span>
+                  <span className="resumen-label">Subtotal Productos : </span>
+                  <span className="resumen-valor">${calcularSubtotalCarrito().toFixed(2)}</span>
                 </div>
                 <div className="resumen-fila">
-                  <span className="resumen-label">Cantidad:</span>
-                  <span className="resumen-valor">{cantidad}</span>
-                </div>
-                <div className="resumen-fila">
-                  <span className="resumen-label">Subtotal:</span>
-                  <span className="resumen-valor">${calcularSubtotal().toFixed(2)}</span>
-                </div>
-                <div className="resumen-fila">
-                  <span className="resumen-label">Envío:</span>
+                  <span className="resumen-label">Envío : </span>
                   <span className="resumen-valor">${(parseFloat(montoEnvio) || 0).toFixed(2)}</span>
                 </div>
                 <div className="resumen-fila total">
-                  <span className="resumen-label-total">TOTAL:</span>
-                  <span className="resumen-valor-total">${calcularTotal().toFixed(2)}</span>
+                  <span className="resumen-label-total">TOTAL : </span>
+                  <span className="resumen-valor-total">${(calcularSubtotalCarrito() + (parseFloat(montoEnvio) || 0)).toFixed(2)}</span>
                 </div>
               </div>
+              
 
               {/* BOTONES */}
 
               <div className="form-actions">
-                <button type="submit" className="btn-agregar" disabled={loading}>
-                  {loading ? 'Creando...' : 'Crear Pedido'}
+                <button 
+                  type="button" 
+                  className="btn-agregar-producto" 
+                  onClick={handleAgregarProducto}
+                  disabled={loading || !idProducto || !cantidad}
+                >
+                   Agregar Producto
+                </button>
+                <button type="submit" className="btn-agregar" disabled={loading || productosCarrito.length === 0}>
+                  {loading ? 'Creando...' : ' Crear Pedido'}
                 </button>
                 <button
                   type="button"
@@ -401,23 +716,24 @@ function GestionPedidos() {
                     setIdCliente('');
                     setIdProducto('');
                     setCantidad('1');
-                    setIdEstadoPedido('');
+                    setIdEstadoPedido('1');
                     setIdMetodoPago('');
                     setIdTipoEntrega('');
                     setIdDireccion('');
                     setMontoEnvio('0');
                     setNotaCliente('');
+                    setProductosCarrito([]);
                   }}
                   disabled={loading}
                 >
-                  Limpiar
+                  Limpiar Todo
                 </button>
               </div>
             </form>
           </div>
 
-          {/* CONTENEDOR 2: LISTA DE PEDIDOS */}
-          <div className="lista-pedidos-container">
+          {/* CONTENEDOR 2: LISTA DE PEDIDOS (ANCHO COMPLETO) */}
+          <div className="lista-pedidos-container-full">
             <h2>Pedidos Registrados</h2>
             <div className="table-responsive">
               <table className="tabla-pedidos">
@@ -425,8 +741,7 @@ function GestionPedidos() {
                   <tr>
                     <th>#</th>
                     <th>Cliente</th>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
+                    <th>Productos</th>
                     <th>Estado</th>
                     <th>Método Pago</th>
                     <th>Tipo Entrega</th>
@@ -439,41 +754,71 @@ function GestionPedidos() {
                 <tbody>
                   {pedidos.length > 0 ? (
                     pedidos.map(pedido => (
-                      <tr key={pedido.idPedido || pedido.id}>
-                        <td>{pedido.idPedido || pedido.id}</td>
-                        <td>{pedido.cliente?.nombre || 'N/A'}</td>
+                      <tr key={pedido.ID_PEDIDO || pedido.idPedido}>
+                        <td>{pedido.ID_PEDIDO || pedido.idPedido}</td>
+                        <td>{getNombreCliente(pedido.ID_CLIENTE || pedido.idCliente)}</td>
                         <td>
-                          {pedido.detalles?.[0]?.producto?.nombreProducto ||
-                            pedido.detalles?.[0]?.nombreProducto ||
-                            'N/A'}
+                          {/* Mostrar todos los productos del pedido */}
+                          {pedido.detalles && pedido.detalles.length > 0 ? (
+                            <div style={{ fontSize: '0.9em' }}>
+                              {pedido.detalles.map((detalle, index) => (
+                                <div key={index} style={{ marginBottom: '5px', borderBottom: index < pedido.detalles.length - 1 ? '1px solid #eee' : 'none', paddingBottom: '5px' }}>
+                                  <strong>{detalle.NOMBRE_PRODUCTO || detalle.nombreProducto || detalle.producto?.NOMBRE_PRODUCTO || detalle.producto?.nombreProducto || 'Producto'}</strong>
+                                  <br />
+                                  <span style={{ color: '#666' }}>
+                                    Cant: {detalle.CANTIDAD || detalle.cantidad} × ${(detalle.PRECIO_UNITARIO || detalle.precioUnitario)?.toFixed(2) || '0.00'} = ${(detalle.SUBTOTAL_LINEA || detalle.subtotalLinea)?.toFixed(2) || '0.00'}
+                                  </span>
+                                </div>
+                              ))}
+                              <div style={{ marginTop: '8px', paddingTop: '5px', borderTop: '2px solid #333', fontWeight: 'bold' }}>
+                                Total items: {pedido.detalles.reduce((sum, d) => sum + (d.CANTIDAD || d.cantidad || 0), 0)}
+                              </div>
+                            </div>
+                          ) : (
+                            <span style={{ color: '#999' }}>Sin productos</span>
+                          )}
                         </td>
-                        <td>{pedido.detalles?.[0]?.cantidad || '-'}</td>
                         <td>
                           <span className="badge-estado">
-                            {pedido.estadoPedido?.nombre || 'Pendiente'}
+                            {getNombreEstadoPedido(pedido.ID_ESTADO_PEDIDO || pedido.idEstadoPedido)}
                           </span>
                         </td>
-                        <td>{pedido.metodoPago?.nombre || '-'}</td>
-                        <td>{pedido.tipoEntrega?.nombre || '-'}</td>
-                        <td>${(pedido.montoSubtotal || 0).toFixed(2)}</td>
-                        <td>${(pedido.montoEnvio || 0).toFixed(2)}</td>
+                        <td>{getNombreMetodoPago(pedido.ID_METODO_PAGO || pedido.idMetodoPago)}</td>
+                        <td>{getNombreTipoEntrega(pedido.ID_TIPO_ENTREGA || pedido.idTipoEntrega)}</td>
+                        <td>${(pedido.MONTO_SUBTOTAL || pedido.montoSubtotal || 0).toFixed(2)}</td>
+                        <td>${(pedido.MONTO_ENVIO || pedido.montoEnvio || 0).toFixed(2)}</td>
                         <td>
-                          <strong>${(pedido.montoTotal || 0).toFixed(2)}</strong>
+                          <strong>${(pedido.MONTO_TOTAL || pedido.montoTotal || 0).toFixed(2)}</strong>
                         </td>
                         <td>
-                          <button
-                            className="btn-eliminar"
-                            onClick={() => handleEliminarPedido(pedido.idPedido || pedido.id)}
-                            disabled={loading}
-                          >
-                            Eliminar
-                          </button>
+                          <div style={{ display: 'flex', gap: '5px', flexDirection: 'column' }}>
+                            {/* Botón Marcar como Pagado - solo visible si estado es Pendiente (1) */}
+                            {(pedido.ID_ESTADO_PEDIDO || pedido.idEstadoPedido) === 1 && (
+                              <button
+                                className="btn-agregar"
+                                onClick={() => handleMarcarComoPagado(pedido.ID_PEDIDO || pedido.idPedido)}
+                                disabled={loading}
+                                style={{ fontSize: '0.85em', padding: '5px 10px' }}
+                              >
+                                 Marcar Pagado
+                              </button>
+                            )}
+                            {/* Botón Eliminar - siempre visible */}
+                            <button
+                              className="btn-eliminar"
+                              onClick={() => handleEliminarPedido(pedido.ID_PEDIDO || pedido.idPedido)}
+                              disabled={loading}
+                              style={{ fontSize: '0.85em', padding: '5px 10px' }}
+                            >
+                               Eliminar
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="11" style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                      <td colSpan="10" style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
                         No hay pedidos registrados
                       </td>
                     </tr>
