@@ -29,6 +29,10 @@ function CarroPag() {
   const calcularTotal = () => {
     return calcularSubtotal();
   };
+
+  const calcularTotalItems = () => {
+  return carrito.reduce((total, item) => total + item.cantidad, 0);
+};
   // Funciones para aumentar, disminuir y eliminar productos del carrito
   const aumentarCantidad = (itemId) => {
     setCarrito(carrito.map(item =>
@@ -70,7 +74,16 @@ function CarroPag() {
     }
     navigate('/checkout'); // Si el carrito tiene productos, te lleva a la página de checkout
   };
- // Renderiza la página del carrito de compras
+
+
+
+
+
+
+
+  //=========================================
+ // RENDERIZA LA PAGINA DEL CARRITO DE COMPRAS
+ //=========================================
   return (
     <div className="pagina-completa">
       <HeaderComp />
@@ -101,7 +114,7 @@ function CarroPag() {
               {/* LISTA DE PRODUCTOS */}
               <div className="carrito-productos">
                 <div className="carrito-header">
-                  <h2>Productos ({carrito.length})</h2>
+                  <h2>Productos ({calcularTotalItems()})</h2>
                   <button 
                     className="btn-vaciar-carrito"
                     onClick={vaciarCarrito}
