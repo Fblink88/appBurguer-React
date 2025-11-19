@@ -17,7 +17,7 @@ import api from "../config/api";
  */
 export const registrarCliente = async (clienteData) => {
   try {
-    const response = await api.post("/api/clientes", clienteData);
+    const response = await api.post("/clientes", clienteData);
     return response.data;
   } catch (error) {
     console.error("Error al registrar cliente:", error);
@@ -32,7 +32,7 @@ export const registrarCliente = async (clienteData) => {
  */
 export const obtenerTodosClientes = async () => {
   try {
-    const response = await api.get("/api/clientes");
+    const response = await api.get("/clientes");
     return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
     console.error("Error al obtener clientes:", error);
@@ -47,7 +47,7 @@ export const obtenerTodosClientes = async () => {
  */
 export const obtenerClientePorId = async (idCliente) => {
   try {
-    const response = await api.get(`/api/clientes/${idCliente}`);
+    const response = await api.get(`/clientes/${idCliente}`);
     return response.data;
   } catch (error) {
     console.error(`Error al obtener cliente ${idCliente}:`, error);
@@ -64,7 +64,7 @@ export const obtenerClientePorId = async (idCliente) => {
  */
 export const obtenerClientePorUid = async (firebaseUid) => {
   try {
-    const response = await api.get(`/api/clientes/usuario/${firebaseUid}`);
+    const response = await api.get(`/clientes/usuario/${firebaseUid}`);
     return response.data;
   } catch (error) {
     console.error(`Error al obtener cliente por UID ${firebaseUid}:`, error);
@@ -79,7 +79,7 @@ export const obtenerClientePorUid = async (firebaseUid) => {
  */
 export const obtenerClientePorEmail = async (email) => {
   try {
-    const response = await api.get(`/api/clientes/email/${email}`);
+    const response = await api.get(`/clientes/email/${email}`);
     return response.data;
   } catch (error) {
     console.error(`Error al obtener cliente por email ${email}:`, error);
@@ -103,7 +103,7 @@ export const actualizarCliente = async (id, nombreCliente, telefonoCliente = nul
     if (telefonoCliente) {
       params.append("telefonoCliente", telefonoCliente);
     }
-    const response = await api.put(`/api/clientes/${id}`, null, { params });
+    const response = await api.put(`/clientes/${id}`, null, { params });
     return response.data;
   } catch (error) {
     console.error(`Error al actualizar cliente ${id}:`, error);
@@ -123,7 +123,7 @@ export const actualizarCliente = async (id, nombreCliente, telefonoCliente = nul
  */
 export const actualizarPerfilCliente = async (perfilData) => {
   try {
-    const response = await api.put("/api/clientes/perfil", perfilData);
+    const response = await api.put("/clientes/perfil", perfilData);
     return response.data;
   } catch (error) {
     console.error("Error al actualizar perfil:", error);
@@ -144,7 +144,7 @@ export const actualizarPerfilCliente = async (perfilData) => {
  */
 export const actualizarEmailCliente = async (id, emailData) => {
   try {
-    const response = await api.put(`/api/clientes/${id}/email`, emailData);
+    const response = await api.put(`/clientes/${id}/email`, emailData);
     return response.data;
   } catch (error) {
     console.error(`Error al actualizar email del cliente ${id}:`, error);
@@ -164,7 +164,7 @@ export const actualizarEmailCliente = async (id, emailData) => {
  */
 export const eliminarCliente = async (id) => {
   try {
-    const response = await api.delete(`/api/clientes/${id}`);
+    const response = await api.delete(`/clientes/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error al eliminar cliente ${id}:`, error);
@@ -185,7 +185,7 @@ export const eliminarCliente = async (id) => {
  */
 export const crearDireccion = async (direccionData) => {
   try {
-    const response = await api.post("/api/clientes/direcciones", direccionData);
+    const response = await api.post("/clientes/direcciones", direccionData);
     return response.data;
   } catch (error) {
     console.error("Error al crear dirección:", error);
@@ -202,7 +202,7 @@ export const crearDireccion = async (direccionData) => {
  */
 export const obtenerDireccionesPorCliente = async (idCliente) => {
   try {
-    const response = await api.get(`/api/clientes/${idCliente}/direcciones`);
+    const response = await api.get(`/clientes/${idCliente}/direcciones`);
     return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
     console.error(`Error al obtener direcciones del cliente ${idCliente}:`, error);
@@ -220,7 +220,7 @@ export const obtenerDireccionesPorCliente = async (idCliente) => {
  */
 export const actualizarDireccion = async (idDireccion, direccionData) => {
   try {
-    const response = await api.put(`/api/clientes/direcciones/${idDireccion}`, direccionData);
+    const response = await api.put(`/clientes/direcciones/${idDireccion}`, direccionData);
     return response.data;
   } catch (error) {
     console.error(`Error al actualizar dirección ${idDireccion}:`, error);
@@ -237,7 +237,7 @@ export const actualizarDireccion = async (idDireccion, direccionData) => {
  */
 export const eliminarDireccion = async (idDireccion) => {
   try {
-    const response = await api.delete(`/api/clientes/direcciones/${idDireccion}`);
+    const response = await api.delete(`/clientes/direcciones/${idDireccion}`);
     return response.data;
   } catch (error) {
     console.error(`Error al eliminar dirección ${idDireccion}:`, error);

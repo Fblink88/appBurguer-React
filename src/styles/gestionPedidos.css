@@ -120,6 +120,74 @@
   min-height: 80px;
 }
 
+/* === Carrito de Productos === */
+.carrito-productos {
+  background-color: #1f1f1f;
+  padding: 20px;
+  border-radius: 6px;
+  border-left: 4px solid #ffcc00;
+  margin: 20px 0;
+}
+
+.carrito-productos h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #ffcc00;
+  font-size: 1.1rem;
+}
+
+.tabla-carrito-wrapper {
+  overflow-x: auto;
+}
+
+.tabla-carrito {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #2d2d2d;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.tabla-carrito thead {
+  background-color: #ffcc00;
+}
+
+.tabla-carrito th {
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #0d0d0d;
+  border-bottom: 2px solid #e6b800;
+  font-size: 0.9rem;
+}
+
+.tabla-carrito td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #444;
+  color: #fdfdfd;
+  font-size: 0.9rem;
+}
+
+.tabla-carrito tbody tr:hover {
+  background-color: #3a3a3a;
+}
+
+.btn-eliminar-item {
+  padding: 6px 12px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-eliminar-item:hover {
+  background-color: #c82333;
+}
+
 /* === Sección de Productos === */
 .productos-section {
   background-color: #1f1f1f;
@@ -143,7 +211,7 @@
 }
 
 .btn-agregar-producto {
-  padding: 10px 20px;
+  padding: 12px 30px;
   background-color: #ffcc00;
   color: #0d0d0d;
   border: none;
@@ -151,18 +219,25 @@
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 100%;
+  transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.btn-agregar-producto:hover {
+.btn-agregar-producto:hover:not(:disabled) {
   background-color: #e6b800;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 204, 0, 0.4);
 }
 
-.btn-agregar-producto:active {
-  transform: scale(0.98);
+.btn-agregar-producto:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-agregar-producto:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* === Tabla de Productos Temporales === */
@@ -275,10 +350,12 @@
   margin-top: 20px;
   justify-content: flex-start;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .btn-agregar,
-.btn-limpiar {
+.btn-limpiar,
+.btn-agregar-producto {
   padding: 12px 30px;
   border: none;
   border-radius: 5px;
@@ -593,7 +670,52 @@
   }
 }
 
-/* === Contenedor Principal (Wrapper) === */
+/* === Contenedor Principal (Wrapper) - LAYOUT VERTICAL === */
+.pedidos-wrapper-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+/* === Contenedor Crear Pedido (Ancho Completo) === */
+.crear-pedido-container-full {
+  background: #2a2a2a;
+  padding: 30px;
+  border-radius: 8px;
+  border-left: 5px solid #ffcc00;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  width: 100%;
+}
+
+.crear-pedido-container-full h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  color: #ffcc00;
+  border-bottom: 2px solid #ffcc00;
+  padding-bottom: 15px;
+}
+
+/* === Contenedor Lista Pedidos (Ancho Completo) === */
+.lista-pedidos-container-full {
+  background: #2a2a2a;
+  padding: 30px;
+  border-radius: 8px;
+  border-left: 5px solid #ffcc00;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  width: 100%;
+}
+
+.lista-pedidos-container-full h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  color: #ffcc00;
+  border-bottom: 2px solid #ffcc00;
+  padding-bottom: 15px;
+}
+
+/* === Mantener estilos antiguos por compatibilidad === */
 .pedidos-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -623,15 +745,15 @@
   background: #2a2a2a;
   padding: 30px;
   border-radius: 8px;
-  border-left: 5px solid #4caf50;
+  border-left: 5px solid #ffcc00;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .lista-pedidos-container h2 {
   margin-top: 0;
   margin-bottom: 25px;
-  color: #4caf50;
-  border-bottom: 2px solid #4caf50;
+  color: #ffcc00;
+  border-bottom: 2px solid #ffcc00;
   padding-bottom: 15px;
 }
 
