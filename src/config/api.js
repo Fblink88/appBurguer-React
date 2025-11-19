@@ -3,10 +3,10 @@ import axios from "axios";
 // Configuración de URLs según el ambiente
 const API_URLS = {
   // En desarrollo, usa el proxy de Vite
-  development: "/api/v1",
+  development: "/api",
 
-  // En producción, apunta directamente a la VM
-  production: "http://161.153.219.128:8080/api/v1"
+  // En producción, apunta directamente a la VM del backend exactamente a la apigateway
+  production: "http://161.153.219.128:8080/api"
 };
 
 // Detectar el ambiente actual
