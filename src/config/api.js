@@ -2,10 +2,9 @@ import axios from "axios";
 
 // Configuración de URLs según el ambiente
 const API_URLS = {
-  // En desarrollo, usa directamente la VM (el proxy no funciona bien con autenticación)
+  // En desarrollo, usa directamente la VM
   development: "http://161.153.219.128:8080/api",
-
-  // En producción, apunta directamente a la VM del backend exactamente a la apigateway
+  // En producción, apunta directamente a la VM del backend
   production: "http://161.153.219.128:8080/api"
 };
 
@@ -35,6 +34,11 @@ api.interceptors.request.use(
     if (token) {
       // Agregar token en el header Authorization (estándar)
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // Si el body es FormData, eliminar el Content-Type para que el navegador lo configure automáticamente
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
     }
 
     // Log en desarrollo

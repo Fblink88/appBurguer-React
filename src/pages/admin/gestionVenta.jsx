@@ -134,9 +134,9 @@ function GestionVenta() {
     setBoletasFiltradas(filtradas);
   };
 
-  // Eliminar boleta, venta y revertir pedido a Pendiente de Pago
+  // Eliminar boleta, venta y revertir pedido a Cancelado
   const handleEliminarBoleta = async (id) => {
-    if (window.confirm('¿Está seguro de que desea eliminar esta boleta y su venta? El pedido será revertido a "Pendiente de Pago".')) {
+    if (window.confirm('¿Está seguro de que desea eliminar esta boleta y su venta? El pedido será marcado como "Cancelado".')) {
       setLoading(true);
       try {
         // 1. Obtener la boleta para acceder al ID de venta y pedido
@@ -163,14 +163,14 @@ function GestionVenta() {
           console.log(' Venta eliminada');
         }
 
-        // 4. Revertir estado del pedido a "Pendiente de Pago" (estado 1)
-        // Esto permite que el pedido pueda volver a marcarse como pagado
+        // 4. Revertir estado del pedido a "Cancelado" (estado 7)
+        // Esto marca el pedido como cancelado al eliminar la venta
         if (idPedido) {
           try {
-            await pedidosService.actualizarEstadoPedido(idPedido, 1);
-            console.log('Pedido revertido a Pendiente de Pago');
+            await pedidosService.actualizarEstadoPedido(idPedido, 7);
+            console.log('Pedido marcado como Cancelado');
           } catch (err) {
-            console.warn('No se pudo revertir el estado del pedido:', err.message);
+            console.warn('No se pudo cambiar el estado del pedido:', err.message);
             console.warn('  El pedido quedará con su estado actual');
           }
         }
@@ -178,7 +178,7 @@ function GestionVenta() {
         // 5. Recargar boletas después de eliminar
         await cargarBoletas();
         
-        alert('Operación exitosa:\n- Boleta eliminada\n- Venta eliminada\n- Pedido revertido a "Pendiente de Pago"');
+        alert('Operación exitosa:\n- Boleta eliminada\n- Venta eliminada\n- Pedido marcado como "Cancelado"');
       } catch (err) {
         console.error(' Error al eliminar:', err);
         alert('Error al eliminar: ' + err.message);
