@@ -58,6 +58,10 @@ export default function Sidebar({ adminName, onLogoutAdmin }) {
           <span className="nav-link-text-short">Productos</span>
         </Nav.Link>
 
+        <Nav.Link as={NavLink} to="/admin/gestion-venta">
+          <i className="bi bi-list-check me-2"></i>
+          <span className="nav-link-text-full">Gestión Venta</span>
+          <span className="nav-link-text-short">Estados</span>
         <Nav.Link as={NavLink} to="/admin/gestion-contacto">
           <i className="bi bi-envelope-paper me-2"></i>
           <span className="nav-link-text-full">Gestión Contacto</span>

@@ -11,6 +11,7 @@ import GestionPedidos from './pages/admin/gestionPedidos';
 import GestionClientes from './pages/admin/gestionClientes';
 import GestionTrabajadores from './pages/admin/gestionTrabajadores';
 import NuevoUsuario from './pages/admin/nuevoUsuario';
+import GestionVenta from './pages/admin/gestionVenta';
 import GestionContacto from './pages/admin/gestionContacto';
 
 import CarroPag from './pages/client/CarroPag';
@@ -42,6 +43,8 @@ function App() {
         <Route path="/admin/gestion-trabajadores" element={<ProtectedRoute element={<GestionTrabajadores />} requiredRole="ADMIN" />} />
         <Route path="/admin/nuevo-usuario" element={<ProtectedRoute element={<NuevoUsuario />} requiredRole="ADMIN" />} />
         <Route path="/admin/nuevo-cliente" element={<ProtectedRoute element={<NuevoCliente />} requiredRole="ADMIN" />} />
+        <Route path="/admin/gestion-venta" element={<ProtectedRoute element={<GestionVenta />} requiredRole="ADMIN" />} />
+        
         <Route path="/admin/gestion-contacto" element={<ProtectedRoute element={<GestionContacto />} requiredRole="ADMIN" />} />
               
       </Routes>
