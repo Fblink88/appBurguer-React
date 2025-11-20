@@ -190,3 +190,236 @@
   color: #ffcc00;
   margin-bottom: 1rem;
 }
+
+
+/* --- ESTILOS ADICIONALES PARA EL DASHBOARD ADMIN --- */
+.dashboard-layout {
+  display: flex;
+  background: #1f1f1f;
+  min-height: 100vh;
+}
+
+.dashboard-container {
+  flex: 1;
+  padding: 30px;
+  color: white;
+}
+
+.dashboard-title {
+  font-size: 2.2rem;
+  margin-bottom: 25px;
+  font-weight: bold;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.kpi-card {
+  background: #2c2c2c;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.kpi-card h3 {
+  margin-bottom: 10px;
+  color: #f1c40f;
+}
+
+.kpi-card p {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 25px;
+}
+
+.chart-box {
+  background: #2c2c2c;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.chart-box h2 {
+  margin-bottom: 15px;
+  color: #f1c40f;
+}
+
+.loading {
+  color: white;
+  text-align: center;
+  margin-top: 40px;
+}
+
+/* =====================================================
+   ESTILOS PARA GESTIÓN DE MENSAJES DE CONTACTO
+   ===================================================== */
+
+/* Destacar visualmente los mensajes no leídos */
+.fila-no-leido {
+  background-color: rgba(255, 193, 7, 0.15) !important;
+  font-weight: 600;
+  border-left: 4px solid #ffc107;
+  animation: pulsoSutil 2s ease-in-out infinite;
+}
+
+.fila-no-leido td {
+  color: #fff !important;
+}
+
+/* Animación sutil para mensajes no leídos */
+@keyframes pulsoSutil {
+  0%, 100% {
+    background-color: rgba(255, 193, 7, 0.15);
+  }
+  50% {
+    background-color: rgba(255, 193, 7, 0.25);
+  }
+}
+
+/* Hover effect para filas de la tabla */
+.table-dark tbody tr:hover {
+  background-color: rgba(255, 193, 7, 0.1) !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Estilos para el contenedor de la tabla responsive */
+.table-responsive {
+  background-color: #1a1c20;
+}
+
+/* Scroll personalizado para la tabla */
+.table-responsive::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #2a2c33;
+  border-radius: 5px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #ffc107;
+  border-radius: 5px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #ffb300;
+}
+
+/* Estilos para badges de estado */
+.badge {
+  font-size: 0.85rem;
+  padding: 0.4em 0.8em;
+  font-weight: 600;
+}
+
+/* Estilos para botones pequeños */
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Mejora visual para modales */
+.modal-content {
+  border: 2px solid #ffc107;
+}
+
+.modal-header {
+  padding: 1.25rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  padding: 1rem;
+}
+
+/* Efecto hover para botones de acción */
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+
+/* Estilo para el contador de mensajes */
+.text-muted {
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* Mejora de legibilidad en tablas oscuras */
+.table-dark td {
+  vertical-align: middle;
+}
+
+/* Estilo para links de correo en el modal */
+a.text-warning:hover {
+  color: #ffb300 !important;
+  text-decoration: underline;
+}
+
+/* Responsive: ajustar columna de acciones en pantallas pequeñas */
+@media (max-width: 768px) {
+  .table td, .table th {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+  }
+  
+  .btn-sm {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.75rem;
+  }
+  
+  /* Ocultar el punto indicador en móvil para evitar superposición */
+  .fila-no-leido::before {
+    display: none;
+  }
+}
+
+/* --- Mantener tabla alineada --- */
+table tbody tr {
+  height: 60px !important;
+  vertical-align: middle !important;
+}
+
+/* --- Columna fija para fecha --- */
+table td:first-child,
+table th:first-child {
+  width: 160px !important;
+  white-space: nowrap;
+}
+
+/* --- Fila no leída con indicador visual sin romper layout --- */
+.fila-no-leido td:first-child {
+  position: relative;
+}
+
+.fila-no-leido td:first-child::before {
+  content: "•";
+  color: #ffc107;
+  font-size: 20px;
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.card {
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.1);
+}
