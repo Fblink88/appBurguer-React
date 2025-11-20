@@ -83,16 +83,19 @@ export const obtenerProductosDisponibles = async () => {
 };
 
 /**
- * POST /api/productos - Crear un nuevo producto
+ * POST /api/catalogo/productos - Crear un nuevo producto
  * Requiere: token JWT válido
  * Roles: ADMIN
  */
 export const crearProducto = async (productoData) => {
   try {
-    const response = await api.post("/productos", productoData);
+    const response = await api.post("/catalogo/productos", productoData);
+    console.log('✅ Producto creado:', response.data);
     return response.data;
   } catch (error) {
-    console.error("Error al crear producto:", error);
+    console.error("❌ Error al crear producto:", error);
+    console.error("Status:", error.response?.status);
+    console.error("Mensaje:", error.response?.data?.message || error.message);
     throw error;
   }
 };
@@ -113,16 +116,83 @@ export const actualizarProducto = async (idProducto, productoData) => {
 };
 
 /**
- * DELETE /api/productos/{id} - Eliminar un producto
+ * DELETE /api/catalogo/productos/{id} - Eliminar un producto
  * Requiere: token JWT válido
  * Roles: ADMIN
  */
 export const eliminarProducto = async (idProducto) => {
   try {
-    const response = await api.delete(`/productos/${idProducto}`);
+    const response = await api.delete(`/catalogo/productos/${idProducto}`);
+    console.log('Producto eliminado:', idProducto);
     return response.data;
   } catch (error) {
     console.error(`Error al eliminar producto ${idProducto}:`, error);
     throw error;
   }
 };
+
+/**
+ * POST /api/catalogo/productos/{id}/imagen - Subir imagen del producto a Firebase
+ * Requiere: token JWT válido
+ * Roles: ADMIN, TRABAJADOR
+ * @param {number} idProducto - ID del producto
+ * @param {File} file - Archivo de imagen (jpg, png, webp, etc.)
+ * @returns {Promise<{imageUrl: string, mensaje: string}>} URL de la imagen en Firebase
+ */
+export const subirImagenProducto = async (idProducto, file) => {
+  try {
+    // Validar que el archivo sea una imagen
+    if (!file || !file.type.startsWith('image/')) {
+      throw new Error('El archivo debe ser una imagen');
+    }
+
+    // Crear FormData para enviar el archivo
+    const formData = new FormData();
+    formData.append('imagen', file);
+
+    console.log('📤 Subiendo imagen para producto:', idProducto);
+    console.log('📤 Archivo:', file.name, 'Tipo:', file.type, 'Tamaño:', file.size);
+    console.log('📤 FormData creado:', formData);
+    console.log('📤 Contenido imagen:', formData.get('imagen'));
+
+    // Enviar la imagen al backend
+    // NO establecer ningún header Content-Type para que el navegador lo configure automáticamente
+    const response = await api.post(`/catalogo/productos/${idProducto}/imagen`, formData);
+
+    console.log('✅ Imagen subida exitosamente:', response.data);
+    return response.data; // Retorna { imageUrl: "...", mensaje: "..." }
+  } catch (error) {
+    console.error(`❌ Error al subir imagen del producto ${idProducto}:`, error);
+    console.error('Status:', error.response?.status);
+    console.error('Data:', error.response?.data);
+    console.error('Mensaje:', error.response?.data?.message || error.message);
+    throw error;
+  }
+};
+
+/**
+ * PATCH /api/catalogo/productos/{id}/disponibilidad - Cambiar disponibilidad del producto
+ * Requiere: token JWT válido
+ * Roles: ADMIN, TRABAJADOR
+ * @param {number} idProducto - ID del producto
+ * @param {boolean} disponible - Nueva disponibilidad
+ */
+export const cambiarDisponibilidad = async (idProducto, disponible) => {
+  try {
+    const response = await api.patch(
+      `/catalogo/productos/${idProducto}/disponibilidad`,
+      null,
+      {
+        params: { disponible }
+      }
+    );
+    console.log('Disponibilidad actualizada:', disponible);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al cambiar disponibilidad del producto ${idProducto}:`, error);
+    throw error;
+  }
+};
+
+
+
