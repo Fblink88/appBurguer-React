@@ -44,6 +44,7 @@ export default function GestionClientes() {
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
+  const [busqueda, setBusqueda] = useState('');
 
   // --- Estados para modal de cliente ---
   const [showModalCliente, setShowModalCliente] = useState(false);
@@ -114,6 +115,26 @@ export default function GestionClientes() {
       texto: '✓ Datos recargados exitosamente'
     });
   };
+
+  // Filtrar clientes según búsqueda
+  const clientesFiltrados = clientes.filter(cliente => {
+    if (!busqueda.trim()) return true;
+
+    const terminoBusqueda = busqueda.toLowerCase();
+    const nombre = cliente.nombreCliente?.toLowerCase() || '';
+    const telefono = cliente.telefonoCliente?.toString() || '';
+    const email = (cliente.usuario?.email || cliente.email || '').toLowerCase();
+    const idCliente = cliente.idCliente?.toString() || '';
+    const fechaCreacion = cliente.usuario?.fechaCreacion || '';
+
+    return (
+      nombre.includes(terminoBusqueda) ||
+      telefono.includes(terminoBusqueda) ||
+      email.includes(terminoBusqueda) ||
+      idCliente.includes(terminoBusqueda) ||
+      fechaCreacion.includes(terminoBusqueda)
+    );
+  });
 
   // Recargar direcciones del cliente seleccionado
   const recargarDireccionesCliente = async (idCliente) => {
@@ -653,7 +674,28 @@ export default function GestionClientes() {
         <section className="mb-5">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h2>Clientes Registrados</h2>
-            <div className="d-flex gap-2">
+            <div className="d-flex gap-2 align-items-center">
+              {/* Buscador */}
+              <div className="position-relative">
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  placeholder="🔍 Buscar cliente..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  style={{ minWidth: '250px', paddingRight: busqueda ? '30px' : '10px' }}
+                />
+                {busqueda && (
+                  <button
+                    className="btn btn-link position-absolute top-50 end-0 translate-middle-y p-0 me-2"
+                    onClick={() => setBusqueda('')}
+                    style={{ fontSize: '14px', color: '#999' }}
+                    title="Limpiar búsqueda"
+                  >
+                    <i className="bi bi-x-circle-fill"></i>
+                  </button>
+                )}
+              </div>
               <button
                 className="btn btn-outline-light"
                 onClick={handleRecargarDatos}
@@ -689,8 +731,8 @@ export default function GestionClientes() {
                 </tr>
               </thead>
               <tbody>
-                {clientes.length > 0 ? (
-                  clientes.map((c) => (
+                {clientesFiltrados.length > 0 ? (
+                  clientesFiltrados.map((c) => (
                     <tr
                       key={c.idCliente}
                       onClick={() => handleSeleccionarCliente(c)}
@@ -727,7 +769,7 @@ export default function GestionClientes() {
                 ) : (
                   <tr>
                     <td colSpan="6" className="text-center text-muted">
-                      No hay clientes registrados
+                      {busqueda ? `No se encontraron clientes con "${busqueda}"` : 'No hay clientes registrados'}
                     </td>
                   </tr>
                 )}

@@ -50,6 +50,7 @@ export default function GestionTrabajadores() {
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
   const [pasoCreacion, setPasoCreacion] = useState(1); // Paso 1: Firebase, Paso 2: Oracle
   const [firebaseUidCreado, setFirebaseUidCreado] = useState(null);
+  const [busqueda, setBusqueda] = useState('');
 
   // --- Cargar datos iniciales al montar el componente ---
   useEffect(() => {
@@ -104,6 +105,26 @@ export default function GestionTrabajadores() {
     const rol = roles.find(r => r.idRol === idRol);
     return rol ? rol.nombreRol : `Rol ID: ${idRol}`;
   };
+
+  // Filtrar trabajadores según búsqueda
+  const trabajadoresFiltrados = trabajadores.filter(trabajador => {
+    if (!busqueda.trim()) return true;
+
+    const terminoBusqueda = busqueda.toLowerCase();
+    const nombre = trabajador.nombreTrabajador?.toLowerCase() || '';
+    const rut = trabajador.rutTrabajador?.toLowerCase() || '';
+    const email = (trabajador.usuario?.email || '').toLowerCase();
+    const idTrabajador = trabajador.idTrabajador?.toString() || '';
+    const rol = getNombreRol(trabajador.usuario?.idRol)?.toLowerCase() || '';
+
+    return (
+      nombre.includes(terminoBusqueda) ||
+      rut.includes(terminoBusqueda) ||
+      email.includes(terminoBusqueda) ||
+      idTrabajador.includes(terminoBusqueda) ||
+      rol.includes(terminoBusqueda)
+    );
+  });
 
   // --- Abrir modal para crear/editar trabajador ---
   const handleAbrirModalTrabajador = (trabajador = null) => {
@@ -356,7 +377,28 @@ export default function GestionTrabajadores() {
         <section>
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h2>Trabajadores</h2>
-            <div className="d-flex gap-2">
+            <div className="d-flex gap-2 align-items-center">
+              {/* Buscador */}
+              <div className="position-relative">
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  placeholder="🔍 Buscar trabajador..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  style={{ minWidth: '250px', paddingRight: busqueda ? '30px' : '10px' }}
+                />
+                {busqueda && (
+                  <button
+                    className="btn btn-link position-absolute top-50 end-0 translate-middle-y p-0 me-2"
+                    onClick={() => setBusqueda('')}
+                    style={{ fontSize: '14px', color: '#999' }}
+                    title="Limpiar búsqueda"
+                  >
+                    <i className="bi bi-x-circle-fill"></i>
+                  </button>
+                )}
+              </div>
               <button
                 className="btn btn-outline-light"
                 onClick={handleRecargarDatos}
@@ -397,8 +439,8 @@ export default function GestionTrabajadores() {
                       <p className="mt-3 text-muted">Cargando trabajadores...</p>
                     </td>
                   </tr>
-                ) : trabajadores.length > 0 ? (
-                  trabajadores.map((t) => (
+                ) : trabajadoresFiltrados.length > 0 ? (
+                  trabajadoresFiltrados.map((t) => (
                     <tr key={t.idTrabajador || t.id}>
                       <td>{t.idTrabajador || t.id}</td>
                       <td>{t.nombreTrabajador || t.nombre || 'No disponible'}</td>
@@ -424,7 +466,7 @@ export default function GestionTrabajadores() {
                 ) : (
                   <tr>
                     <td colSpan="6" className="text-center text-muted">
-                      No hay trabajadores registrados
+                      {busqueda ? `No se encontraron trabajadores con "${busqueda}"` : 'No hay trabajadores registrados'}
                     </td>
                   </tr>
                 )}
