@@ -46,9 +46,24 @@ export default function HeaderComp() {
 
   // Función para cerrar sesión
   const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
+    // Limpiar TODOS los datos de sesión del localStorage
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('userId');
     localStorage.removeItem('userName');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('carrito');
+    localStorage.removeItem('pedidoPendientePago');
+
+    // Actualizar el estado
     setUsuario(null);
+    setContadorCarrito(0);
+
+    // Disparar evento storage para notificar a otros componentes
+    window.dispatchEvent(new Event('storage'));
+
+    // Redirigir al inicio
     navigate('/');
   };
 
