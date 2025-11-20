@@ -46,7 +46,10 @@ function Login() {
       // PASO 1: Autenticar con Firebase
       const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
       const firebaseToken = await userCredential.user.getIdToken();
-      
+      const firebaseUid = userCredential.user.uid; // ✅ Obtener UID directamente de Firebase
+
+      console.log("🔐 Firebase UID:", firebaseUid);
+
       // PASO 2: Enviar token Firebase al API Gateway
       const response = await api.post("/auth/login", {
         firebaseToken: firebaseToken
@@ -65,20 +68,26 @@ function Login() {
       console.log("Token primeros 50 chars:", token?.substring(0, 50));
       
       if (token && userData) {
-        console.log("Usuario:", userData);
+        console.log("========== DATOS DEL USUARIO ==========");
+        console.log("Usuario completo:", userData);
+        console.log("Campos disponibles:", Object.keys(userData));
         console.log("Rol:", userData.rolNombre);
+        console.log("ID Usuario:", userData.idUsuario);
+        console.log("========================================");
 
         // Guardar token e información del usuario
         localStorage.setItem("authToken", token);
         localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("userName", userData.email);
+        localStorage.setItem("userId", firebaseUid); // ✅ Firebase UID obtenido directamente de Firebase
         localStorage.setItem("userRole", userData.rolNombre); // "Admin", "Trabajador", "Cliente"
         localStorage.setItem("isLoggedIn", "true");
 
         // Verificar que se guardó correctamente
-        console.log("Token guardado:", localStorage.getItem("authToken")?.substring(0, 20) + "...");
-        console.log("Role guardado:", localStorage.getItem("userRole"));
-        console.log("isLoggedIn:", localStorage.getItem("isLoggedIn"));
+        console.log("✅ Token guardado:", localStorage.getItem("authToken")?.substring(0, 20) + "...");
+        console.log("✅ User ID guardado:", localStorage.getItem("userId"));
+        console.log("✅ Role guardado:", localStorage.getItem("userRole"));
+        console.log("✅ isLoggedIn:", localStorage.getItem("isLoggedIn"));
 
         // PASO 4: Redirigir según el rol
         if (userData.rolNombre === "Admin" || userData.rolNombre === "Trabajador") {

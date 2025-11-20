@@ -1,108 +1,61 @@
-import React, { useState } from "react"; 
+import React, { useState, useEffect } from "react";
 import { Modal, Form, Button, Spinner, Alert } from 'react-bootstrap';
 import Sidebar from "../../components/Sidebar";
+import {
+  obtenerTodosClientes,
+  registrarCliente,
+  registrarClientePorAdmin,
+  actualizarCliente,
+  eliminarCliente,
+  obtenerDireccionesPorCliente,
+  crearDireccion,
+  actualizarDireccion,
+  eliminarDireccion,
+  obtenerTodasCiudades
+} from "../../services/usuariosService";
 
-// Mock data de clientes con información completa
-const mockClientesCompletos = [
-  {
-    id: 1,
-    nombre: 'Juan Pérez González',
-    telefono: '+56912345678',
-    email: 'juan.perez@ejemplo.com',
-    fechaRegistro: '2024-01-15',
-    direcciones: [
-      {
-        id: 1,
-        idCiudad: 1,
-        direccion: 'Av. Principal 123, Edificio azul, Depto 405',
-        alias: 'Casa'
-      },
-      {
-        id: 2,
-        idCiudad: 2,
-        direccion: 'Los Aromos 456, Casa blanca con portón verde',
-        alias: 'Trabajo'
-      }
-    ]
-  },
-  {
-    id: 2,
-    nombre: 'María López Silva',
-    telefono: '+56987654321',
-    email: 'maria.lopez@ejemplo.com',
-    fechaRegistro: '2024-02-20',
-    direcciones: [
-      {
-        id: 3,
-        idCiudad: 3,
-        direccion: 'Calle Los Pinos 789, Depto 102',
-        alias: 'Casa'
-      }
-    ]
-  },
-  {
-    id: 3,
-    nombre: 'Carlos Ramírez',
-    telefono: '+56965432178',
-    email: 'carlos.ramirez@ejemplo.com',
-    fechaRegistro: '2024-03-10',
-    direcciones: []
-  },
-  {
-    id: 4,
-    nombre: 'Ana Martínez Torres',
-    telefono: '+56923456789',
-    email: 'ana.martinez@ejemplo.com',
-    fechaRegistro: '2024-01-25',
-    direcciones: [
-      {
-        id: 4,
-        idCiudad: 4,
-        direccion: 'Av. Libertad 321, Casa esquina',
-        alias: 'Casa principal'
-      },
-      {
-        id: 5,
-        idCiudad: 5,
-        direccion: 'Pasaje Las Rosas 555',
-        alias: 'Casa de verano'
-      },
-      {
-        id: 6,
-        idCiudad: 1,
-        direccion: 'Centro Comercial Plaza, Local 45',
-        alias: 'Oficina'
-      }
-    ]
-  }
-];
+// Firebase imports
+import { initializeApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
-// Mapeo de ciudades
-const ciudades = {
-  1: 'Viña del Mar',
-  2: 'Valparaíso',
-  3: 'Curauma',
-  4: 'Quilpué',
-  5: 'Villa Alemana'
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyD_2NIG34JLQ3fPr2SRzwr3PRTb9IedILY",
+  authDomain: "goldenburgers-60680.firebaseapp.com",
+  projectId: "goldenburgers-60680",
+  storageBucket: "goldenburgers-60680.firebasestorage.app",
+  messagingSenderId: "200007088077",
+  appId: "1:200007088077:web:b0578771a57f0ecb733684",
+  measurementId: "G-HWX8VTT56V"
 };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 
 // --- Componente Principal ---
 export default function GestionClientes() {
 
   // --- Estados del componente ---
-  const [clientes, setClientes] = useState(mockClientesCompletos);
+  const [clientes, setClientes] = useState([]);
+  const [ciudades, setCiudades] = useState([]);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+  const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
 
   // --- Estados para modal de cliente ---
   const [showModalCliente, setShowModalCliente] = useState(false);
   const [clienteEditando, setClienteEditando] = useState(null);
+  const [pasoCreacion, setPasoCreacion] = useState(1); // Paso 1: Firebase, Paso 2: Datos cliente
+  const [firebaseUidCreado, setFirebaseUidCreado] = useState(''); // UID del usuario creado en Firebase
   const [formCliente, setFormCliente] = useState({
+    idUsuario: '',  // Firebase UID (solo usado al editar)
     nombre: '',
     telefono: '',
-    email: ''
+    email: '',
+    password: ''    // Contraseña (solo al crear)
   });
 
   // --- Estados para modal de dirección ---
@@ -114,25 +67,102 @@ export default function GestionClientes() {
     alias: ''
   });
 
+  // --- CARGAR DATOS INICIALES ---
+  useEffect(() => {
+    cargarDatosIniciales();
+  }, []);
+
+  const cargarDatosIniciales = async () => {
+    try {
+      setCargando(true);
+
+      // Cargar clientes y ciudades en paralelo
+      const [clientesData, ciudadesData] = await Promise.all([
+        obtenerTodosClientes(),
+        obtenerTodasCiudades()
+      ]);
+
+      console.log('📋 Clientes cargados:', clientesData);
+      console.log('🏙️ Ciudades cargadas:', ciudadesData);
+
+      // Debug: verificar estructura del primer cliente
+      if (clientesData.length > 0) {
+        console.log('👤 Primer cliente completo:', clientesData[0]);
+        console.log('📧 Email del primer cliente:', clientesData[0].usuario?.email);
+      }
+
+      setClientes(clientesData);
+      setCiudades(ciudadesData);
+
+    } catch (error) {
+      console.error('Error al cargar datos iniciales:', error);
+      setMensaje({
+        tipo: 'danger',
+        texto: 'Error al cargar los datos. Por favor, recarga la página.'
+      });
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  // --- Función para recargar los datos ---
+  const handleRecargarDatos = async () => {
+    setMensaje({ tipo: '', texto: '' });
+    await cargarDatosIniciales();
+    setMensaje({
+      tipo: 'success',
+      texto: '✓ Datos recargados exitosamente'
+    });
+  };
+
+  // Recargar direcciones del cliente seleccionado
+  const recargarDireccionesCliente = async (idCliente) => {
+    try {
+      const direcciones = await obtenerDireccionesPorCliente(idCliente);
+
+      // Actualizar el cliente en la lista
+      setClientes(prev => prev.map(c =>
+        c.idCliente === idCliente
+          ? { ...c, direcciones }
+          : c
+      ));
+
+      // Actualizar cliente seleccionado si es el mismo
+      if (clienteSeleccionado?.idCliente === idCliente) {
+        setClienteSeleccionado(prev => ({ ...prev, direcciones }));
+      }
+    } catch (error) {
+      console.error('Error al recargar direcciones:', error);
+    }
+  };
+
   // --- FUNCIONES PARA CLIENTE ---
   
   // Abrir modal para crear/editar cliente
   const handleAbrirModalCliente = (cliente = null) => {
     if (cliente) {
-      // Modo edición
+      // Modo edición (sin pasos, va directo)
       setClienteEditando(cliente);
+      setPasoCreacion(1); // No usa pasos al editar
+      setFirebaseUidCreado('');
       setFormCliente({
-        nombre: cliente.nombre,
-        telefono: cliente.telefono,
-        email: cliente.email
+        idUsuario: cliente.idUsuario || '',
+        nombre: cliente.nombreCliente || '',
+        telefono: cliente.telefonoCliente || '',
+        email: cliente.usuario?.email || cliente.email || '',
+        password: ''
       });
     } else {
-      // Modo creación
+      // Modo creación (empieza en paso 1: crear en Firebase)
       setClienteEditando(null);
+      setPasoCreacion(1);
+      setFirebaseUidCreado('');
       setFormCliente({
+        idUsuario: '',
         nombre: '',
         telefono: '',
-        email: ''
+        email: '',
+        password: ''
       });
     }
     setShowModalCliente(true);
@@ -142,10 +172,14 @@ export default function GestionClientes() {
   const handleCerrarModalCliente = () => {
     setShowModalCliente(false);
     setClienteEditando(null);
+    setPasoCreacion(1);
+    setFirebaseUidCreado('');
     setFormCliente({
+      idUsuario: '',
       nombre: '',
       telefono: '',
-      email: ''
+      email: '',
+      password: ''
     });
   };
 
@@ -158,98 +192,270 @@ export default function GestionClientes() {
     }));
   };
 
-  // Guardar cliente (crear o actualizar)
-  const handleGuardarCliente = async (e) => {
+  // PASO 1: Crear usuario en Firebase
+  const handlePaso1_CrearEnFirebase = async (e) => {
     e.preventDefault();
-    
+
     try {
       // Validaciones
-      if (!formCliente.nombre.trim() || !formCliente.email.trim()) {
-        setMensaje({ 
-          tipo: 'warning', 
-          texto: 'Por favor, completa todos los campos obligatorios' 
+      if (!formCliente.email.trim() || !formCliente.password.trim()) {
+        setMensaje({
+          tipo: 'warning',
+          texto: 'Por favor, completa email y contraseña'
         });
         return;
       }
 
-      if (!formCliente.email.includes('@')) {
-        setMensaje({ 
-          tipo: 'warning', 
-          texto: 'Por favor, ingresa un email válido' 
+      if (formCliente.password.length < 6) {
+        setMensaje({
+          tipo: 'warning',
+          texto: 'La contraseña debe tener al menos 6 caracteres'
         });
         return;
       }
-      
+
       setGuardando(true);
       setMensaje({ tipo: '', texto: '' });
-      
-      if (clienteEditando) {
-        // ACTUALIZAR cliente existente
-        setTimeout(() => {
-          setClientes(prev => prev.map(c => 
-            c.id === clienteEditando.id 
-              ? { ...c, ...formCliente }
-              : c
-          ));
-          
-          // Si el cliente editado está seleccionado, actualizar la selección
-          if (clienteSeleccionado && clienteSeleccionado.id === clienteEditando.id) {
-            setClienteSeleccionado(prev => ({ ...prev, ...formCliente }));
-          }
-          
-          handleCerrarModalCliente();
-          setMensaje({ 
-            tipo: 'success', 
-            texto: '✓ Cliente actualizado exitosamente' 
-          });
-          setGuardando(false);
-        }, 800);
-        
-      } else {
-        // CREAR nuevo cliente
-        setTimeout(() => {
-          const nuevoCliente = {
-            id: Math.max(...clientes.map(c => c.id), 0) + 1,
-            ...formCliente,
-            fechaRegistro: new Date().toISOString().split('T')[0],
-            direcciones: []
-          };
-          
-          setClientes(prev => [...prev, nuevoCliente]);
-          
-          handleCerrarModalCliente();
-          setMensaje({ 
-            tipo: 'success', 
-            texto: '✓ Cliente creado exitosamente' 
-          });
-          setGuardando(false);
-        }, 800);
-      }
-      
-    } catch (error) {
-      console.error('Error guardando cliente:', error);
-      setMensaje({ 
-        tipo: 'danger', 
-        texto: 'Error al guardar el cliente. Por favor, intenta nuevamente.' 
+
+      console.log('🔐 PASO 1: Creando usuario en Firebase...');
+      console.log('📧 Email:', formCliente.email.trim());
+
+      // Crear usuario en Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formCliente.email.trim(),
+        formCliente.password
+      );
+      const firebaseUid = userCredential.user.uid;
+
+      console.log('✅ Usuario creado en Firebase exitosamente');
+      console.log('🆔 Firebase UID:', firebaseUid);
+
+      // Guardar el UID para usarlo en el paso 2
+      setFirebaseUidCreado(firebaseUid);
+
+      // Avanzar al paso 2
+      setPasoCreacion(2);
+
+      setMensaje({
+        tipo: 'success',
+        texto: '✓ Usuario creado en Firebase. Ahora completa los datos del cliente.'
       });
+
+    } catch (error) {
+      console.error('❌ Error en Paso 1:', error);
+
+      if (error.code === 'auth/email-already-in-use') {
+        setMensaje({
+          tipo: 'danger',
+          texto: 'Este email ya está registrado en Firebase'
+        });
+      } else if (error.code === 'auth/weak-password') {
+        setMensaje({
+          tipo: 'danger',
+          texto: 'La contraseña debe tener al menos 6 caracteres'
+        });
+      } else if (error.code === 'auth/invalid-email') {
+        setMensaje({
+          tipo: 'danger',
+          texto: 'El email no es válido'
+        });
+      } else {
+        setMensaje({
+          tipo: 'danger',
+          texto: 'Error al crear usuario en Firebase: ' + error.message
+        });
+      }
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  // PASO 2: Registrar cliente en Oracle
+  const handlePaso2_RegistrarEnOracle = async (e) => {
+    e.preventDefault();
+
+    try {
+      // Validaciones
+      if (!formCliente.nombre.trim()) {
+        setMensaje({
+          tipo: 'warning',
+          texto: 'Por favor, ingresa el nombre del cliente'
+        });
+        return;
+      }
+
+      if (!firebaseUidCreado) {
+        setMensaje({
+          tipo: 'danger',
+          texto: 'Error: No se encontró el UID de Firebase. Vuelve al paso 1.'
+        });
+        return;
+      }
+
+      // Validar teléfono si está presente
+      if (formCliente.telefono.trim()) {
+        // Limpiar el teléfono (solo números)
+        const telefonoLimpio = formCliente.telefono.replace(/\D/g, '');
+
+        if (telefonoLimpio.length !== 9) {
+          setMensaje({
+            tipo: 'warning',
+            texto: 'El teléfono debe tener exactamente 9 dígitos numéricos'
+          });
+          return;
+        }
+
+        // Actualizar el teléfono limpio en el formulario
+        setFormCliente(prev => ({ ...prev, telefono: telefonoLimpio }));
+      }
+
+      setGuardando(true);
+      setMensaje({ tipo: '', texto: '' });
+
+      console.log('💾 PASO 2: Registrando cliente en Oracle...');
+      console.log('🔑 Usando token del ADMIN (desde localStorage)');
+
+      // Verificar que el token existe
+      const adminToken = localStorage.getItem("authToken");
+      const userRole = localStorage.getItem("userRole");
+      const userName = localStorage.getItem("userName");
+
+      console.log('👤 Usuario actual:', userName);
+      console.log('🎭 Rol actual:', userRole);
+      console.log('🔐 Token existe:', !!adminToken);
+      console.log('🔐 Token (primeros 50 chars):', adminToken?.substring(0, 50) + '...');
+
+      if (!adminToken) {
+        setMensaje({
+          tipo: 'danger',
+          texto: 'Error: No se encontró token de autenticación. Por favor, inicia sesión nuevamente.'
+        });
+        setGuardando(false);
+        return;
+      }
+
+      console.log('📦 Datos a enviar:', {
+        idUsuario: firebaseUidCreado,
+        nombreCliente: formCliente.nombre.trim(),
+        email: formCliente.email.trim(),
+        telefonoCliente: formCliente.telefono.trim() || null
+      });
+
+      // Registrar en Oracle usando el servicio de ADMIN (usa el token del ADMIN automáticamente)
+      const nuevoCliente = await registrarClientePorAdmin({
+        idUsuario: firebaseUidCreado,
+        nombreCliente: formCliente.nombre.trim(),
+        email: formCliente.email.trim(),
+        telefonoCliente: formCliente.telefono.trim() || null
+      });
+
+      console.log('✅ Cliente registrado en Oracle exitosamente:', nuevoCliente);
+
+      // Actualizar lista local
+      setClientes(prev => [...prev, nuevoCliente]);
+
+      handleCerrarModalCliente();
+      setMensaje({
+        tipo: 'success',
+        texto: '✓ Cliente creado exitosamente en Firebase y Oracle'
+      });
+
+    } catch (error) {
+      console.error('❌ Error en Paso 2:', error);
+      setMensaje({
+        tipo: 'danger',
+        texto: error.response?.data?.message || 'Error al registrar el cliente en Oracle.'
+      });
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  // Actualizar cliente (solo para editar, no para crear)
+  const handleGuardarCliente = async (e) => {
+    e.preventDefault();
+
+    try {
+      // Validaciones
+      if (!formCliente.nombre.trim()) {
+        setMensaje({
+          tipo: 'warning',
+          texto: 'Por favor, ingresa el nombre del cliente'
+        });
+        return;
+      }
+
+      setGuardando(true);
+      setMensaje({ tipo: '', texto: '' });
+
+      // Actualizar cliente existente
+      const clienteActualizado = await actualizarCliente(
+        clienteEditando.idCliente,
+        formCliente.nombre,
+        formCliente.telefono
+      );
+
+      // Actualizar en la lista local
+      setClientes(prev => prev.map(c =>
+        c.idCliente === clienteEditando.idCliente
+          ? { ...c, nombreCliente: clienteActualizado.nombreCliente, telefonoCliente: clienteActualizado.telefonoCliente }
+          : c
+      ));
+
+      // Si el cliente editado está seleccionado, actualizar la selección
+      if (clienteSeleccionado && clienteSeleccionado.idCliente === clienteEditando.idCliente) {
+        setClienteSeleccionado(prev => ({
+          ...prev,
+          nombreCliente: clienteActualizado.nombreCliente,
+          telefonoCliente: clienteActualizado.telefonoCliente
+        }));
+      }
+
+      handleCerrarModalCliente();
+      setMensaje({
+        tipo: 'success',
+        texto: '✓ Cliente actualizado exitosamente'
+      });
+
+    } catch (error) {
+      console.error('❌ Error actualizando cliente:', error);
+      setMensaje({
+        tipo: 'danger',
+        texto: error.response?.data?.message || 'Error al actualizar el cliente.'
+      });
+    } finally {
       setGuardando(false);
     }
   };
 
   // --- Función para eliminar clientes ---
-  const handleEliminar = (id) => {
-    if (window.confirm("¿Seguro que deseas eliminar este cliente?")) {
-      const clientesActualizados = clientes.filter(c => c.id !== id);
-      setClientes(clientesActualizados);
-      
+  const handleEliminar = async (idCliente) => {
+    if (!window.confirm("¿Seguro que deseas eliminar este cliente? Esta acción no se puede deshacer.")) {
+      return;
+    }
+
+    try {
+      await eliminarCliente(idCliente);
+
+      // Actualizar lista local
+      setClientes(prev => prev.filter(c => c.idCliente !== idCliente));
+
       // Si el cliente eliminado estaba seleccionado, limpiar selección
-      if (clienteSeleccionado && clienteSeleccionado.id === id) {
+      if (clienteSeleccionado && clienteSeleccionado.idCliente === idCliente) {
         setClienteSeleccionado(null);
       }
 
-      setMensaje({ 
-        tipo: 'success', 
-        texto: '✓ Cliente eliminado exitosamente' 
+      setMensaje({
+        tipo: 'success',
+        texto: '✓ Cliente eliminado exitosamente'
+      });
+
+    } catch (error) {
+      console.error('Error al eliminar cliente:', error);
+      setMensaje({
+        tipo: 'danger',
+        texto: error.response?.data?.message || 'Error al eliminar el cliente. Por favor, intenta nuevamente.'
       });
     }
   };
@@ -259,9 +465,9 @@ export default function GestionClientes() {
   // Abrir modal para crear/editar dirección
   const handleAbrirModalDireccion = (direccion = null) => {
     if (!clienteSeleccionado) {
-      setMensaje({ 
-        tipo: 'warning', 
-        texto: 'Por favor, selecciona un cliente primero' 
+      setMensaje({
+        tipo: 'warning',
+        texto: 'Por favor, selecciona un cliente primero'
       });
       return;
     }
@@ -270,8 +476,8 @@ export default function GestionClientes() {
       // Modo edición
       setDireccionEditando(direccion);
       setFormDireccion({
-        idCiudad: direccion.idCiudad,
-        direccion: direccion.direccion,
+        idCiudad: direccion.ciudad?.idCiudad || direccion.idCiudad || '',
+        direccion: direccion.direccion || '',
         alias: direccion.alias || ''
       });
     } else {
@@ -309,130 +515,109 @@ export default function GestionClientes() {
   // Guardar dirección (crear o actualizar)
   const handleGuardarDireccion = async (e) => {
     e.preventDefault();
-    
+
     try {
       // Validaciones
       if (!formDireccion.direccion.trim() || !formDireccion.idCiudad) {
-        setMensaje({ 
-          tipo: 'warning', 
-          texto: 'Por favor, completa todos los campos obligatorios de la dirección' 
+        setMensaje({
+          tipo: 'warning',
+          texto: 'Por favor, completa todos los campos obligatorios de la dirección'
         });
         return;
       }
-      
+
       setGuardando(true);
       setMensaje({ tipo: '', texto: '' });
-      
+
       if (direccionEditando) {
         // ACTUALIZAR dirección existente
-        setTimeout(() => {
-          setClientes(prev => prev.map(c => {
-            if (c.id === clienteSeleccionado.id) {
-              const direccionesActualizadas = c.direcciones.map(dir =>
-                dir.id === direccionEditando.id
-                  ? { ...dir, ...formDireccion, idCiudad: parseInt(formDireccion.idCiudad) }
-                  : dir
-              );
-              return { ...c, direcciones: direccionesActualizadas };
-            }
-            return c;
-          }));
+        await actualizarDireccion(direccionEditando.idDireccion, {
+          idCiudad: parseInt(formDireccion.idCiudad),
+          direccion: formDireccion.direccion,
+          alias: formDireccion.alias
+        });
 
-          // Actualizar cliente seleccionado
-          setClienteSeleccionado(prev => ({
-            ...prev,
-            direcciones: prev.direcciones.map(dir =>
-              dir.id === direccionEditando.id
-                ? { ...dir, ...formDireccion, idCiudad: parseInt(formDireccion.idCiudad) }
-                : dir
-            )
-          }));
-          
-          handleCerrarModalDireccion();
-          setMensaje({ 
-            tipo: 'success', 
-            texto: '✓ Dirección actualizada exitosamente' 
-          });
-          setGuardando(false);
-        }, 800);
-        
+        // Recargar direcciones del cliente
+        await recargarDireccionesCliente(clienteSeleccionado.idCliente);
+
+        handleCerrarModalDireccion();
+        setMensaje({
+          tipo: 'success',
+          texto: '✓ Dirección actualizada exitosamente'
+        });
+
       } else {
         // CREAR nueva dirección
-        setTimeout(() => {
-          const todasDirecciones = clientes.flatMap(c => c.direcciones);
-          const maxId = Math.max(...todasDirecciones.map(d => d.id), 0);
-          
-          const nuevaDireccion = {
-            id: maxId + 1,
-            ...formDireccion,
-            idCiudad: parseInt(formDireccion.idCiudad)
-          };
-          
-          setClientes(prev => prev.map(c => {
-            if (c.id === clienteSeleccionado.id) {
-              return { ...c, direcciones: [...c.direcciones, nuevaDireccion] };
-            }
-            return c;
-          }));
+        await crearDireccion({
+          idCliente: clienteSeleccionado.idCliente,
+          idCiudad: parseInt(formDireccion.idCiudad),
+          direccion: formDireccion.direccion,
+          alias: formDireccion.alias
+        });
 
-          // Actualizar cliente seleccionado
-          setClienteSeleccionado(prev => ({
-            ...prev,
-            direcciones: [...prev.direcciones, nuevaDireccion]
-          }));
-          
-          handleCerrarModalDireccion();
-          setMensaje({ 
-            tipo: 'success', 
-            texto: '✓ Dirección agregada exitosamente' 
-          });
-          setGuardando(false);
-        }, 800);
+        // Recargar direcciones del cliente
+        await recargarDireccionesCliente(clienteSeleccionado.idCliente);
+
+        handleCerrarModalDireccion();
+        setMensaje({
+          tipo: 'success',
+          texto: '✓ Dirección agregada exitosamente'
+        });
       }
-      
+
     } catch (error) {
       console.error('Error guardando dirección:', error);
-      setMensaje({ 
-        tipo: 'danger', 
-        texto: 'Error al guardar la dirección. Por favor, intenta nuevamente.' 
+      setMensaje({
+        tipo: 'danger',
+        texto: error.response?.data?.message || 'Error al guardar la dirección. Por favor, intenta nuevamente.'
       });
+    } finally {
       setGuardando(false);
     }
   };
 
   // Eliminar dirección
-  const handleEliminarDireccion = (idDireccion) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar esta dirección?')) {
+  const handleEliminarDireccion = async (idDireccion) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar esta dirección? Esta acción no se puede deshacer.')) {
       return;
     }
-    
-    setClientes(prev => prev.map(c => {
-      if (c.id === clienteSeleccionado.id) {
-        return { ...c, direcciones: c.direcciones.filter(dir => dir.id !== idDireccion) };
-      }
-      return c;
-    }));
 
-    // Actualizar cliente seleccionado
-    setClienteSeleccionado(prev => ({
-      ...prev,
-      direcciones: prev.direcciones.filter(dir => dir.id !== idDireccion)
-    }));
+    try {
+      await eliminarDireccion(idDireccion);
 
-    setMensaje({ 
-      tipo: 'success', 
-      texto: '✓ Dirección eliminada exitosamente' 
-    });
+      // Recargar direcciones del cliente
+      await recargarDireccionesCliente(clienteSeleccionado.idCliente);
+
+      setMensaje({
+        tipo: 'success',
+        texto: '✓ Dirección eliminada exitosamente'
+      });
+
+    } catch (error) {
+      console.error('Error al eliminar dirección:', error);
+      setMensaje({
+        tipo: 'danger',
+        texto: error.response?.data?.message || 'Error al eliminar la dirección. Por favor, intenta nuevamente.'
+      });
+    }
   };
 
   // --- Seleccionar cliente para ver sus direcciones ---
-  const handleSeleccionarCliente = (cliente) => {
-    setClienteSeleccionado(cliente);
+  const handleSeleccionarCliente = async (cliente) => {
+    try {
+      // Cargar direcciones del cliente si aún no están cargadas
+      const direcciones = await obtenerDireccionesPorCliente(cliente.idCliente);
+      setClienteSeleccionado({ ...cliente, direcciones });
+    } catch (error) {
+      console.error('Error al cargar direcciones:', error);
+      setClienteSeleccionado({ ...cliente, direcciones: [] });
+    }
   };
 
   // --- Obtener nombre de ciudad ---
   const getNombreCiudad = (idCiudad) => {
-    return ciudades[idCiudad] || `Ciudad ID: ${idCiudad}`;
+    const ciudad = ciudades.find(c => c.idCiudad === idCiudad);
+    return ciudad ? ciudad.nombreCiudad : `Ciudad ID: ${idCiudad}`;
   };
 
    // --- Renderizado ---
@@ -445,9 +630,9 @@ export default function GestionClientes() {
 
         {/* Alertas de mensajes */}
         {mensaje.texto && (
-          <Alert 
-            variant={mensaje.tipo} 
-            dismissible 
+          <Alert
+            variant={mensaje.tipo}
+            dismissible
             onClose={() => setMensaje({ tipo: '', texto: '' })}
             className="mb-4"
           >
@@ -455,16 +640,40 @@ export default function GestionClientes() {
           </Alert>
         )}
 
+        {/* Spinner de carga */}
+        {cargando ? (
+          <div className="text-center py-5">
+            <Spinner animation="border" variant="warning" />
+            <p className="mt-3">Cargando datos...</p>
+          </div>
+        ) : (
+          <>
+
         {/* ---------- SECCIÓN: CLIENTES ---------- */}
         <section className="mb-5">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h2>Clientes Registrados</h2>
-            <button
-              className="btn btn-warning fw-semibold"
-              onClick={() => handleAbrirModalCliente()}
-            >
-              <i className="bi bi-person-plus-fill me-2"></i>Nuevo Cliente
-            </button>
+            <div className="d-flex gap-2">
+              <button
+                className="btn btn-outline-light"
+                onClick={handleRecargarDatos}
+                disabled={cargando}
+                title="Recargar lista de clientes"
+              >
+                {cargando ? (
+                  <Spinner animation="border" size="sm" />
+                ) : (
+                  <i className="bi bi-arrow-clockwise"></i>
+                )}
+              </button>
+              {/* COMENTADO: Botón de crear cliente (problema con endpoint /admin) */}
+              {/* <button
+                className="btn btn-warning fw-semibold"
+                onClick={() => handleAbrirModalCliente()}
+              >
+                <i className="bi bi-person-plus-fill me-2"></i>Nuevo Cliente
+              </button> */}
+            </div>
           </div>
 
           {/* Tabla de clientes */}
@@ -483,17 +692,17 @@ export default function GestionClientes() {
               <tbody>
                 {clientes.length > 0 ? (
                   clientes.map((c) => (
-                    <tr 
-                      key={c.id}
+                    <tr
+                      key={c.idCliente}
                       onClick={() => handleSeleccionarCliente(c)}
                       style={{ cursor: 'pointer' }}
-                      className={clienteSeleccionado?.id === c.id ? 'table-active' : ''}
+                      className={clienteSeleccionado?.idCliente === c.idCliente ? 'table-active' : ''}
                     >
-                      <td>{c.id}</td>
-                      <td>{c.nombre}</td>
-                      <td>{c.telefono}</td>
-                      <td>{c.email}</td>
-                      <td>{new Date(c.fechaRegistro).toLocaleDateString('es-CL')}</td>
+                      <td>{c.idCliente}</td>
+                      <td>{c.nombreCliente}</td>
+                      <td>{c.telefonoCliente || 'No registrado'}</td>
+                      <td>{c.usuario?.email || c.email || 'No disponible'}</td>
+                      <td>Cliente del sistema</td>
                       <td className="text-center">
                         <button
                           className="btn btn-sm btn-outline-light me-2"
@@ -508,7 +717,7 @@ export default function GestionClientes() {
                           className="btn btn-sm btn-outline-danger"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleEliminar(c.id);
+                            handleEliminar(c.idCliente);
                           }}
                         >
                           <i className="bi bi-trash3"></i>
@@ -533,8 +742,8 @@ export default function GestionClientes() {
           <section>
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h2>
-                Direcciones de {clienteSeleccionado.nombre}
-                <button 
+                Direcciones de {clienteSeleccionado.nombreCliente}
+                <button
                   className="btn btn-sm btn-outline-secondary ms-3"
                   onClick={() => setClienteSeleccionado(null)}
                 >
@@ -563,10 +772,10 @@ export default function GestionClientes() {
                   </tr>
                 </thead>
                 <tbody>
-                  {clienteSeleccionado.direcciones.length > 0 ? (
+                  {clienteSeleccionado.direcciones && clienteSeleccionado.direcciones.length > 0 ? (
                     clienteSeleccionado.direcciones.map((dir) => (
-                      <tr key={dir.id}>
-                        <td>{dir.id}</td>
+                      <tr key={dir.idDireccion}>
+                        <td>{dir.idDireccion}</td>
                         <td>
                           {dir.alias ? (
                             <span className="badge bg-warning text-dark">{dir.alias}</span>
@@ -577,7 +786,7 @@ export default function GestionClientes() {
                         <td>{dir.direccion}</td>
                         <td>
                           <i className="bi bi-geo-alt-fill me-1 text-warning"></i>
-                          {getNombreCiudad(dir.idCiudad)}
+                          {dir.ciudad?.nombreCiudad || dir.nombreCiudad || getNombreCiudad(dir.idCiudad || dir.ciudad?.idCiudad)}
                         </td>
                         <td className="text-center">
                           <button
@@ -588,7 +797,7 @@ export default function GestionClientes() {
                           </button>
                           <button
                             className="btn btn-sm btn-outline-danger"
-                            onClick={() => handleEliminarDireccion(dir.id)}
+                            onClick={() => handleEliminarDireccion(dir.idDireccion)}
                           >
                             <i className="bi bi-trash3"></i>
                           </button>
@@ -612,82 +821,183 @@ export default function GestionClientes() {
         <Modal show={showModalCliente} onHide={handleCerrarModalCliente} size="lg">
           <Modal.Header closeButton className="bg-dark text-white">
             <Modal.Title>
-              {clienteEditando ? 'Editar Cliente' : 'Nuevo Cliente'}
+              {clienteEditando
+                ? 'Editar Cliente'
+                : `Nuevo Cliente ${!clienteEditando ? `- Paso ${pasoCreacion} de 2` : ''}`
+              }
             </Modal.Title>
           </Modal.Header>
-          <Form onSubmit={handleGuardarCliente}>
-            <Modal.Body className="bg-dark text-white">
-              <Form.Group className="mb-3">
-                <Form.Label>Nombre Completo *</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="nombre"
-                  value={formCliente.nombre}
-                  onChange={handleChangeCliente}
-                  required
-                  placeholder="Ej: Juan Pérez González"
-                />
-              </Form.Group>
 
-              <Form.Group className="mb-3">
-                <Form.Label>Teléfono</Form.Label>
-                <Form.Control
-                  type="tel"
-                  name="telefono"
-                  value={formCliente.telefono}
-                  onChange={handleChangeCliente}
-                  placeholder="+56912345678"
-                />
-                <Form.Text className="text-muted">
-                  Formato: +56912345678
-                </Form.Text>
-              </Form.Group>
+          {/* MODO EDICIÓN */}
+          {clienteEditando && (
+            <Form onSubmit={handleGuardarCliente}>
+              <Modal.Body className="bg-dark text-white">
+                <Form.Group className="mb-3">
+                  <Form.Label>Nombre Completo *</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="nombre"
+                    value={formCliente.nombre}
+                    onChange={handleChangeCliente}
+                    required
+                    placeholder="Ej: Juan Pérez González"
+                  />
+                </Form.Group>
 
-              <Form.Group className="mb-3">
-                <Form.Label>Email *</Form.Label>
-                <Form.Control
-                  type="email"
-                  name="email"
-                  value={formCliente.email}
-                  onChange={handleChangeCliente}
-                  required
-                  placeholder="ejemplo@correo.com"
-                />
-              </Form.Group>
-            </Modal.Body>
-            <Modal.Footer className="bg-dark">
-              <Button 
-                variant="secondary" 
-                onClick={handleCerrarModalCliente}
-                disabled={guardando}
-              >
-                Cancelar
-              </Button>
-              <Button 
-                variant="warning" 
-                type="submit"
-                disabled={guardando}
-                className="text-dark fw-semibold"
-              >
-                {guardando ? (
-                  <>
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      className="me-2"
-                    />
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-check-circle me-2"></i>
-                    {clienteEditando ? 'Actualizar' : 'Guardar'}
-                  </>
-                )}
-              </Button>
-            </Modal.Footer>
-          </Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    value={formCliente.email}
+                    disabled
+                  />
+                  <Form.Text className="text-muted">
+                    El email no se puede modificar
+                  </Form.Text>
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Teléfono</Form.Label>
+                  <Form.Control
+                    type="tel"
+                    name="telefono"
+                    value={formCliente.telefono}
+                    onChange={handleChangeCliente}
+                    placeholder="+56912345678"
+                  />
+                </Form.Group>
+              </Modal.Body>
+              <Modal.Footer className="bg-dark">
+                <Button variant="secondary" onClick={handleCerrarModalCliente} disabled={guardando}>
+                  Cancelar
+                </Button>
+                <Button variant="warning" type="submit" disabled={guardando} className="text-dark fw-semibold">
+                  {guardando ? (
+                    <><Spinner as="span" animation="border" size="sm" className="me-2" />Guardando...</>
+                  ) : (
+                    <><i className="bi bi-check-circle me-2"></i>Actualizar</>
+                  )}
+                </Button>
+              </Modal.Footer>
+            </Form>
+          )}
+
+          {/* MODO CREACIÓN - PASO 1: Crear en Firebase */}
+          {!clienteEditando && pasoCreacion === 1 && (
+            <Form onSubmit={handlePaso1_CrearEnFirebase}>
+              <Modal.Body className="bg-dark text-white">
+                <Alert variant="info" className="mb-3">
+                  <i className="bi bi-info-circle me-2"></i>
+                  <strong>Paso 1:</strong> Primero crearemos la cuenta en Firebase
+                </Alert>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Email *</Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    value={formCliente.email}
+                    onChange={handleChangeCliente}
+                    required
+                    placeholder="ejemplo@correo.com"
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Contraseña *</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="password"
+                    value={formCliente.password}
+                    onChange={handleChangeCliente}
+                    required
+                    placeholder="Mínimo 6 caracteres"
+                    minLength="6"
+                  />
+                  <Form.Text className="text-muted">
+                    Se creará el usuario en Firebase Authentication
+                  </Form.Text>
+                </Form.Group>
+              </Modal.Body>
+              <Modal.Footer className="bg-dark">
+                <Button variant="secondary" onClick={handleCerrarModalCliente} disabled={guardando}>
+                  Cancelar
+                </Button>
+                <Button variant="warning" type="submit" disabled={guardando} className="text-dark fw-semibold">
+                  {guardando ? (
+                    <><Spinner as="span" animation="border" size="sm" className="me-2" />Creando...</>
+                  ) : (
+                    <><i className="bi bi-arrow-right me-2"></i>Siguiente</>
+                  )}
+                </Button>
+              </Modal.Footer>
+            </Form>
+          )}
+
+          {/* MODO CREACIÓN - PASO 2: Completar datos y registrar en Oracle */}
+          {!clienteEditando && pasoCreacion === 2 && (
+            <Form onSubmit={handlePaso2_RegistrarEnOracle}>
+              <Modal.Body className="bg-dark text-white">
+                <Alert variant="success" className="mb-3">
+                  <i className="bi bi-check-circle me-2"></i>
+                  <strong>Usuario creado en Firebase!</strong> Ahora completa los datos del cliente.
+                </Alert>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Email (creado en Firebase)</Form.Label>
+                  <Form.Control
+                    type="email"
+                    value={formCliente.email}
+                    disabled
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Nombre Completo *</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="nombre"
+                    value={formCliente.nombre}
+                    onChange={handleChangeCliente}
+                    required
+                    placeholder="Ej: Juan Pérez González"
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Teléfono</Form.Label>
+                  <Form.Control
+                    type="tel"
+                    name="telefono"
+                    value={formCliente.telefono}
+                    onChange={handleChangeCliente}
+                    placeholder="912345678"
+                    pattern="[0-9]{9}"
+                    maxLength="9"
+                  />
+                  <Form.Text className="text-muted">
+                    Debe tener exactamente 9 dígitos numéricos (opcional)
+                  </Form.Text>
+                </Form.Group>
+              </Modal.Body>
+              <Modal.Footer className="bg-dark">
+                <Button
+                  variant="secondary"
+                  onClick={() => setPasoCreacion(1)}
+                  disabled={guardando}
+                >
+                  <i className="bi bi-arrow-left me-2"></i>Volver
+                </Button>
+                <Button variant="warning" type="submit" disabled={guardando} className="text-dark fw-semibold">
+                  {guardando ? (
+                    <><Spinner as="span" animation="border" size="sm" className="me-2" />Guardando...</>
+                  ) : (
+                    <><i className="bi bi-check-circle me-2"></i>Guardar</>
+                  )}
+                </Button>
+              </Modal.Footer>
+            </Form>
+          )}
         </Modal>
 
         {/* ---------- MODAL PARA DIRECCIÓN ---------- */}
@@ -724,11 +1034,11 @@ export default function GestionClientes() {
                   required
                 >
                   <option value="">Selecciona una ciudad</option>
-                  <option value="1">Viña del Mar</option>
-                  <option value="2">Valparaíso</option>
-                  <option value="3">Curauma</option>
-                  <option value="4">Quilpué</option>
-                  <option value="5">Villa Alemana</option>
+                  {ciudades.map((ciudad) => (
+                    <option key={ciudad.idCiudad} value={ciudad.idCiudad}>
+                      {ciudad.nombreCiudad}
+                    </option>
+                  ))}
                 </Form.Select>
                 <Form.Text className="text-muted">
                   Selecciona la ciudad donde se encuentra la dirección
@@ -784,6 +1094,8 @@ export default function GestionClientes() {
             </Modal.Footer>
           </Form>
         </Modal>
+        </>
+        )}
       </main>
     </div>
   );

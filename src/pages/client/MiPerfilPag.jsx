@@ -3,6 +3,15 @@ import { Container, Row, Col, Card, Form, Button, Alert, Spinner, Modal, Table, 
 import { useNavigate } from 'react-router-dom';
 import HeaderComp from '../../components/HeaderComp';
 import FooterComp from '../../components/FooterComp';
+import {
+  obtenerClientePorUid,
+  obtenerDireccionesPorCliente,
+  crearDireccion,
+  actualizarDireccion,
+  eliminarDireccion,
+  obtenerTodasCiudades,
+  actualizarPerfilCliente
+} from '../../services/usuariosService';
 import './MiPerfilPag.css';
 
 export default function MiPerfilPag() {
@@ -11,16 +20,16 @@ export default function MiPerfilPag() {
   // Estado para los datos del cliente
   const [cliente, setCliente] = useState(null);
   const [direcciones, setDirecciones] = useState([]);
+  const [ciudades, setCiudades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
 
-  // Estados para formularios
+  // Estados para editar perfil (solo nombre y teléfono, email NO es editable)
   const [editandoPerfil, setEditandoPerfil] = useState(false);
-  const [datosFormulario, setDatosFormulario] = useState({
-    nombre: '',
-    telefono: '',
-    email: ''
+  const [formPerfil, setFormPerfil] = useState({
+    nombreCliente: '',
+    telefonoCliente: ''
   });
 
   // Estados para modal de dirección
@@ -32,18 +41,10 @@ export default function MiPerfilPag() {
     alias: ''
   });
 
-  // Mapeo de ciudades
-  const ciudades = {
-    1: 'Viña del Mar',
-    2: 'Valparaíso',
-    3: 'Curauma',
-    4: 'Quilpué',
-    5: 'Villa Alemana'
-  };
-
   // Función helper para obtener nombre de ciudad
   const getNombreCiudad = (idCiudad) => {
-    return ciudades[idCiudad] || `Ciudad ID: ${idCiudad}`;
+    const ciudad = ciudades.find(c => c.idCiudad === idCiudad);
+    return ciudad ? ciudad.nombreCiudad : `Ciudad ID: ${idCiudad}`;
   };
 
   // Verificar si el usuario está logueado
@@ -60,63 +61,105 @@ export default function MiPerfilPag() {
   const cargarDatosCliente = async () => {
     try {
       setLoading(true);
-      
-      // TODO: Reemplazar con llamada real a la API
-      // const idUsuario = localStorage.getItem('userId'); // Firebase UID
-      // const response = await fetch(`http://localhost:8080/api/clientes/usuario/${idUsuario}`, {
-      //   headers: {
-      //     'Authorization': `Bearer ${localStorage.getItem('firebaseToken')}`
-      //   }
-      // });
-      // const data = await response.json();
-      
-      // MOCK DATA - Remover cuando conectes con el backend
-      const mockCliente = {
-        id: 1,
-        nombre: localStorage.getItem('userName') || 'Cliente Demo',
-        telefono: '+56912345678',
-        email: 'cliente@ejemplo.com',
-        fechaRegistro: '2024-01-15'
-      };
-      
-      const mockDirecciones = [
-        {
-          id: 1,
-          idCiudad: 1,
-          direccion: 'Av. Principal 123, Edificio azul, Depto 405',
-          alias: 'Casa'
-        },
-        {
-          id: 2,
-          idCiudad: 2,
-          direccion: 'Los Aromos 456, Casa blanca con portón verde',
-          alias: 'Trabajo'
+      setMensaje({ tipo: '', texto: '' });
+
+      // Intentar obtener el Firebase UID de diferentes formas
+      let firebaseUid = localStorage.getItem('userId');
+
+      // Si no existe, intentar obtenerlo del objeto user guardado
+      if (!firebaseUid || firebaseUid === 'undefined') {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            console.log('📦 Objeto user del localStorage:', user);
+            console.log('🔑 Campos disponibles:', Object.keys(user));
+
+            // Intentar diferentes nombres de campo posibles
+            firebaseUid = user.idUsuario || user.uid || user.firebaseUid || user.userId || user.id;
+
+            if (firebaseUid) {
+              console.log('✅ UID encontrado en objeto user:', firebaseUid);
+              // Guardarlo para la próxima vez
+              localStorage.setItem('userId', firebaseUid);
+            }
+          } catch (e) {
+            console.error('❌ Error parseando user:', e);
+          }
         }
-      ];
-      
-      setCliente(mockCliente);
-      setDirecciones(mockDirecciones);
-      setDatosFormulario({
-        nombre: mockCliente.nombre,
-        telefono: mockCliente.telefono,
-        email: mockCliente.email
+      }
+
+      if (!firebaseUid || firebaseUid === 'undefined') {
+        console.error('❌ No se pudo obtener el UID del usuario');
+        console.log('📋 localStorage completo:', {
+          userId: localStorage.getItem('userId'),
+          user: localStorage.getItem('user'),
+          userName: localStorage.getItem('userName'),
+          userRole: localStorage.getItem('userRole')
+        });
+
+        setMensaje({
+          tipo: 'danger',
+          texto: 'No se encontró la sesión del usuario. Por favor, cierra sesión y vuelve a iniciar sesión.'
+        });
+        return;
+      }
+
+      console.log('🔍 Cargando datos del cliente con UID:', firebaseUid);
+
+      // Cargar cliente y ciudades en paralelo
+      const [clienteData, ciudadesData] = await Promise.all([
+        obtenerClientePorUid(firebaseUid),
+        obtenerTodasCiudades()
+      ]);
+
+      console.log('✅ Cliente cargado:', clienteData);
+      console.log('✅ Ciudades cargadas:', ciudadesData);
+
+      setCliente(clienteData);
+      setCiudades(ciudadesData);
+
+      // Inicializar formulario de perfil con los datos del cliente
+      // Solo nombre y teléfono son editables, email NO (requiere Firebase)
+      setFormPerfil({
+        nombreCliente: clienteData.nombreCliente || '',
+        telefonoCliente: clienteData.telefonoCliente || ''
       });
-      
+
+      // Cargar direcciones del cliente
+      if (clienteData.idCliente) {
+        const direccionesData = await obtenerDireccionesPorCliente(clienteData.idCliente);
+        console.log('✅ Direcciones cargadas:', direccionesData);
+        setDirecciones(direccionesData);
+      }
+
     } catch (error) {
-      console.error('Error cargando datos del cliente:', error);
-      setMensaje({ 
-        tipo: 'danger', 
-        texto: 'Error al cargar los datos del perfil. Por favor, intenta nuevamente.' 
+      console.error('❌ Error cargando datos del cliente:', error);
+      setMensaje({
+        tipo: 'danger',
+        texto: error.response?.data?.message || 'Error al cargar los datos del perfil. Por favor, intenta nuevamente.'
       });
     } finally {
       setLoading(false);
     }
   };
 
+  // Función para recargar direcciones del cliente
+  const recargarDirecciones = async () => {
+    try {
+      if (cliente?.idCliente) {
+        const direccionesData = await obtenerDireccionesPorCliente(cliente.idCliente);
+        setDirecciones(direccionesData);
+      }
+    } catch (error) {
+      console.error('❌ Error recargando direcciones:', error);
+    }
+  };
+
   // Manejar cambios en el formulario de perfil
-  const handleChangeFormulario = (e) => {
+  const handleChangePerfil = (e) => {
     const { name, value } = e.target;
-    setDatosFormulario(prev => ({
+    setFormPerfil(prev => ({
       ...prev,
       [name]: value
     }));
@@ -125,76 +168,77 @@ export default function MiPerfilPag() {
   // Guardar cambios del perfil
   const handleGuardarPerfil = async (e) => {
     e.preventDefault();
-    
+
     try {
-      setGuardando(true);
-      setMensaje({ tipo: '', texto: '' });
-      
-      // Validaciones básicas
-      if (!datosFormulario.nombre.trim()) {
+      // Validaciones
+      if (!formPerfil.nombreCliente.trim()) {
         setMensaje({ tipo: 'warning', texto: 'El nombre es obligatorio' });
         return;
       }
-      
-      if (!datosFormulario.email.trim() || !datosFormulario.email.includes('@')) {
-        setMensaje({ tipo: 'warning', texto: 'Ingresa un email válido' });
-        return;
+
+      // Validar teléfono si está presente
+      if (formPerfil.telefonoCliente.trim()) {
+        const telefonoLimpio = formPerfil.telefonoCliente.replace(/\D/g, '');
+        if (telefonoLimpio.length !== 9) {
+          setMensaje({ tipo: 'warning', texto: 'El teléfono debe tener exactamente 9 dígitos' });
+          return;
+        }
       }
-      
-      // TODO: Reemplazar con llamada real a la API
-      // const response = await fetch(`http://localhost:8080/api/clientes/perfil`, {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('firebaseToken')}`
-      //   },
-      //   body: JSON.stringify({
-      //     nombreCliente: datosFormulario.nombre,
-      //     email: datosFormulario.email,
-      //     telefonoCliente: datosFormulario.telefono
-      //   })
-      // });
-      
-      // Si el email cambió, actualizarlo también
-      // if (datosFormulario.email !== cliente.email) {
-      //   await fetch(`http://localhost:8080/api/clientes/${cliente.id}/email`, {
-      //     method: 'PUT',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //       'Authorization': `Bearer ${localStorage.getItem('firebaseToken')}`
-      //     },
-      //     body: JSON.stringify({
-      //       nuevoEmail: datosFormulario.email
-      //     })
-      //   });
-      // }
-      
-      // MOCK - Simular guardado exitoso
-      setTimeout(() => {
-        setCliente(prev => ({
-          ...prev,
-          nombre: datosFormulario.nombre,
-          telefono: datosFormulario.telefono,
-          email: datosFormulario.email
-        }));
-        
-        // Actualizar el nombre en localStorage para que se refleje en el header
-        localStorage.setItem('userName', datosFormulario.nombre);
-        
-        setEditandoPerfil(false);
-        setMensaje({ 
-          tipo: 'success', 
-          texto: '✓ Perfil actualizado exitosamente' 
+
+      setGuardando(true);
+      setMensaje({ tipo: '', texto: '' });
+
+      console.log('💾 Actualizando perfil del cliente...');
+
+      // El backend requiere que se envíe el email también, aunque no se modifique
+      // IMPORTANTE: telefonoCliente debe ser null si está vacío (no string vacío "")
+      const emailActual = cliente?.usuario?.email || cliente?.email || '';
+
+      if (!emailActual) {
+        setMensaje({
+          tipo: 'danger',
+          texto: 'Error: No se pudo obtener el email del usuario'
         });
         setGuardando(false);
-      }, 1000);
-      
-    } catch (error) {
-      console.error('Error guardando perfil:', error);
-      setMensaje({ 
-        tipo: 'danger', 
-        texto: 'Error al guardar los cambios. Por favor, intenta nuevamente.' 
+        return;
+      }
+
+      const datosActualizar = {
+        nombreCliente: formPerfil.nombreCliente.trim(),
+        email: emailActual,
+        telefonoCliente: formPerfil.telefonoCliente.trim() || null // null si está vacío
+      };
+
+      console.log('📦 Datos a enviar:', datosActualizar);
+
+      // Actualizar perfil usando el endpoint del cliente
+      const clienteActualizado = await actualizarPerfilCliente(datosActualizar);
+
+      console.log('✅ Perfil actualizado:', clienteActualizado);
+
+      // Actualizar el estado local
+      setCliente(prev => ({
+        ...prev,
+        nombreCliente: clienteActualizado.nombreCliente,
+        telefonoCliente: clienteActualizado.telefonoCliente
+      }));
+
+      // Actualizar el nombre en localStorage para que se refleje en el header
+      localStorage.setItem('userName', clienteActualizado.nombreCliente);
+
+      setEditandoPerfil(false);
+      setMensaje({
+        tipo: 'success',
+        texto: '✓ Perfil actualizado exitosamente'
       });
+
+    } catch (error) {
+      console.error('❌ Error actualizando perfil:', error);
+      setMensaje({
+        tipo: 'danger',
+        texto: error.response?.data?.message || 'Error al actualizar el perfil. Por favor, intenta nuevamente.'
+      });
+    } finally {
       setGuardando(false);
     }
   };
@@ -205,8 +249,8 @@ export default function MiPerfilPag() {
       // Modo edición
       setDireccionEditando(direccion);
       setFormDireccion({
-        idCiudad: direccion.idCiudad,
-        direccion: direccion.direccion,
+        idCiudad: direccion.ciudad?.idCiudad || direccion.idCiudad || '',
+        direccion: direccion.direccion || '',
         alias: direccion.alias || ''
       });
     } else {
@@ -244,141 +288,92 @@ export default function MiPerfilPag() {
   // Guardar dirección (crear o actualizar)
   const handleGuardarDireccion = async (e) => {
     e.preventDefault();
-    
+
     try {
       // Validaciones
       if (!formDireccion.direccion.trim() || !formDireccion.idCiudad) {
-        setMensaje({ 
-          tipo: 'warning', 
-          texto: 'Por favor, completa todos los campos obligatorios de la dirección' 
+        setMensaje({
+          tipo: 'warning',
+          texto: 'Por favor, completa todos los campos obligatorios de la dirección'
         });
         return;
       }
-      
+
       setGuardando(true);
       setMensaje({ tipo: '', texto: '' });
-      
+
       if (direccionEditando) {
         // ACTUALIZAR dirección existente
-        // TODO: Reemplazar con llamada real a la API
-        // const response = await fetch(
-        //   `http://localhost:8080/api/clientes/direcciones/${direccionEditando.id}`,
-        //   {
-        //     method: 'PUT',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //       'Authorization': `Bearer ${localStorage.getItem('firebaseToken')}`
-        //     },
-        //     body: JSON.stringify({
-        //       idCiudad: parseInt(formDireccion.idCiudad),
-        //       direccion: formDireccion.direccion,
-        //       alias: formDireccion.alias
-        //     })
-        //   }
-        // );
-        
-        // MOCK - Simular actualización
-        setTimeout(() => {
-          setDirecciones(prev => prev.map(dir => 
-            dir.id === direccionEditando.id 
-              ? { ...dir, ...formDireccion, idCiudad: parseInt(formDireccion.idCiudad) }
-              : dir
-          ));
-          
-          handleCerrarModalDireccion();
-          setMensaje({ 
-            tipo: 'success', 
-            texto: '✓ Dirección actualizada exitosamente' 
-          });
-          setGuardando(false);
-        }, 800);
-        
+        await actualizarDireccion(direccionEditando.idDireccion, {
+          idCiudad: parseInt(formDireccion.idCiudad),
+          direccion: formDireccion.direccion,
+          alias: formDireccion.alias
+        });
+
+        // Recargar direcciones
+        await recargarDirecciones();
+
+        handleCerrarModalDireccion();
+        setMensaje({
+          tipo: 'success',
+          texto: '✓ Dirección actualizada exitosamente'
+        });
+
       } else {
         // CREAR nueva dirección
-        // TODO: Reemplazar con llamada real a la API
-        // const response = await fetch(
-        //   `http://localhost:8080/api/clientes/direcciones`,
-        //   {
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //       'Authorization': `Bearer ${localStorage.getItem('firebaseToken')}`
-        //     },
-        //     body: JSON.stringify({
-        //       idCliente: cliente.id,
-        //       idCiudad: parseInt(formDireccion.idCiudad),
-        //       direccion: formDireccion.direccion,
-        //       alias: formDireccion.alias
-        //     })
-        //   }
-        // );
-        
-        // MOCK - Simular creación
-        setTimeout(() => {
-          const nuevaDireccion = {
-            id: direcciones.length + 1,
-            ...formDireccion,
-            idCiudad: parseInt(formDireccion.idCiudad)
-          };
-          
-          setDirecciones(prev => [...prev, nuevaDireccion]);
-          
-          handleCerrarModalDireccion();
-          setMensaje({ 
-            tipo: 'success', 
-            texto: '✓ Dirección agregada exitosamente' 
-          });
-          setGuardando(false);
-        }, 800);
+        await crearDireccion({
+          idCliente: cliente.idCliente,
+          idCiudad: parseInt(formDireccion.idCiudad),
+          direccion: formDireccion.direccion,
+          alias: formDireccion.alias
+        });
+
+        // Recargar direcciones
+        await recargarDirecciones();
+
+        handleCerrarModalDireccion();
+        setMensaje({
+          tipo: 'success',
+          texto: '✓ Dirección agregada exitosamente'
+        });
       }
-      
+
     } catch (error) {
-      console.error('Error guardando dirección:', error);
-      setMensaje({ 
-        tipo: 'danger', 
-        texto: 'Error al guardar la dirección. Por favor, intenta nuevamente.' 
+      console.error('❌ Error guardando dirección:', error);
+      setMensaje({
+        tipo: 'danger',
+        texto: error.response?.data?.message || 'Error al guardar la dirección. Por favor, intenta nuevamente.'
       });
+    } finally {
       setGuardando(false);
     }
   };
 
   // Eliminar dirección
-  const handleEliminarDireccion = async (id) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar esta dirección?')) {
+  const handleEliminarDireccion = async (idDireccion) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar esta dirección? Esta acción no se puede deshacer.')) {
       return;
     }
-    
+
     try {
-      setGuardando(true);
-      
-      // TODO: Reemplazar con llamada real a la API
-      // const response = await fetch(
-      //   `http://localhost:8080/api/clientes/direcciones/${id}`,
-      //   {
-      //     method: 'DELETE',
-      //     headers: {
-      //       'Authorization': `Bearer ${localStorage.getItem('firebaseToken')}`
-      //     }
-      //   }
-      // );
-      
-      // MOCK - Simular eliminación
-      setTimeout(() => {
-        setDirecciones(prev => prev.filter(dir => dir.id !== id));
-        setMensaje({ 
-          tipo: 'success', 
-          texto: '✓ Dirección eliminada exitosamente' 
-        });
-        setGuardando(false);
-      }, 500);
-      
-    } catch (error) {
-      console.error('Error eliminando dirección:', error);
-      setMensaje({ 
-        tipo: 'danger', 
-        texto: 'Error al eliminar la dirección. Por favor, intenta nuevamente.' 
+      setMensaje({ tipo: '', texto: '' });
+
+      await eliminarDireccion(idDireccion);
+
+      // Recargar direcciones
+      await recargarDirecciones();
+
+      setMensaje({
+        tipo: 'success',
+        texto: '✓ Dirección eliminada exitosamente'
       });
-      setGuardando(false);
+
+    } catch (error) {
+      console.error('❌ Error eliminando dirección:', error);
+      setMensaje({
+        tipo: 'danger',
+        texto: error.response?.data?.message || 'Error al eliminar la dirección. Por favor, intenta nuevamente.'
+      });
     }
   };
 
@@ -427,8 +422,8 @@ export default function MiPerfilPag() {
                   Información Personal
                 </h5>
                 {!editandoPerfil && (
-                  <Button 
-                    variant="warning" 
+                  <Button
+                    variant="warning"
                     size="sm"
                     onClick={() => setEditandoPerfil(true)}
                     className="text-dark fw-semibold"
@@ -444,31 +439,36 @@ export default function MiPerfilPag() {
                   <>
                     <div className="mb-3">
                       <strong className="text-muted">Nombre:</strong>
-                      <p className="mb-0 text-white">{cliente?.nombre}</p>
+                      <p className="mb-0 text-white">{cliente?.nombreCliente || 'No disponible'}</p>
                     </div>
-                    <div className="mb-3">
-                      <strong className="text-muted">Teléfono:</strong>
-                      <p className="mb-0 text-white">{cliente?.telefono || 'No especificado'}</p>
-                    </div>
+
                     <div className="mb-3">
                       <strong className="text-muted">Email:</strong>
-                      <p className="mb-0 text-white">{cliente?.email}</p>
+                      <p className="mb-0 text-white">{cliente?.usuario?.email || cliente?.email || 'No disponible'}</p>
+                      <Form.Text className="text-muted">
+                        <i className="bi bi-lock-fill me-1"></i>
+                        El email no se puede modificar
+                      </Form.Text>
                     </div>
+
                     <div className="mb-3">
-                      <strong className="text-muted">Fecha de registro:</strong>
+                      <strong className="text-muted">Teléfono:</strong>
+                      <p className="mb-0 text-white">{cliente?.telefonoCliente || 'No especificado'}</p>
+                    </div>
+
+                    <div className="mb-3">
+                      <strong className="text-muted">Miembro desde:</strong>
                       <p className="mb-0 text-white">
-                        {new Date(cliente?.fechaRegistro).toLocaleDateString('es-CL')}
+                        {cliente?.usuario?.fechaCreacion
+                          ? new Date(cliente.usuario.fechaCreacion).toLocaleDateString('es-CL', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })
+                          : 'No disponible'
+                        }
                       </p>
                     </div>
-                    
-                    <Button 
-                      variant="warning" 
-                      onClick={() => setEditandoPerfil(true)}
-                      className="w-100 text-dark fw-semibold"
-                    >
-                      <i className="bi bi-pencil-square me-2"></i>
-                      Editar Perfil
-                    </Button>
                   </>
                 ) : (
                   // Modo edición
@@ -477,44 +477,47 @@ export default function MiPerfilPag() {
                       <Form.Label>Nombre *</Form.Label>
                       <Form.Control
                         type="text"
-                        name="nombre"
-                        value={datosFormulario.nombre}
-                        onChange={handleChangeFormulario}
+                        name="nombreCliente"
+                        value={formPerfil.nombreCliente}
+                        onChange={handleChangePerfil}
                         required
+                        placeholder="Ej: Juan Pérez"
                       />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label>Email</Form.Label>
+                      <Form.Control
+                        type="email"
+                        value={cliente?.usuario?.email || cliente?.email || ''}
+                        disabled
+                        className="bg-secondary bg-opacity-25"
+                      />
+                      <Form.Text className="text-muted">
+                        <i className="bi bi-lock-fill me-1"></i>
+                        El email no se puede modificar por seguridad
+                      </Form.Text>
                     </Form.Group>
 
                     <Form.Group className="mb-3">
                       <Form.Label>Teléfono</Form.Label>
                       <Form.Control
                         type="tel"
-                        name="telefono"
-                        value={datosFormulario.telefono}
-                        onChange={handleChangeFormulario}
-                        placeholder="+56912345678"
+                        name="telefonoCliente"
+                        value={formPerfil.telefonoCliente}
+                        onChange={handleChangePerfil}
+                        placeholder="912345678"
+                        pattern="[0-9]{9}"
+                        maxLength="9"
                       />
                       <Form.Text className="text-muted">
-                        Formato: +56912345678
-                      </Form.Text>
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                      <Form.Label>Email *</Form.Label>
-                      <Form.Control
-                        type="email"
-                        name="email"
-                        value={datosFormulario.email}
-                        onChange={handleChangeFormulario}
-                        required
-                      />
-                      <Form.Text className="text-muted">
-                        Si cambias tu email, deberás verificarlo nuevamente
+                        9 dígitos sin espacios ni símbolos
                       </Form.Text>
                     </Form.Group>
 
                     <div className="d-flex gap-2">
-                      <Button 
-                        variant="success" 
+                      <Button
+                        variant="success"
                         type="submit"
                         disabled={guardando}
                         className="flex-grow-1"
@@ -536,15 +539,14 @@ export default function MiPerfilPag() {
                           </>
                         )}
                       </Button>
-                      
-                      <Button 
-                        variant="secondary" 
+
+                      <Button
+                        variant="secondary"
                         onClick={() => {
                           setEditandoPerfil(false);
-                          setDatosFormulario({
-                            nombre: cliente.nombre,
-                            telefono: cliente.telefono,
-                            email: cliente.email
+                          setFormPerfil({
+                            nombreCliente: cliente.nombreCliente || '',
+                            telefonoCliente: cliente.telefonoCliente || ''
                           });
                         }}
                         disabled={guardando}
@@ -591,8 +593,8 @@ export default function MiPerfilPag() {
                 ) : (
                   <div className="list-group">
                     {direcciones.map((direccion, index) => (
-                      <div 
-                        key={direccion.id} 
+                      <div
+                        key={direccion.idDireccion}
                         className="list-group-item list-group-item-action mb-2 rounded"
                       >
                         <div className="d-flex justify-content-between align-items-start">
@@ -612,22 +614,21 @@ export default function MiPerfilPag() {
                             </p>
                             <p className="mb-0 text-muted small">
                               <i className="bi bi-geo-alt-fill me-1"></i>
-                              {getNombreCiudad(direccion.idCiudad)}
+                              {direccion.ciudad?.nombreCiudad || direccion.nombreCiudad || getNombreCiudad(direccion.idCiudad || direccion.ciudad?.idCiudad)}
                             </p>
                           </div>
                           <div className="d-flex flex-column gap-1">
-                            <Button 
-                              variant="outline-primary" 
+                            <Button
+                              variant="outline-primary"
                               size="sm"
                               onClick={() => handleAbrirModalDireccion(direccion)}
                             >
                               <i className="bi bi-pencil"></i>
                             </Button>
-                            <Button 
-                              variant="outline-danger" 
+                            <Button
+                              variant="outline-danger"
                               size="sm"
-                              onClick={() => handleEliminarDireccion(direccion.id)}
-                              disabled={guardando}
+                              onClick={() => handleEliminarDireccion(direccion.idDireccion)}
                             >
                               <i className="bi bi-trash"></i>
                             </Button>
@@ -677,11 +678,11 @@ export default function MiPerfilPag() {
                 required
               >
                 <option value="">Selecciona una ciudad</option>
-                <option value="1">Valparaíso</option>
-                <option value="2">Viña del Mar</option>
-                <option value="3">Quilpué</option>
-                <option value="4">Curauma</option>
-                <option value="5">Villa Alemana</option>
+                {ciudades.map((ciudad) => (
+                  <option key={ciudad.idCiudad} value={ciudad.idCiudad}>
+                    {ciudad.nombreCiudad}
+                  </option>
+                ))}
               </Form.Select>
               <Form.Text className="text-muted">
                 Selecciona la ciudad donde se encuentra tu dirección
