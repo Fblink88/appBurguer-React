@@ -210,9 +210,9 @@ function GestionPedidos() {
       ]);
       
       // Cargar productos desde backend
-      // Endpoint: /api/catalogo/productos (público según SecurityConfig)
+      // Endpoint: /api/catalogo/productos (solo productos disponibles)
       try {
-        console.log('Cargando productos desde /api/catalogo/productos...');
+        console.log('Cargando productos disponibles desde /api/catalogo/productos...');
         const productosData = await productosService.obtenerProductosDisponibles();
         setProductos(Array.isArray(productosData) ? productosData : []);
         console.log('Productos cargados desde backend:', productosData.length, 'productos');

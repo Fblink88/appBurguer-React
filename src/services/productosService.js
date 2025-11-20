@@ -11,24 +11,18 @@ import api from "../config/api";
 // ===============================
 
 /**
- * GET /api/productos - Obtener todos los productos
+ * GET /api/catalogo/productos/todos - Obtener TODOS los productos (incluidos no disponibles)
  * Requiere: token JWT válido
  * Roles: Todos
- * 
- * NOTA: Si este endpoint no funciona, prueba estas alternativas:
- * - /api/catalogo/productos
- * - /api/producto (singular)
- * - /api/productos/listar
- * - /api/productos/disponibles
  */
 export const obtenerTodosProductos = async () => {
   try {
-    // Endpoint público - no requiere autenticación
-    const response = await api.get("/catalogo/productos");
-    console.log('📦 Productos obtenidos del backend:', response.data);
+    // Este endpoint retorna TODOS los productos, disponibles y no disponibles
+    const response = await api.get("/catalogo/productos/todos");
+    console.log('📦 Todos los productos obtenidos del backend:', response.data);
     return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
-    console.error("Error al obtener productos:", error);
+    console.error("Error al obtener todos los productos:", error);
     console.error("Status:", error.response?.status);
     console.error("URL intentada:", error.config?.url);
     throw error;
@@ -101,16 +95,19 @@ export const crearProducto = async (productoData) => {
 };
 
 /**
- * PUT /api/productos/{id} - Actualizar un producto
+ * PUT /api/catalogo/productos/{id} - Actualizar un producto
  * Requiere: token JWT válido
- * Roles: ADMIN
+ * Roles: ADMIN, TRABAJADOR
  */
 export const actualizarProducto = async (idProducto, productoData) => {
   try {
-    const response = await api.put(`/productos/${idProducto}`, productoData);
+    const response = await api.put(`/catalogo/productos/${idProducto}`, productoData);
+    console.log('✅ Producto actualizado:', response.data);
     return response.data;
   } catch (error) {
-    console.error(`Error al actualizar producto ${idProducto}:`, error);
+    console.error(`❌ Error al actualizar producto ${idProducto}:`, error);
+    console.error("Status:", error.response?.status);
+    console.error("Mensaje:", error.response?.data?.message || error.message);
     throw error;
   }
 };
@@ -152,11 +149,14 @@ export const subirImagenProducto = async (idProducto, file) => {
 
     console.log('📤 Subiendo imagen para producto:', idProducto);
     console.log('📤 Archivo:', file.name, 'Tipo:', file.type, 'Tamaño:', file.size);
-    console.log('📤 FormData creado:', formData);
-    console.log('📤 Contenido imagen:', formData.get('imagen'));
+    console.log('📤 FormData entries:');
+    for (let pair of formData.entries()) {
+      console.log('  -', pair[0], ':', pair[1]);
+    }
 
     // Enviar la imagen al backend
-    // NO establecer ningún header Content-Type para que el navegador lo configure automáticamente
+    // El interceptor de api.js eliminará automáticamente el Content-Type
+    // para que el navegador configure el boundary correcto
     const response = await api.post(`/catalogo/productos/${idProducto}/imagen`, formData);
 
     console.log('✅ Imagen subida exitosamente:', response.data);
