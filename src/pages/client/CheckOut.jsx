@@ -9,12 +9,11 @@ import {
   obtenerClientePorUid,
   obtenerDireccionesPorCliente,
   crearDireccion,
-  //actualizarDireccion,
-  //eliminarDireccion,
   obtenerTodasCiudades
 } from '../../services/usuariosService';
+import { crearPedido, actualizarPedidoAPagado } from '../../services/pedidosService';
+import { crearPreferenciaPago } from '../../services/pagoService';
 import '../../styles/checkout.css';
-
 
 function CheckoutPag() {
   const navigate = useNavigate();
@@ -32,6 +31,7 @@ function CheckoutPag() {
   const [ciudades, setCiudades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
+  const [procesandoPago, setProcesandoPago] = useState(false);
 
   // Estados del formulario
   const [formData, setFormData] = useState({
@@ -111,11 +111,11 @@ function CheckoutPag() {
   }, [navigate]);
 
   const calcularSubtotal = () => {
-    return carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0); 
+    return carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0);
   };
 
   const calcularDelivery = () => {
-    return tipoPedido === 'delivery' ? 2500 : 0;// si el tipo de pedido es delivery, se cobra 2500, si es retiro en tienda, no se cobra nada
+    return tipoPedido === 'delivery' ? 2500 : 0;
   };
 
   const calcularTotal = () => {
@@ -138,7 +138,6 @@ function CheckoutPag() {
         const direccionesData = await obtenerDireccionesPorCliente(cliente.idCliente);
         setDirecciones(direccionesData);
 
-        // Si no hay dirección seleccionada y hay direcciones, seleccionar la primera
         if (!direccionSeleccionada && direccionesData.length > 0) {
           setDireccionSeleccionada(direccionesData[0]);
         }
@@ -244,50 +243,129 @@ function CheckoutPag() {
 
     return true;
   };
-//  para manejar la confirmación del pedido
-  const handleConfirmarPedido = (e) => {
+
+  // Crear objeto de pedido para enviar al backend
+  const crearObjetoPedido = () => {
+    // Mapear el tipo de entrega
+    const tipoEntregaId = tipoPedido === 'delivery' ? 1 : 2; // 1=Delivery, 2=Retiro
+    
+    // Mapear el método de pago
+    const metodoPagoId = metodoPago === 'efectivo' ? 1 : 2; // 1=Efectivo, 2=MercadoPago
+
+    return {
+      idCliente: cliente.idCliente,
+      idEstadoPedido: 1, // 1 = Pendiente de pago
+      idMetodoPago: metodoPagoId,
+      idTipoEntrega: tipoEntregaId,
+      idDireccionEntrega: tipoPedido === 'delivery' ? direccionSeleccionada?.idDireccion : null,
+      montoSubtotal: calcularSubtotal(),
+      montoEnvio: calcularDelivery(),
+      montoTotal: calcularTotal(),
+      fechaHoraPedido: new Date().toISOString(),
+      notasCliente: null,
+      detalles: carrito.map(item => ({
+        idProducto: item.idProducto,
+        cantidad: item.cantidad,
+        precioUnitario: item.precio,
+        subtotalLinea: item.precio * item.cantidad
+      }))
+    };
+  };
+
+  // Manejar pago en efectivo
+  const procesarPagoEfectivo = async (pedidoCreado) => {
+    try {
+      console.log('💵 Procesando pago en efectivo...');
+      
+      // Actualizar pedido a estado PAGADO (2) y generar venta
+      await actualizarPedidoAPagado(pedidoCreado.idPedido);
+      
+      console.log('✅ Pedido marcado como pagado y venta generada');
+      
+      // Limpiar carrito
+      localStorage.removeItem('carrito');
+      window.dispatchEvent(new Event('storage'));
+
+      alert(`¡Pedido confirmado!\n\nNúmero de pedido: ${pedidoCreado.idPedido}\nTotal: $${calcularTotal().toLocaleString('es-CL')}\n\nPagarás en efectivo al recibir tu pedido.\nTe enviaremos un email de confirmación.`);
+
+      navigate('/inicio');
+    } catch (error) {
+      console.error(' Error al procesar pago en efectivo:', error);
+      alert('Hubo un error al confirmar el pedido. Por favor, intenta nuevamente.');
+    }
+  };
+
+  // Manejar pago con Mercado Pago
+  const procesarPagoMercadoPago = async (pedidoCreado) => {
+    try {
+      console.log('💳 Procesando pago con Mercado Pago...');
+      
+      // Crear preferencia de pago
+      const datosPreferencia = {
+        idPedido: pedidoCreado.idPedido,
+        montoPago: calcularTotal(),
+        descripcion: `Pedido #${pedidoCreado.idPedido} - ${carrito.length} producto(s)`,
+        emailPagador: formData.email,
+        nombrePagador: formData.nombre
+      };
+
+      const preferenciaResponse = await crearPreferenciaPago(datosPreferencia);
+      
+      console.log('✅ Preferencia de pago creada:', preferenciaResponse);
+
+      // Guardar el ID del pedido en localStorage para verificar después del pago
+      localStorage.setItem('pedidoPendientePago', JSON.stringify({
+        idPedido: pedidoCreado.idPedido,
+        idPago: preferenciaResponse.idPago,
+        timestamp: new Date().toISOString()
+      }));
+
+      // Redirigir a Mercado Pago
+      if (preferenciaResponse.urlPago) {
+        window.location.href = preferenciaResponse.urlPago;
+      } else {
+        throw new Error('No se recibió la URL de pago de Mercado Pago');
+      }
+
+    } catch (error) {
+      console.error('❌ Error al crear preferencia de Mercado Pago:', error);
+      alert('Hubo un error al procesar el pago. Por favor, intenta nuevamente.');
+    }
+  };
+
+  // Manejar confirmación del pedido
+  const handleConfirmarPedido = async (e) => {
     e.preventDefault();
 
     if (!validarFormulario()) {
       return;
     }
 
-    const pedido = {
-      id: Date.now(),
-      fecha: new Date().toISOString(),
-      cliente: {
-        nombre: formData.nombre,
-        telefono: formData.telefono,
-        email: formData.email,
-        idCliente: cliente?.idCliente
-      },
-      direccion: tipoPedido === 'delivery' ? {
-        idDireccion: direccionSeleccionada.idDireccion,
-        direccion: direccionSeleccionada.direccion,
-        ciudad: direccionSeleccionada.ciudad?.nombreCiudad || direccionSeleccionada.nombreCiudad,
-        alias: direccionSeleccionada.alias
-      } : null,
-      productos: carrito,
-      tipoPedido: tipoPedido,
-      metodoPago: metodoPago,
-      subtotal: calcularSubtotal(),
-      delivery: calcularDelivery(),
-      total: calcularTotal()
-    };
-    // se genera un mensaje de confirmación con los detalles del pedido
-    const pedidosGuardados = JSON.parse(localStorage.getItem('pedidos') || '[]');// Obtiene los pedidos guardados en el localStorage o un array vacío si no hay ninguno
-    pedidosGuardados.push(pedido);  //push agrega el nuevo pedido al array de pedidos guardados
-    localStorage.setItem('pedidos', JSON.stringify(pedidosGuardados));// Guarda el array actualizado de pedidos en el localStorage y convierte el array en un string JSON para almacenarlo correctamente
+    setProcesandoPago(true);
 
-    localStorage.removeItem('carrito');// Limpia el carrito del localStorage ya que el pedido ha sido confirmado
-    window.dispatchEvent(new Event('storage'));// dispatchEvent se usa para notificar a otros componentes que el carrito ha cambiado, 
-    // esto es muy útil si hay otros componentes que dependen del estado del carrito,, por ejemplo el icono del carrito en el header si está vacío o no
+    try {
+      // 1. Crear el pedido en el backend
+      console.log('📦 Creando pedido en backend...');
+      const objetoPedido = crearObjetoPedido();
+      const pedidoCreado = await crearPedido(objetoPedido);
+      console.log('✅ Pedido creado:', pedidoCreado);
 
-    alert(`¡Pedido confirmado!\n\nNúmero de pedido: ${pedido.id}\nTotal: $${pedido.total.toLocaleString('es-CL')}\n\nTe enviaremos un email de confirmación.`); //Se genera el mensaje solo si se confirma el pedido
+      // 2. Procesar según el método de pago
+      if (metodoPago === 'efectivo') {
+        await procesarPagoEfectivo(pedidoCreado);
+      } else if (metodoPago === 'mercadopago') {
+        await procesarPagoMercadoPago(pedidoCreado);
+      }
 
-    navigate('/inicio'); // Redirige al usuario a la página de inicio después de confirmar el pedido
+    } catch (error) {
+      console.error(' Error al confirmar pedido:', error);
+      alert('Hubo un error al procesar tu pedido. Por favor, intenta nuevamente.');
+    } finally {
+      setProcesandoPago(false);
+    }
   };
- // Mostrar spinner mientras carga
+
+  // Mostrar spinner mientras carga
   if (loading) {
     return (
       <div className="pagina-completa">
@@ -384,7 +462,7 @@ function CheckoutPag() {
                     <div className="d-flex align-items-center">
                       <i className="bi bi-envelope-fill me-2"></i>
                       <div>
-                        <strong>Tu pedido se enviará al correo :</strong>{' '}
+                        <strong>Tu pedido se enviará al correo:</strong>{' '}
                         <span style={{ fontWeight: 'normal' }}>{formData.email}</span>
                       </div>
                     </div>
@@ -447,7 +525,6 @@ function CheckoutPag() {
                 <div className="form-seccion">
                   <h3 className="form-seccion-titulo">Método de Pago</h3>
                   
-
                   <div className="metodos-pago">
                     <label className={`metodo-pago ${metodoPago === 'efectivo' ? 'active' : ''}`}>
                       <input
@@ -463,25 +540,6 @@ function CheckoutPag() {
                         <small>Paga en la Entrega</small>
                       </div>
                     </label>
-                
-                 {/* ===========================================================
-                      MAS ADELANTE LO AGREGARE POR AHORA SOLO USAMOS EFECTIVO Y MERCADOPAGO
-                    ============================================================
-                    <label className={`metodo-pago ${metodoPago === 'webpay' ? 'active' : ''}`}>
-                      <input
-                        type="radio" 
-                        name="metodoPago"
-                        value="webpay"
-                        checked={metodoPago === 'webpay'}
-                        onChange={(e) => setMetodoPago(e.target.value)}
-                      />
-                      <div className="metodo-info">
-                        <i className="bi bi-credit-card"></i>
-                        <span>Transbank Webpay</span>
-                        <small>Pago 100% seguro y eficaz </small>
-                      </div>
-                    </label>
-                    ==========================================================*/}
 
                     <label className={`metodo-pago ${metodoPago === 'mercadopago' ? 'active' : ''}`}>
                       <input
@@ -494,10 +552,17 @@ function CheckoutPag() {
                       <div className="metodo-info">
                         <i className="bi bi-wallet2"></i>
                         <span>Mercado Pago</span>
-                        <small>Disponible en todo Latinoamerica</small>
+                        <small>Pago seguro en línea</small>
                       </div>
                     </label>
                   </div>
+
+                  {metodoPago === 'mercadopago' && (
+                    <Alert variant="info" className="mt-3">
+                      <i className="bi bi-info-circle me-2"></i>
+                      Serás redirigido a Mercado Pago para completar el pago de forma segura
+                    </Alert>
+                  )}
                 </div>
 
                 <div className="form-seccion">
@@ -511,8 +576,26 @@ function CheckoutPag() {
                   </label>
                 </div>
 
-                <button type="submit" className="btn-confirmar-pedido">
-                  Confirmar Pedido
+                <button 
+                  type="submit" 
+                  className="btn-confirmar-pedido"
+                  disabled={procesandoPago}
+                >
+                  {procesandoPago ? (
+                    <>
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"
+                      />
+                      Procesando...
+                    </>
+                  ) : (
+                    metodoPago === 'mercadopago' ? 'Ir a Pagar' : 'Confirmar Pedido'
+                  )}
                 </button>
               </form>
             </div>
@@ -624,16 +707,3 @@ function CheckoutPag() {
 }
 
 export default CheckoutPag;
-
-
-
-
-// los comentarios para un html se hacen  {/* asi */ }  y para un archivo js o jsx se hacen // para una sola línea o /* asi */ para varias líneas
-
-
-//explicacion general
-//Este código define un componente de React llamado CheckoutPag que representa la página de checkout de una tienda en línea. 
-//El componente maneja el estado del formulario de checkout, incluyendo la información personal del cliente, el tipo de pedido (delivery o retiro en tienda), 
-//el método de pago y la aceptación de términos y condiciones. También calcula el subtotal, el costo de delivery y el total del pedido basado en los productos en el carrito.
-//Cuando el usuario confirma el pedido, se valida el formulario y se crea un objeto de pedido que se guarda en el localStorage. Luego, se limpia el carrito y se redirige al usuario a la página de inicio. 
-//El componente también incluye un resumen del pedido que muestra el subtotal, el costo de delivery y el total.
