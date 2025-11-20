@@ -3,7 +3,9 @@ import axios from "axios";
 // Configuración de URLs según el ambiente
 const API_URLS = {
   // En desarrollo, usa directamente la VM
+  //development: "http://localhost:8080/api", //puerto de la apigateway del backend
   development: "http://161.153.219.128:8080/api",
+
   // En producción, apunta directamente a la VM del backend
   production: "http://161.153.219.128:8080/api"
 };

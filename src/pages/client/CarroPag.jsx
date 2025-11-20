@@ -89,9 +89,8 @@ function CarroPag() {
       localStorage.removeItem('carrito'); // Borrar del localStorage
     }
   };
-
-  // ⭐ FUNCIÓN PRINCIPAL: Proceder al pago
-  // Esta función crea el pedido en la base de datos ANTES de ir al checkout
+    // ⭐ FUNCIÓN PRINCIPAL: Proceder al pago
+  // VERSIÓN SIMPLIFICADA: Solo valida y va al checkout
   const procederAlPago = async () => {
     // 1. Verificar que el carrito no esté vacío
     if (carrito.length === 0) {
@@ -99,13 +98,8 @@ function CarroPag() {
       return;
     }
 
-    try {
-      // 2. Mostrar mensaje de carga en el botón
-      const btnProceder = document.querySelector('.btn-proceder-pago');
-      btnProceder.disabled = true; // Desactivar el botón para evitar doble clic
-      btnProceder.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creando pedido...';
-
-      // 3. Obtener el ID del usuario desde localStorage
+    try {  // ⬅️ ⬅️ ⬅️ ESTE "try {" ES EL QUE FALTA
+      // 2. Verificar que el usuario esté logueado
       const firebaseUid = localStorage.getItem('userId');
       if (!firebaseUid) {
         alert('Debes iniciar sesión para continuar');
@@ -113,59 +107,26 @@ function CarroPag() {
         return;
       }
 
-      // 4. Obtener los datos completos del cliente desde el backend
-      console.log('🔍 Buscando datos del cliente...');
+      // 3. Verificar que el cliente existe en el backend
+      console.log('🔍 Verificando datos del cliente...');
       const cliente = await obtenerClientePorUid(firebaseUid);
-      console.log('✅ Cliente encontrado:', cliente);
+      console.log('✅ Cliente encontrado:', cliente.nombreCliente);
 
-      // 5. Crear el objeto del pedido para enviar al backend
-      // Nota: Algunos datos son temporales y se actualizarán en el checkout
-      const pedidoInicial = {
-        idCliente: parseInt(cliente.idCliente), // ID del cliente (convertido a número)
-        idEstadoPedido: 1, // Estado 1 = Pendiente
-        idMetodoPago: 1, // Temporal (1=Efectivo), se actualiza en checkout
-        idTipoEntrega: 1, // Temporal (1=Delivery), se actualiza en checkout
-        montoSubtotal: parseFloat(calcularSubtotal()), // Subtotal convertido a número decimal
-        montoEnvio: 0, // Por ahora 0, se calcula en checkout
-        montoTotal: parseFloat(calcularTotal()), // Total convertido a número decimal
-        fechaHoraPedido: new Date().toISOString(), // Fecha actual en formato ISO
-        notasCliente: null, // Sin notas por ahora
-        // Mapear cada producto del carrito a un detalle de pedido
-        detalles: carrito.map(item => ({
-          idProducto: parseInt(item.id), // ID del producto
-          cantidad: parseInt(item.cantidad), // Cantidad
-          precioUnitario: parseFloat(item.precio), // Precio por unidad
-          subtotalLinea: parseFloat(item.precio * item.cantidad) // Subtotal de esta línea
-        }))
-      };
-
-      console.log('📦 Pedido a crear:', pedidoInicial);
-
-      // 6. Enviar el pedido al backend para guardarlo en Oracle
-      const pedidoCreado = await crearPedido(pedidoInicial);
-      
-      console.log('✅ Pedido guardado en la base de datos con ID:', pedidoCreado.idPedido);
-
-      // 7. Guardar el ID del pedido en localStorage para usarlo en el checkout
-      localStorage.setItem('pedidoEnProceso', JSON.stringify({
-        idPedido: pedidoCreado.idPedido,
+      // 4. Guardar info del cliente
+      localStorage.setItem('clienteCheckout', JSON.stringify({
+        idCliente: cliente.idCliente,
+        nombreCliente: cliente.nombreCliente,
         timestamp: new Date().toISOString()
       }));
 
-      // 8. Redirigir al usuario a la página de checkout
+      console.log('✅ Continuando al checkout...');
+
+      // 5. Ir al checkout
       navigate('/checkout');
 
-    } catch (error) {
-      // Si algo sale mal, mostrar el error
-      console.error('❌ Error al crear pedido:', error);
-      alert('Hubo un error al procesar tu pedido. Por favor, intenta nuevamente.');
-      
-      // Restaurar el botón a su estado original
-      const btnProceder = document.querySelector('.btn-proceder-pago');
-      if (btnProceder) {
-        btnProceder.disabled = false;
-        btnProceder.innerHTML = 'Proceder al Pago';
-      }
+    } catch (error) {  // ⬅️ Aquí está el catch (línea 149 del error)
+      console.error('❌ Error:', error);
+      alert('Hubo un error al verificar tus datos. Por favor, intenta nuevamente.');
     }
   };
 

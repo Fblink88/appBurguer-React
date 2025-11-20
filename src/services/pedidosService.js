@@ -6,12 +6,12 @@ import api from "../config/api";
  */
 
 // Listar todos los pedidos
-export const getPedidos = async () => {
-  try {
-    const response = await api.get("/pedidos");
-    return Array.isArray(response.data) ? response.data : [];
+export const getPedidos = async () => {//se crea una funcion asincrona para obtener los pedidos
+  try {//async espera a que termine la peticion
+    const response = await api.get("/pedidos"); //esta linea hace la peticion al backend 
+    return Array.isArray(response.data) ? response.data : [];// si es un array lo devuelve, si no un array vacio
   } catch (error) {
-    console.error("Error al obtener pedidos:", error);
+    console.error("Error al obtener pedidos:", error); 
     throw error;
   }
 };
@@ -20,7 +20,7 @@ export const getPedidos = async () => {
 export const getPedidoPorId = async (id) => {
   try {
     const response = await api.get(`/pedidos/${id}`);
-    return response.data;
+    return response.data;// response.data tiene el pedido y lo devuelve
   } catch (error) {
     console.error(`Error al obtener pedido ${id}:`, error);
     throw error;
@@ -110,6 +110,32 @@ export const getDetallesPedido = async (idCliente) => {
     return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
     console.error(`Error al obtener detalles del pedido ${idCliente}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Actualizar un pedido existente con los datos finales del checkout
+ * PUT /api/pedidos/{idPedido}/actualizar
+ * 
+ * @param {number} idPedido - ID del pedido a actualizar
+ * @param {Object} datosActualizacion - Datos a actualizar
+ * @returns {Promise<Object>} Pedido actualizado
+ */
+export const actualizarPedido = async (idPedido, datosActualizacion) => {
+  try {
+    console.log(`🔄 Actualizando pedido ${idPedido}...`);
+    console.log('📤 Datos de actualización:', datosActualizacion);
+
+    // Si el backend tiene endpoint de actualización, usar PUT
+    const response = await api.put(`/pedidos/${idPedido}/actualizar`, datosActualizacion);
+    
+    console.log(' Pedido actualizado:', response.data);
+    return response.data;
+
+  } catch (error) {
+    console.error(' Error al actualizar pedido:', error);
+    console.error('Respuesta:', error.response?.data);
     throw error;
   }
 };
