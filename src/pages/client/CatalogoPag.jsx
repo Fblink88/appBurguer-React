@@ -120,8 +120,22 @@ function CatalogoPag() { // Componente principal de la página de catálogo
   const calcularTotal = () => {
     return carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0); // Suma el precio por cantidad de cada ítem
   };
-  //==========================================================
+
+// Calcula el total de items en el carrito (sumando cantidades)
+const calcularTotalItems = () => {
+  return carrito.reduce((total, item) => total + item.cantidad, 0);
+};
+
+
+
+
+
+
+
+
+  //=================================
   // Renderiza la página de catálogo
+  //=================================
   return (
     <div className="pagina-completa">
       <HeaderComp />
@@ -204,7 +218,7 @@ function CatalogoPag() { // Componente principal de la página de catálogo
                 Total: <strong>${calcularTotal().toLocaleString('es-CL')}</strong>
               </span>
               <a href="/carrito" className="btn-pagar">
-                Ir a pagar ({carrito.length}) 
+                Ir a pagar ({calcularTotalItems()}) 
               </a>
             </div>
           </div>

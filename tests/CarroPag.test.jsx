@@ -6,7 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 
 //Se crea un mock para simular la navegacion
 const mockNavigate = vi.fn();
-vi.mock("react-router-dom", async () => { //se usa un vi.mock para mockear el módulo react-router-dom
+vi.mock("react-router-dom", async () => { //se usa un vi.mock para simular el módulo react-router-dom
   const actual = await vi.importActual("react-router-dom"); //Se importa la implementación real del módulo
   return { //se retorna un objeto con todas las exportaciones reales y se sobreescribe useNavigate
     ...actual, // actual contiene todas las exportaciones reales de react-router-dom
@@ -39,7 +39,7 @@ const renderCarrito = () => {
   );
 };
 
-describe("Componente Carrito", () => {
+describe("Componente Carrito", () => { 
   beforeEach(() => {
     localStorage.clear();
     mockNavigate.mockClear();
