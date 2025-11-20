@@ -1,43 +1,114 @@
 // src/pages/client/CheckoutPag.jsx
 
-import React, { useState, useEffect } from 'react'; //se usa useState para manejar el estado del formulario y useEffect para cargar el carrito desde el localStorage cuando el componente se arma
-import { useNavigate } from 'react-router-dom'; //Se usa para la navegación programática entre páginas
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Modal, Button, Form, Spinner, Alert } from 'react-bootstrap';
 import HeaderComp from '../../components/HeaderComp';
 import FooterComp from '../../components/FooterComp';
+import {
+  obtenerClientePorUid,
+  obtenerDireccionesPorCliente,
+  crearDireccion,
+  //actualizarDireccion,
+  //eliminarDireccion,
+  obtenerTodasCiudades
+} from '../../services/usuariosService';
 import '../../styles/checkout.css';
 
 
-function CheckoutPag() {// Componente principal de la página de checkout
-  const navigate = useNavigate(); // Hook para la navegación programática , el hook es parte de react-router-dom, permite redirigir al usuario a diferentes rutas dentro de la aplicación
-  const [carrito, setCarrito] = useState([]); // si no se pone el useState el carrito sería constante y no se podría modificar
-  const [tipoPedido, setTipoPedido] = useState('delivery'); // Estado para el tipo de pedido (delivery o retiro), es necesario para manejar la lógica del formulario
-  const [metodoPago, setMetodoPago] = useState('efectivo'); // Estado para el método de pago (efectivo, webpay, mercadopago).
-  const [aceptaTerminos, setAceptaTerminos] = useState(false); // Estado para el checkbox de aceptación de términos y condiciones.
-  //en todos los estados es false al inicio porque no hay nada seleccionado y true cuando el usuario selecciona alguna opción
-  
-  const [formData, setFormData] = useState({ // Estado para los datos del formulario de checkout 
-  // y se inicializa con campos vacíos, se usa para almacenar la información que el usuario ingresa en el formulario
+function CheckoutPag() {
+  const navigate = useNavigate();
+
+  // Estados del carrito y pedido
+  const [carrito, setCarrito] = useState([]);
+  const [tipoPedido, setTipoPedido] = useState('delivery');
+  const [metodoPago, setMetodoPago] = useState('efectivo');
+  const [aceptaTerminos, setAceptaTerminos] = useState(false);
+
+  // Estados del cliente y direcciones
+  const [cliente, setCliente] = useState(null);
+  const [direcciones, setDirecciones] = useState([]);
+  const [direccionSeleccionada, setDireccionSeleccionada] = useState(null);
+  const [ciudades, setCiudades] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+
+  // Estados del formulario
+  const [formData, setFormData] = useState({
     nombre: '',
-    apellido: '',
     telefono: '',
-    email: '',
-    direccion: '',
-    ciudad: '',
-    codigoPostal: ''
+    email: ''
   });
 
-  useEffect(() => { // Hook que se ejecuta cuando se carga la página o se refresca
-    const carritoGuardado = localStorage.getItem('carrito');//si se ejecuta, obtiene el carrito guardado en el localStorage del navegador
-    if (carritoGuardado) { //si hay un carrito guardado
-      const carritoParseado = JSON.parse(carritoGuardado); // Parse convierte el string JSON en un objeto JavaScript, se guarda en la constante carritoParseado
-      if (carritoParseado.length === 0) { //si el carrito está vacío
-        navigate('/catalogo');// redirige al usuario a la página del catálogo
+  // Estados del modal de dirección
+  const [showModalDireccion, setShowModalDireccion] = useState(false);
+  const [formDireccion, setFormDireccion] = useState({
+    idCiudad: '',
+    direccion: '',
+    alias: ''
+  });
+
+  // Cargar carrito y datos del cliente al montar el componente
+  useEffect(() => {
+    const cargarDatos = async () => {
+      // Verificar carrito
+      const carritoGuardado = localStorage.getItem('carrito');
+      if (carritoGuardado) {
+        const carritoParseado = JSON.parse(carritoGuardado);
+        if (carritoParseado.length === 0) {
+          navigate('/catalogo');
+          return;
+        }
+        setCarrito(carritoParseado);
+      } else {
+        navigate('/catalogo');
+        return;
       }
-      setCarrito(carritoParseado); //si el carrito no está vacío, actualiza el estado del carrito con los datos obtenidos del localStorage
-    } else {
-      navigate('/catalogo');// si no hay carrito guardado, redirige al usuario al catálogo
-    }
-  }, [navigate]); // este efecto solo se ejecuta una vez al cargar la página y no depende de ningún otro estado. el componete se carga una sola vez cuando el usuario entra a la página de checkout
+
+      // Cargar datos del cliente
+      try {
+        const firebaseUid = localStorage.getItem('userId');
+        if (!firebaseUid) {
+          navigate('/login');
+          return;
+        }
+
+        // Cargar cliente y ciudades en paralelo
+        const [clienteData, ciudadesData] = await Promise.all([
+          obtenerClientePorUid(firebaseUid),
+          obtenerTodasCiudades()
+        ]);
+
+        setCliente(clienteData);
+        setCiudades(ciudadesData);
+
+        // Inicializar formulario con datos del cliente
+        setFormData({
+          nombre: clienteData.nombreCliente || '',
+          telefono: clienteData.telefonoCliente || '',
+          email: clienteData.usuario?.email || clienteData.email || ''
+        });
+
+        // Cargar direcciones del cliente
+        if (clienteData.idCliente) {
+          const direccionesData = await obtenerDireccionesPorCliente(clienteData.idCliente);
+          setDirecciones(direccionesData);
+
+          // Seleccionar la primera dirección por defecto si existe
+          if (direccionesData.length > 0) {
+            setDireccionSeleccionada(direccionesData[0]);
+          }
+        }
+
+      } catch (error) {
+        console.error('Error cargando datos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    cargarDatos();
+  }, [navigate]);
 
   const calcularSubtotal = () => {
     return carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0); 
@@ -50,46 +121,118 @@ function CheckoutPag() {// Componente principal de la página de checkout
   const calcularTotal = () => {
     return calcularSubtotal() + calcularDelivery();
   };
+
   // Función para manejar los cambios en los campos del formulario
-  const handleInputChange = (e) => { // e es el evento que se genera al cambiar un campo del formulario
-    const { name, value } = e.target;// obtiene el nombre y valor del campo que se está modificando.
-    setFormData({// actualiza el estado del formulario con el nuevo valor
-      ...formData,//Se usa para mantener los valores actuales del formulario y solo actualizar el campo que ha cambiado
-      [name]: value// Se usa para actualizar dinámicamente el campo correspondiente en el estado del formulario
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
     });
   };
 
-  const validarFormulario = () => { // Función para validar los campos del formulario antes de confirmar el pedido
+  // Función para recargar direcciones
+  const recargarDirecciones = async () => {
+    try {
+      if (cliente?.idCliente) {
+        const direccionesData = await obtenerDireccionesPorCliente(cliente.idCliente);
+        setDirecciones(direccionesData);
+
+        // Si no hay dirección seleccionada y hay direcciones, seleccionar la primera
+        if (!direccionSeleccionada && direccionesData.length > 0) {
+          setDireccionSeleccionada(direccionesData[0]);
+        }
+      }
+    } catch (error) {
+      console.error('Error recargando direcciones:', error);
+    }
+  };
+
+  // Abrir modal para agregar nueva dirección
+  const handleAbrirModalDireccion = () => {
+    setFormDireccion({
+      idCiudad: '',
+      direccion: '',
+      alias: ''
+    });
+    setShowModalDireccion(true);
+  };
+
+  // Cerrar modal de dirección
+  const handleCerrarModalDireccion = () => {
+    setShowModalDireccion(false);
+    setFormDireccion({
+      idCiudad: '',
+      direccion: '',
+      alias: ''
+    });
+  };
+
+  // Manejar cambios en el formulario de dirección
+  const handleChangeDireccion = (e) => {
+    const { name, value } = e.target;
+    setFormDireccion(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Guardar nueva dirección
+  const handleGuardarDireccion = async (e) => {
+    e.preventDefault();
+
+    if (!formDireccion.direccion.trim() || !formDireccion.idCiudad) {
+      alert('Por favor, completa todos los campos obligatorios');
+      return;
+    }
+
+    try {
+      setGuardando(true);
+
+      await crearDireccion({
+        idCliente: cliente.idCliente,
+        idCiudad: parseInt(formDireccion.idCiudad),
+        direccion: formDireccion.direccion,
+        alias: formDireccion.alias
+      });
+
+      await recargarDirecciones();
+      handleCerrarModalDireccion();
+      alert('Dirección agregada exitosamente');
+
+    } catch (error) {
+      console.error('Error guardando dirección:', error);
+      alert('Error al guardar la dirección');
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const validarFormulario = () => {
     if (!formData.nombre.trim()) {
       alert('Por favor ingresa tu nombre');
       return false;
     }
-    if (!formData.apellido.trim()) {
-      alert('Por favor ingresa tu apellido');
-      return false;
-    }
+
     if (!formData.telefono.trim()) {
       alert('Por favor ingresa tu teléfono');
       return false;
     }
+
     if (!formData.email.trim()) {
       alert('Por favor ingresa tu email');
       return false;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;// Expresión regular básica para validar el formato del email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       alert('Por favor ingresa un email válido');
       return false;
     }
 
-    if (tipoPedido === 'delivery') {// Si el tipo de pedido es delivery, se validan los campos de dirección y ciudad
-      if (!formData.direccion.trim()) {//trim hace que se eliminen los espacios en blanco al inicio y al final del string, por ejemplo "  hola  " se convierte en "hola"
-        alert('Por favor ingresa tu dirección de entrega'); 
-        return false;
-      }
-      if (!formData.ciudad.trim()) {
-        alert('Por favor ingresa tu ciudad');
+    if (tipoPedido === 'delivery') {
+      if (!direccionSeleccionada) {
+        alert('Por favor selecciona o agrega una dirección de entrega');
         return false;
       }
     }
@@ -102,21 +245,32 @@ function CheckoutPag() {// Componente principal de la página de checkout
     return true;
   };
 //  para manejar la confirmación del pedido
-  const handleConfirmarPedido = (e) => { 
-    e.preventDefault(); 
+  const handleConfirmarPedido = (e) => {
+    e.preventDefault();
 
     if (!validarFormulario()) {
       return;
     }
 
-    const pedido = { // Crea un objeto con los detalles del pedido , se activa cuando el usuario confirma el pedido en el carrito y se muestra un mensaje de confirmación
-      id: Date.now(), // Usa la fecha y hora actual como ID único del pedido
-      fecha: new Date().toISOString(), // Fecha y hora del pedido en formato ISO que es estándar y fácil de manejar, palabra reservada de JavaScript
-      cliente: formData, // Información del cliente que viene del formulario
+    const pedido = {
+      id: Date.now(),
+      fecha: new Date().toISOString(),
+      cliente: {
+        nombre: formData.nombre,
+        telefono: formData.telefono,
+        email: formData.email,
+        idCliente: cliente?.idCliente
+      },
+      direccion: tipoPedido === 'delivery' ? {
+        idDireccion: direccionSeleccionada.idDireccion,
+        direccion: direccionSeleccionada.direccion,
+        ciudad: direccionSeleccionada.ciudad?.nombreCiudad || direccionSeleccionada.nombreCiudad,
+        alias: direccionSeleccionada.alias
+      } : null,
       productos: carrito,
       tipoPedido: tipoPedido,
       metodoPago: metodoPago,
-      subtotal: calcularSubtotal(), 
+      subtotal: calcularSubtotal(),
       delivery: calcularDelivery(),
       total: calcularTotal()
     };
@@ -133,13 +287,31 @@ function CheckoutPag() {// Componente principal de la página de checkout
 
     navigate('/inicio'); // Redirige al usuario a la página de inicio después de confirmar el pedido
   };
- // Estructura del componente JSX
+ // Mostrar spinner mientras carga
+  if (loading) {
+    return (
+      <div className="pagina-completa">
+        <HeaderComp />
+        <main className="contenido-principal">
+          <div className="container py-5 text-center">
+            <Spinner animation="border" role="status">
+              <span className="visually-hidden">Cargando...</span>
+            </Spinner>
+            <p className="mt-3">Cargando información...</p>
+          </div>
+        </main>
+        <FooterComp />
+      </div>
+    );
+  }
+
+  // Estructura del componente JSX
   return (
     <div className="pagina-completa">
       <HeaderComp />
 
       <main className="contenido-principal">
-        <div className="container py-5"> 
+        <div className="container py-5">
           <h1 className="checkout-titulo">Finalizar Compra</h1>
 
           <div className="checkout-grid">
@@ -194,77 +366,81 @@ function CheckoutPag() {// Componente principal de la página de checkout
                     </div>
 
                     <div className="form-group">
-                      <label>Apellido *</label>
-                      <input
-                        type="text"
-                        name="apellido"
-                        value={formData.apellido}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Teléfono *</label>
+                      <label>Teléfono</label>
                       <input
                         type="tel"
                         name="telefono"
                         value={formData.telefono}
                         onChange={handleInputChange}
-                        required
+                        placeholder="9 dígitos"
+                        maxLength="9"
                       />
                     </div>
 
-                    <div className="form-group">
-                      <label>Email *</label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
                   </div>
+
+                  {/* Información del email */}
+                  <Alert variant="info" className="mt-3 mb-0">
+                    <div className="d-flex align-items-center">
+                      <i className="bi bi-envelope-fill me-2"></i>
+                      <div>
+                        <strong>Tu pedido se enviará al correo :</strong>{' '}
+                        <span style={{ fontWeight: 'normal' }}>{formData.email}</span>
+                      </div>
+                    </div>
+                  </Alert>
                 </div>
 
                 {tipoPedido === 'delivery' && (
                   <div className="form-seccion">
                     <h3 className="form-seccion-titulo">Información de Entrega</h3>
-                    <div className="form-group">
-                      <label>Dirección de Entrega *</label>
-                      <input
-                        type="text"
-                        name="direccion"
-                        placeholder="Calle, número, comuna"
-                        value={formData.direccion} // valor del campo dirección, que viene del estado formData
-                        onChange={handleInputChange} // si el tipo de pedido es delivery, se muestran estos campos adicionales
-                        required
-                      />
-                    </div>
 
-                    <div className="form-grid">
-                      <div className="form-group">
-                        <label>Ciudad *</label>
-                        <input
-                          type="text"
-                          name="ciudad"
-                          value={formData.ciudad} // almacena el valor del campo ciudad
-                          onChange={handleInputChange} // maneja los cambios en el campo ciudad
-                          required // campo obligatorio
-                        />
+                    {direcciones.length > 0 ? (
+                      <>
+                        <div className="form-group">
+                          <label>Selecciona tu dirección de entrega *</label>
+                          <select
+                            className="form-control"
+                            value={direccionSeleccionada?.idDireccion || ''}
+                            onChange={(e) => {
+                              const direccion = direcciones.find(
+                                d => d.idDireccion === parseInt(e.target.value)
+                              );
+                              setDireccionSeleccionada(direccion);
+                            }}
+                            required
+                          >
+                            <option value="">Selecciona una dirección</option>
+                            {direcciones.map((dir) => (
+                              <option key={dir.idDireccion} value={dir.idDireccion}>
+                                {dir.alias ? `${dir.alias} - ` : ''}
+                                {dir.direccion}, {dir.ciudad?.nombreCiudad || dir.nombreCiudad}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary mt-2"
+                          onClick={handleAbrirModalDireccion}
+                        >
+                          <i className="bi bi-plus-circle me-2"></i>
+                          Agregar nueva dirección
+                        </button>
+                      </>
+                    ) : (
+                      <div className="text-center py-3">
+                        <p className="text-muted mb-3">No tienes direcciones guardadas</p>
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={handleAbrirModalDireccion}
+                        >
+                          <i className="bi bi-plus-circle me-2"></i>
+                          Agregar dirección de entrega
+                        </button>
                       </div>
-
-                      <div className="form-group">
-                        <label>Código Postal</label>
-                        <input
-                          type="text"
-                          name="codigoPostal"
-                          value={formData.codigoPostal}
-                          onChange={handleInputChange} 
-                        />
-                      </div>
-                    </div>
+                    )}
                   </div>
                 )}
 
@@ -370,6 +546,79 @@ function CheckoutPag() {// Componente principal de la página de checkout
       </main>
 
       <FooterComp />
+
+      {/* Modal para agregar nueva dirección */}
+      <Modal show={showModalDireccion} onHide={handleCerrarModalDireccion} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Agregar Nueva Dirección</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleGuardarDireccion}>
+            <Form.Group className="mb-3">
+              <Form.Label>Ciudad *</Form.Label>
+              <Form.Select
+                name="idCiudad"
+                value={formDireccion.idCiudad}
+                onChange={handleChangeDireccion}
+                required
+              >
+                <option value="">Selecciona una ciudad</option>
+                {ciudades.map((ciudad) => (
+                  <option key={ciudad.idCiudad} value={ciudad.idCiudad}>
+                    {ciudad.nombreCiudad}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Dirección *</Form.Label>
+              <Form.Control
+                type="text"
+                name="direccion"
+                placeholder="Ej: Av. Siempre Viva 742"
+                value={formDireccion.direccion}
+                onChange={handleChangeDireccion}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Alias (opcional)</Form.Label>
+              <Form.Control
+                type="text"
+                name="alias"
+                placeholder="Ej: Casa, Trabajo, etc."
+                value={formDireccion.alias}
+                onChange={handleChangeDireccion}
+              />
+            </Form.Group>
+
+            <div className="d-flex gap-2 justify-content-end">
+              <Button variant="secondary" onClick={handleCerrarModalDireccion}>
+                Cancelar
+              </Button>
+              <Button variant="primary" type="submit" disabled={guardando}>
+                {guardando ? (
+                  <>
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="me-2"
+                    />
+                    Guardando...
+                  </>
+                ) : (
+                  'Guardar'
+                )}
+              </Button>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }
