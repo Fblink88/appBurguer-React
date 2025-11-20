@@ -106,10 +106,11 @@ function GestionPedidos() {
     const mapeoEstados = {
       1: 'Pendiente de Pago',
       2: 'Pagado',
-      3: 'En Preparación',
-      4: 'En Camino',
-      5: 'Entregado',
-      6: 'Cancelado'
+      3: 'Recibido',
+      4: 'En preparación',
+      5: 'En camino',
+      6: 'Entregado',
+      7: 'Cancelado'
     };
     
     return mapeoEstados[idEstadoPedido] || `Estado ${idEstadoPedido}`;
@@ -190,10 +191,11 @@ function GestionPedidos() {
       setEstadosPedido([
         { idEstadoPedido: 1, nombre: 'Pendiente de Pago' },
         { idEstadoPedido: 2, nombre: 'Pagado' },
-        { idEstadoPedido: 3, nombre: 'En Preparación' },
-        { idEstadoPedido: 4, nombre: 'En Camino' },
-        { idEstadoPedido: 5, nombre: 'Entregado' },
-        { idEstadoPedido: 6, nombre: 'Cancelado' }
+        { idEstadoPedido: 3, nombre: 'Recibido' },
+        { idEstadoPedido: 4, nombre: 'En preparación' },
+        { idEstadoPedido: 5, nombre: 'En camino' },
+        { idEstadoPedido: 6, nombre: 'Entregado' },
+        { idEstadoPedido: 7, nombre: 'Cancelado' }
       ]);
       
       setMetodosPago([
@@ -208,9 +210,9 @@ function GestionPedidos() {
       ]);
       
       // Cargar productos desde backend
-      // Endpoint: /api/catalogo/productos (público según SecurityConfig)
+      // Endpoint: /api/catalogo/productos (solo productos disponibles)
       try {
-        console.log('Cargando productos desde /api/catalogo/productos...');
+        console.log('Cargando productos disponibles desde /api/catalogo/productos...');
         const productosData = await productosService.obtenerProductosDisponibles();
         setProductos(Array.isArray(productosData) ? productosData : []);
         console.log('Productos cargados desde backend:', productosData.length, 'productos');
@@ -573,7 +575,7 @@ function GestionPedidos() {
               {/* Fila 2: Producto y Cantidad */}
               <div className="form-row">
                 <div className="form-group">
-                  <label>Producto</label>
+                  <label>Producto ({productos.length} disponibles)</label>
                   <select
                     value={idProducto}
                     onChange={(e) => setIdProducto(e.target.value)}
@@ -581,15 +583,23 @@ function GestionPedidos() {
                     disabled={loading}
                   >
                   <option value="">Seleccione Producto</option>
-                  {productos.map(producto => (
-                    <option 
-                      key={ producto.idProducto } 
-                      value={producto.idProducto }
-                    >
-                      {producto.nombreProducto } - 
-                      ${(producto.precioBase || 0).toFixed(2)}
-                    </option>
-                  ))}
+                  {productos.length === 0 && (
+                    <option value="" disabled>No hay productos disponibles</option>
+                  )}
+                  {productos.map(producto => {
+                    const id = producto.idProducto || producto.id;
+                    const nombre = producto.nombreProducto || producto.nombre || producto.name || 'Sin nombre';
+                    const precio = producto.precioBase || producto.precio || producto.price || 0;
+                    
+                    return (
+                      <option 
+                        key={id} 
+                        value={id}
+                      >
+                        {nombre} - ${Number(precio).toFixed(2)}
+                      </option>
+                    );
+                  })}
                   </select>
                 </div>
                 <div className="form-group">

@@ -22,7 +22,6 @@
   position: relative;
   width: 100%;
   max-width: 768px;
-  
 }
 
 /* Botón de cierre */
@@ -383,19 +382,15 @@ button.ghost:hover {
 @media (max-width: 480px) and (min-width: 361px) {
   .login-page-container {
     padding: 10px;
-    height: 100vh;
   }
  
   .login-page-container .container {
-    min-height: 600px;
-    height: 100%;
-    max-height: 90vh;
+    min-height: 550px;
     border-radius: 15px;
   }
   
   .login-page-container form {
-    padding: 30px 20px;
-    height: 100%;
+    padding: 0 20px;
   }
   
   .login-page-container h1 {
@@ -440,15 +435,12 @@ button.ghost:hover {
   
   .login-page-container .container {
     flex-direction: column;
-    height: 100%;
   }
   
   .form-container {
     width: 100%;
-    height: 100%;
-    position: relative;
-    left: 0;
-    top: 0;
+    height: 50%;
+    position: absolute;
   }
   
   .overlay-container {
@@ -456,43 +448,34 @@ button.ghost:hover {
   }
   
   .login-container {
+    top: 0;
     opacity: 1;
     z-index: 2;
-    height: 100%;
-    position: relative;
   }
 
   .register-container {
+    top: 50%;
     opacity: 0;
     z-index: 1;
-    height: 100%;
-    position: absolute;
-    top: 0;
   }
 
   .container.right-panel-active .login-container {
+    transform: translateY(-100%);
     opacity: 0;
     z-index: 1;
-    position: absolute;
   }
 
   .container.right-panel-active .register-container {
+    transform: translateY(-100%);
     opacity: 1;
     z-index: 2;
-    position: relative;
   }
 }
 
 /* Pantallas muy pequeñas (hasta 360px) */
 @media (max-width: 360px) {
-  .login-page-container {
-    height: 100vh;
-  }
-
   .login-page-container .container {
-    min-height: 550px;
-    height: 100%;
-    max-height: 90vh;
+    min-height: 500px;
   }
   
 
@@ -508,51 +491,215 @@ button.ghost:hover {
   }
   
   .login-page-container form {
-    padding: 30px 15px;
-    height: 100%;
+    padding: 0 15px;
+  }
+}
+@media (max-width: 768px) {
+  .login-page-container {
+    padding: 15px;
+    min-height: 100vh;
+    height: auto;
+  }
+  
+  .login-wrapper {
+    max-width: 90%;
+    min-height: auto;
   }
   
   .login-page-container .container {
-    flex-direction: column;
-    height: 100%;
+    min-height: 600px;
+    height: auto;
   }
+
+  .login-page-container form {
+    padding: 0 40px;
+  }
+
+  .login-page-container h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+  
+  .login-page-container h1.title {
+    font-size: 38px;
+    line-height: 42px;
+    margin-bottom: 20px;
+  }
+  
+  .login-page-container p {
+    font-size: 15px;
+    margin: 20px 0 30px;
+    line-height: 22px;
+  }
+  
+  .login-page-container button {
+    padding: 12px 60px;
+    min-width: 180px;
+    font-size: 14px;
+    margin: 12px;
+  }
+  
+  .login-page-container input {
+    padding: 15px 20px;
+    margin: 12px 0;
+    font-size: 16px;
+    width: 100%;
+    max-width: 200px; /* Limitar el ancho máximo */
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 2px solid transparent; 
+    color: #333;
+    display: center;
+  }
+
+  .close-button {
+    top: 10px;
+    right: 10px;
+    width: 38px;
+    height: 38px;
+  }
+
+  .overlay-panel {
+    padding: 0 35px;
+  }
+
+  .overlay-panel h1.title {
+    font-size: 36px;
+    line-height: 40px;
+  }
+
+  .overlay-panel p {
+    font-size: 15px;
+    line-height: 22px;
+    max-width: 280px;
+  }
+
+  .overlay-panel .ghost {
+    padding: 11px 40px;
+    font-size: 14px;
+  }
+
   
   .form-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    left: 0;
-    top: 0;
+    width: 50%;
+  }
+
+  .overlay-container {
+    width: 50%;
+  }
+}
+
+/* Dispositivos móviles (hasta 480px) */
+@media (max-width: 480px) {
+  .login-page-container {
+    padding: 10px;
+    justify-content: flex-start;
+    min-height: 100vh;
+    height: auto;
+  }
+ 
+  .login-page-container .container {
+    min-height: 550px;
+    border-radius: 15px;
+    flex-direction: column;
+    overflow: hidden;
   }
   
+  .login-page-container form {
+    padding: 40px 20px 20px;
+    justify-content: flex-start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .login-page-container h1 {
+    font-size: 22px;
+    margin-bottom: 25px;
+    text-align: center;
+    color: white;
+    width: 100%;
+  }
+  
+  .login-page-container h1.title {
+    font-size: 26px;
+    line-height: 30px;
+    margin-bottom: 20px;
+  }
+  
+  .login-page-container p {
+    font-size: 14px;
+    margin: 10px 0 25px;
+    line-height: 18px;
+    text-align: center;
+    color: white;
+    max-width: 280px;
+  }
+  
+  .login-page-container button {
+    padding: 14px 40px;
+    min-width: 200px;
+    font-size: 15px;
+    margin: 20px 0 10px;
+    width: auto;
+  }
+  
+  .login-page-container input {
+    padding: 15px 20px;
+    margin: 12px 0;
+    font-size: 16px;
+    width: 100%;
+    max-width: 300px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    color: #333;
+    display: block;
+  }
+
+  .close-button {
+    top: 10px;
+    right: 10px;
+    width: 35px;
+    height: 35px;
+  }
+
   .overlay-container {
     display: none;
   }
-  
+
+  .form-container {
+    width: 100%;
+    height: 50%;
+    position: absolute;
+    background-color: #000000;
+    left: 0;
+  }
+
   .login-container {
+    top: 0;
     opacity: 1;
+    transform: translateX(0);
     z-index: 2;
-    height: 100%;
-    position: relative;
   }
 
   .register-container {
+    top: 50%;
     opacity: 0;
+    transform: translateX(0);
     z-index: 1;
-    height: 100%;
-    position: absolute;
-    top: 0;
   }
 
   .container.right-panel-active .login-container {
+    transform: translateY(-100%);
     opacity: 0;
     z-index: 1;
-    position: absolute;
   }
 
   .container.right-panel-active .register-container {
+    transform: translateY(-100%);
     opacity: 1;
     z-index: 2;
-    position: relative;
   }
 }
