@@ -7,7 +7,7 @@ import FooterComp from '../../components/FooterComp';
 import Carousel from 'react-bootstrap/Carousel';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
-import '../../styles/inicio.css';
+import '../../styles/Inicio.css';
 
 // --- DATOS Y IMÁGENES ---
 import { productosDB } from '../../data/dataBase.js';
