@@ -7,9 +7,22 @@ export default function Sidebar({ adminName, onLogoutAdmin }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    // Limpiar todos los datos de sesión del localStorage
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('isLoggedIn');
+
+    // Disparar evento storage para notificar a otros componentes
+    window.dispatchEvent(new Event('storage'));
+
     if (onLogoutAdmin) {
       onLogoutAdmin();
     }
+
+    // Redirigir al inicio (sin sesión)
     navigate('/');
   };
 
