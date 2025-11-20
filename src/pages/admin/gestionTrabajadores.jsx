@@ -596,16 +596,17 @@ export default function GestionTrabajadores() {
                     required
                   >
                     {roles.length > 0 ? (
-                      roles.map(rol => (
-                        <option key={rol.idRol} value={rol.idRol}>
-                          {rol.nombreRol}
-                        </option>
-                      ))
+                      roles
+                        .filter(rol => rol.idRol !== 3) // Excluir rol Cliente
+                        .map(rol => (
+                          <option key={rol.idRol} value={rol.idRol}>
+                            {rol.nombreRol}
+                          </option>
+                        ))
                     ) : (
                       <>
                         <option value={1}>Admin</option>
                         <option value={2}>Trabajador</option>
-                        <option value={3}>Cliente</option>
                       </>
                     )}
                   </Form.Select>

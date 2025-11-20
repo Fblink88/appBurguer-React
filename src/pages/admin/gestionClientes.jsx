@@ -3,7 +3,7 @@ import { Modal, Form, Button, Spinner, Alert } from 'react-bootstrap';
 import Sidebar from "../../components/Sidebar";
 import {
   obtenerTodosClientes,
-  registrarCliente,
+  //registrarCliente,
   registrarClientePorAdmin,
   actualizarCliente,
   eliminarCliente,
@@ -666,13 +666,12 @@ export default function GestionClientes() {
                   <i className="bi bi-arrow-clockwise"></i>
                 )}
               </button>
-              {/* COMENTADO: Botón de crear cliente (problema con endpoint /admin) */}
-              {/* <button
+              <button
                 className="btn btn-warning fw-semibold"
                 onClick={() => handleAbrirModalCliente()}
               >
                 <i className="bi bi-person-plus-fill me-2"></i>Nuevo Cliente
-              </button> */}
+              </button>
             </div>
           </div>
 
