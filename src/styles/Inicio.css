@@ -30,6 +30,8 @@
   background-color: rgba(0, 0, 0, 0.5);
   padding: 20px;
   border-radius: 10px;
+  max-width: 550px; /* Limita el ancho del cuadro */
+  margin: 0 auto; /* Centra el cuadro */
 }
 
 .carousel-caption h3 {
@@ -113,7 +115,7 @@
 .card-title {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #fff;
+  color: #fff !important;
   margin-bottom: 0.5rem;
   min-height: 2em;
 }

@@ -1,13 +1,22 @@
 // src/pages/client/CatalogoPag.jsx
 
-import React, { useState } from 'react';// React Bootstrap components 
+import React, { useState, useEffect } from 'react';// React Bootstrap components 
 import { Modal, Button } from 'react-bootstrap'; //  se instala con: npm install react-bootstrap bootstrap
 import HeaderComp from '../../components/HeaderComp'; 
 import FooterComp from '../../components/FooterComp'; 
-import { productosDB } from '../../data/dataBase';
+// ahora  se importa función para obtener productos desde el backend en lugar de datos locales
+import { obtenerProductosDisponibles } from '../../services/productosService';
 import '../../styles/catalogo.css';
 
 function CatalogoPag() { // Componente principal de la página de catálogo
+  
+  // ========== NUEVOS ESTADOS PARA MANEJO DE BASE DE DATOS ==========
+  // Estos estados permiten manejar la carga de productos desde la BD
+  const [productos, setProductos] = useState([]); // Array de productos desde la BD
+  const [loading, setLoading] = useState(true); // Estado de carga (true mientras se obtienen los datos)
+  const [error, setError] = useState(null); // Guarda mensaje de error si la carga falla
+  
+  // ========== ESTADOS ORIGINALES (NO CAMBIAN) ==========
   const [selectedProduct, setSelectedProduct] = useState(null); // Producto que se va a mostrar  en el modal y viene de la lista de productos, Un hook es una función especial que permite "enganchar" características de React, como el estado y el ciclo de vida, a componentes funcionales.
   const [showModal, setShowModal] = useState(false); // Estado para controlar la visibilidad del modal viene de React Bootstrap
   const [selectedSize, setSelectedSize] = useState('Simple'); // Tamaño seleccionado para la hamburguesa que viene del modal y el modal se abre al hacer click en un producto
@@ -16,17 +25,87 @@ function CatalogoPag() { // Componente principal de la página de catálogo
     return carritoGuardado ? JSON.parse(carritoGuardado) : [];  //  el carrito se guarda en localStorage cada vez que se agrega un producto Json.parse se usa para convertir el string guardado en localStorage a un objeto JavaScript
   });
 
+  // ========== CARGAR PRODUCTOS DESDE LA BASE DE DATOS ==========
+  // Este useEffect se ejecuta UNA VEZ cuando el componente se monta
+  // Es el responsable de traer los productos desde el backend
+  useEffect(() => {
+    const cargarProductos = async () => {
+      try {
+        setLoading(true); // Activar indicador de carga
+        console.log('🔄 Cargando productos desde el backend...');
+        
+        // Llamar al servicio que hace la petición GET al backend
+        const productosBackend = await obtenerProductosDisponibles();
+        
+        console.log('Productos recibidos:', productosBackend);
+        
+        // Mapear los datos del backend al formato que usa el frontend
+        // El backend retorna: { id, nombre, descripcion, precio, categoria, imagen, disponible }
+        // Lo convertimos al formato que espera el resto del código
+        const productosMapeados = productosBackend.map(producto => ({
+          id: producto.id,
+          nombre: producto.nombre,
+          categoria: producto.categoria, // Ya viene como string desde el backend
+          precio: Number(producto.precio), // Convertir de BigDecimal a Number de JavaScript
+          descripcion: producto.descripcion,
+          imagen: producto.imagen, // URL de Firebase Storage
+          disponible: producto.disponible // true/false
+        }));
+        
+        setProductos(productosMapeados); // Guardar productos en el estado
+
+
+        // LIMPIAR Y CARGAR CARRITO DESDE LOCALSTORAGE
+        const carritoGuardado = localStorage.getItem('carrito');// Obtener carrito guardado
+        if (carritoGuardado) {
+          const carritoActual = JSON.parse(carritoGuardado);
+
+          const idsDisponibles = productosMapeados.map(p => p.id); // IDs de productos disponibles
+          const carritoFiltrado = carritoActual.filter(item => {// Filtrar solo productos disponibles
+            //extrae los IDs de los productos del carrito y verifica si están en la lista de productos disponibles
+            // Extraer ID base (antes del guion)
+             const idProducto = parseInt(item.id.split('-')[0]);
+            idsDisponibles.includes(idProducto);
+        });
+
+        // Si cambió el carrito, actualizar localStorage y estado
+        if (carritoFiltrado.length !== carritoActual.length) {
+          console.log('🧹 Limpiando productos no disponibles del carrito');
+          localStorage.setItem('carrito', JSON.stringify(carritoFiltrado));
+          setCarrito(carritoFiltrado);
+          window.dispatchEvent(new Event('storage')); // Notificar cambios
+        }
+      }
+
+          
+        
+        setError(null); // Limpiar cualquier error previo
+      } catch (err) {
+        console.error('Error al cargar productos:', err);
+        setError('Error al cargar productos'); // Guardar mensaje de error
+      } finally {
+        setLoading(false); // Desactivar indicador de carga (siempre se ejecuta)
+      }
+    };
+
+    cargarProductos(); // Ejecutar la función
+  }, []); // Array vacío = se ejecuta solo una vez al montar el componente
+
+  // ========== FUNCIONES PARA MANEJAR EL MODAL Y EL CARRITO (NO CAMBIAN) ==========
+  
   // Funciones para manejar el modal y el carrito
   const handleOpenModal = (producto) => { 
     setSelectedProduct(producto);
     setSelectedSize('Simple');
     setShowModal(true);
   };
+  
   // Cierra el modal y resetea el producto seleccionado
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedProduct(null);
   };
+  
   // Agrega el producto seleccionado al carrito con el tamaño y precio correspondiente
   const handleAddToCart = () => {
     if (!selectedProduct) return;
@@ -35,7 +114,6 @@ function CatalogoPag() { // Componente principal de la página de catálogo
     const precioFinal = selectedSize === 'Doble' 
       ? selectedProduct.precio * 1.5 
       : selectedProduct.precio;
-
 
     // Crea un nuevo ítem para el carrito con la información necesaria
     // especificamente hace un spread del producto seleccionado y le agrega size, precio, cantidad e id único
@@ -51,6 +129,7 @@ function CatalogoPag() { // Componente principal de la página de catálogo
       cantidad: 1,
       id: `${selectedProduct.id}-${selectedSize}`
     };
+    
     // Verifica si el ítem ya existe en el carrito 
     // y actualiza la cantidad si es así, 
     // de lo contrario lo agrega como nuevo ítem 
@@ -84,6 +163,7 @@ function CatalogoPag() { // Componente principal de la página de catálogo
       cantidad: 1,
       id: `${producto.id}-Simple`
     };
+    
     // Verifica si el ítem ya existe en el carrito y 
     // actualiza la cantidad si es así, de lo contrario lo agrega como nuevo ítem
     //ocurre porque el botón '+'  no abre el modal,
@@ -103,38 +183,85 @@ function CatalogoPag() { // Componente principal de la página de catálogo
     localStorage.setItem('carrito', JSON.stringify(carritoActualizado));
     window.dispatchEvent(new Event('storage'));
   };
+  
   // Agrupa los productos por categoría para facilitar la renderización
+  // MODIFICADO: Ahora usa el estado 'productos' (desde BD) en lugar de 'productosDB' (datos locales)
   const agruparPorCategoria = () => {
     const grupos = {}; // variable temporal para almacenar las categorías y sus productos
-    productosDB.forEach(producto => { // Recorre todos los productos
-      if (!grupos[producto.categoria]) { // Si la categoría no existe, la crea
-        grupos[producto.categoria] = [];// Inicializa el array de productos para esa categoría
+    productos.forEach(producto => { // Recorre todos los productos (ahora desde BD)
+      // Solo agrupa productos que están disponibles (disponible = true)
+      if (producto.disponible) {
+        if (!grupos[producto.categoria]) { // Si la categoría no existe, la crea
+          grupos[producto.categoria] = [];// Inicializa el array de productos para esa categoría
+        }
+        grupos[producto.categoria].push(producto);// Agrega el producto a la categoría correspondiente
       }
-      grupos[producto.categoria].push(producto);// Agrega el producto a la categoría correspondiente
     });
     return grupos; // Devuelve el objeto con categorías y sus productos
   };
+  
   // Obtiene los productos agrupados por categoría
   const productosAgrupados = agruparPorCategoria();
- // Calcula el total del carrito
+  
+  // Calcula el total del carrito
   const calcularTotal = () => {
     return carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0); // Suma el precio por cantidad de cada ítem
   };
 
-// Calcula el total de items en el carrito (sumando cantidades)
-const calcularTotalItems = () => {
-  return carrito.reduce((total, item) => total + item.cantidad, 0);
-};
+  // Calcula el total de items en el carrito (sumando cantidades)
+  const calcularTotalItems = () => {
+    return carrito.reduce((total, item) => total + item.cantidad, 0);
+  };
 
+  // ========== RENDERIZADO CONDICIONAL ==========
+  // Antes de mostrar la página completa, verificamos el estado de carga
+  
+  // Si está cargando, mostrar spinner de carga
+  if (loading) {
+    return (
+      <div className="pagina-completa">
+        <HeaderComp />
+        <main className="contenido-principal">
+          <div className="container py-4 text-center">
+            {/* Spinner de Bootstrap */}
+            <div className="spinner-border text-warning" role="status">
+              <span className="visually-hidden">Cargando...</span>
+            </div>
+            <p className="mt-3">Cargando productos...</p>
+          </div>
+        </main>
+        <FooterComp />
+      </div>
+    );
+  }
 
-
-
-
-
-
+  // Si hubo un error al cargar, mostrar mensaje de error con opción de reintentar
+  if (error) {
+    return (
+      <div className="pagina-completa">
+        <HeaderComp />
+        <main className="contenido-principal">
+          <div className="container py-4">
+            <div className="alert alert-danger" role="alert">
+              <h4 className="alert-heading">Error</h4>
+              <p>{error}</p>
+              <hr />
+              <button 
+                className="btn btn-warning"
+                onClick={() => window.location.reload()}
+              >
+                Reintentar
+              </button>
+            </div>
+          </div>
+        </main>
+        <FooterComp />
+      </div>
+    );
+  }
 
   //=================================
-  // Renderiza la página de catálogo
+  // Renderiza la página de catálogo (TODO IGUAL AL ORIGINAL)
   //=================================
   return (
     <div className="pagina-completa">
@@ -157,6 +284,7 @@ const calcularTotalItems = () => {
           </div>
         </div>
       </div>
+      
       {/* Contenido principal con productos agrupados por categoría */}
       <main className="contenido-principal">
         <div className="container py-4">

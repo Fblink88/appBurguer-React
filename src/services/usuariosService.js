@@ -17,10 +17,53 @@ import api from "../config/api";
  */
 export const registrarCliente = async (clienteData) => {
   try {
+    console.log('📤 registrarCliente - Enviando petición POST /clientes');
+    console.log('📦 Datos del cliente:', clienteData);
+
+    // Verificar token antes de enviar
+    const token = localStorage.getItem("authToken");
+    console.log('🔐 Token en localStorage:', !!token);
+    if (token) {
+      console.log('🔐 Token (primeros 30 chars):', token.substring(0, 30) + '...');
+    }
+
     const response = await api.post("/clientes", clienteData);
+
+    console.log('✅ registrarCliente - Respuesta exitosa:', response.data);
     return response.data;
   } catch (error) {
-    console.error("Error al registrar cliente:", error);
+    console.error("❌ Error al registrar cliente:", error);
+    console.error("❌ Error response:", error.response);
+    console.error("❌ Error data:", error.response?.data);
+    throw error;
+  }
+};
+
+/**
+ * POST /api/clientes/admin - Registrar un nuevo cliente (Solo Admin)
+ * Requiere: token JWT válido con rol ADMIN
+ * Roles: ADMIN
+ */
+export const registrarClientePorAdmin = async (clienteData) => {
+  try {
+    console.log('📤 registrarClientePorAdmin - Enviando petición POST /clientes/admin');
+    console.log('📦 Datos del cliente:', clienteData);
+
+    // Verificar token antes de enviar
+    const token = localStorage.getItem("authToken");
+    console.log('🔐 Token en localStorage:', !!token);
+    if (token) {
+      console.log('🔐 Token (primeros 30 chars):', token.substring(0, 30) + '...');
+    }
+
+    const response = await api.post("/clientes/admin", clienteData);
+
+    console.log('✅ registrarClientePorAdmin - Respuesta exitosa:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error al registrar cliente por admin:", error);
+    console.error("❌ Error response:", error.response);
+    console.error("❌ Error data:", error.response?.data);
     throw error;
   }
 };
@@ -232,7 +275,7 @@ export const actualizarDireccion = async (idDireccion, direccionData) => {
  * DELETE /api/clientes/direcciones/{idDireccion} - Eliminar dirección
  * Requiere: token JWT válido
  * Roles: Cualquier usuario autenticado
- * 
+ *
  * @param {number} idDireccion - ID de la dirección a eliminar
  */
 export const eliminarDireccion = async (idDireccion) => {
@@ -241,6 +284,285 @@ export const eliminarDireccion = async (idDireccion) => {
     return response.data;
   } catch (error) {
     console.error(`Error al eliminar dirección ${idDireccion}:`, error);
+    throw error;
+  }
+};
+
+// ===============================
+// TRABAJADORES - CRUD
+// ===============================
+
+/**
+ * POST /api/trabajadores - Registrar un nuevo trabajador
+ * Requiere: token JWT válido
+ * Roles: ADMIN (solo)
+ *
+ * @param {object} trabajadorData - { idUsuario, email, nombreTrabajador, rutTrabajador }
+ */
+export const registrarTrabajador = async (trabajadorData) => {
+  try {
+    const response = await api.post("/trabajadores", trabajadorData);
+    return response.data;
+  } catch (error) {
+    console.error("Error al registrar trabajador:", error);
+    throw error;
+  }
+};
+
+/**
+ * GET /api/trabajadores - Listar todos los trabajadores
+ * Requiere: token JWT válido
+ * Roles: ADMIN, TRABAJADOR
+ */
+export const obtenerTodosTrabajadores = async () => {
+  try {
+    const response = await api.get("/trabajadores");
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error("Error al obtener trabajadores:", error);
+    throw error;
+  }
+};
+
+/**
+ * GET /api/trabajadores/{id} - Obtener trabajador por ID
+ * Requiere: token JWT válido
+ * Roles: ADMIN, TRABAJADOR
+ *
+ * @param {number} idTrabajador - ID del trabajador
+ */
+export const obtenerTrabajadorPorId = async (idTrabajador) => {
+  try {
+    const response = await api.get(`/trabajadores/${idTrabajador}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener trabajador ${idTrabajador}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * GET /api/trabajadores/usuario/{idUsuario} - Obtener trabajador por Firebase UID
+ * Requiere: token JWT válido
+ * Roles: ADMIN, TRABAJADOR
+ *
+ * @param {string} firebaseUid - Firebase UID del usuario
+ */
+export const obtenerTrabajadorPorUid = async (firebaseUid) => {
+  try {
+    const response = await api.get(`/trabajadores/usuario/${firebaseUid}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener trabajador por UID ${firebaseUid}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * GET /api/trabajadores/rut/{rut} - Obtener trabajador por RUT
+ * Requiere: token JWT válido
+ * Roles: ADMIN, TRABAJADOR
+ *
+ * @param {string} rut - RUT del trabajador (formato: 12.345.678-9)
+ */
+export const obtenerTrabajadorPorRut = async (rut) => {
+  try {
+    const response = await api.get(`/trabajadores/rut/${rut}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener trabajador por RUT ${rut}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * PUT /api/trabajadores/{id} - Actualizar trabajador (nombre y RUT)
+ * Requiere: token JWT válido
+ * Roles: ADMIN (solo)
+ *
+ * @param {number} id - ID del trabajador
+ * @param {string} nombreTrabajador - Nuevo nombre
+ * @param {string} rutTrabajador - Nuevo RUT
+ */
+export const actualizarTrabajador = async (id, nombreTrabajador, rutTrabajador) => {
+  try {
+    const params = new URLSearchParams();
+    params.append("nombreTrabajador", nombreTrabajador);
+    params.append("rutTrabajador", rutTrabajador);
+    const response = await api.put(`/trabajadores/${id}`, null, { params });
+    return response.data;
+  } catch (error) {
+    console.error(`Error al actualizar trabajador ${id}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * PUT /api/trabajadores/{id}/email - Actualizar email de un trabajador
+ * Requiere: token JWT válido
+ * Roles: ADMIN (solo)
+ *
+ * IMPORTANTE: Esto solo actualiza el email en la BD local
+ * El email en Firebase debe actualizarse desde el frontend usando Firebase SDK
+ *
+ * @param {number} id - ID del trabajador
+ * @param {object} emailData - { nuevoEmail: "nuevo@email.com" }
+ */
+export const actualizarEmailTrabajador = async (id, emailData) => {
+  try {
+    const response = await api.put(`/trabajadores/${id}/email`, emailData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al actualizar email del trabajador ${id}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * PUT /api/trabajadores/{id}/rol - Cambiar rol de trabajador
+ * Requiere: token JWT válido
+ * Roles: ADMIN (solo)
+ *
+ * Permite cambiar entre:
+ * - idRol: 2 (Trabajador)
+ * - idRol: 3 (Admin)
+ *
+ * @param {number} id - ID del trabajador
+ * @param {object} rolData - { idRol: 2 o 3 }
+ */
+export const cambiarRolTrabajador = async (id, rolData) => {
+  try {
+    const response = await api.put(`/trabajadores/${id}/rol`, rolData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al cambiar rol del trabajador ${id}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * DELETE /api/trabajadores/{id} - Eliminar trabajador
+ * Requiere: token JWT válido
+ * Roles: ADMIN (solo)
+ *
+ * ADVERTENCIA: Operación irreversible
+ * Elimina el trabajador del sistema
+ *
+ * @param {number} id - ID del trabajador a eliminar
+ */
+export const eliminarTrabajador = async (id) => {
+  try {
+    const response = await api.delete(`/trabajadores/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al eliminar trabajador ${id}:`, error);
+    throw error;
+  }
+};
+
+// ===============================
+// CIUDADES
+// ===============================
+
+/**
+ * GET /api/ciudades - Listar todas las ciudades
+ * Acceso: Público
+ *
+ * Obtiene lista de todas las ciudades disponibles para direcciones de entrega
+ */
+export const obtenerTodasCiudades = async () => {
+  try {
+    const response = await api.get("/ciudades");
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error("Error al obtener ciudades:", error);
+    throw error;
+  }
+};
+
+/**
+ * GET /api/ciudades/{id} - Obtener ciudad por ID
+ * Acceso: Público
+ *
+ * @param {number} idCiudad - ID de la ciudad
+ */
+export const obtenerCiudadPorId = async (idCiudad) => {
+  try {
+    const response = await api.get(`/ciudades/${idCiudad}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener ciudad ${idCiudad}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * GET /api/ciudades/nombre/{nombre} - Obtener ciudad por nombre
+ * Acceso: Público
+ *
+ * @param {string} nombreCiudad - Nombre de la ciudad
+ */
+export const obtenerCiudadPorNombre = async (nombreCiudad) => {
+  try {
+    const response = await api.get(`/ciudades/nombre/${nombreCiudad}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener ciudad por nombre ${nombreCiudad}:`, error);
+    throw error;
+  }
+};
+
+// ===============================
+// ROLES
+// ===============================
+
+/**
+ * GET /api/roles - Listar todos los roles
+ * Acceso: Público
+ *
+ * Obtiene lista de todos los roles del sistema:
+ * - idRol: 1 (Cliente)
+ * - idRol: 2 (Trabajador)
+ * - idRol: 3 (Admin)
+ */
+export const obtenerTodosRoles = async () => {
+  try {
+    const response = await api.get("/roles");
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error("Error al obtener roles:", error);
+    throw error;
+  }
+};
+
+/**
+ * GET /api/roles/{id} - Obtener rol por ID
+ * Acceso: Público
+ *
+ * @param {number} idRol - ID del rol (1: Cliente, 2: Trabajador, 3: Admin)
+ */
+export const obtenerRolPorId = async (idRol) => {
+  try {
+    const response = await api.get(`/roles/${idRol}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener rol ${idRol}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * GET /api/roles/nombre/{nombre} - Obtener rol por nombre
+ * Acceso: Público
+ *
+ * @param {string} nombreRol - Nombre del rol (Cliente, Trabajador, Admin)
+ */
+export const obtenerRolPorNombre = async (nombreRol) => {
+  try {
+    const response = await api.get(`/roles/nombre/${nombreRol}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener rol por nombre ${nombreRol}:`, error);
     throw error;
   }
 };
