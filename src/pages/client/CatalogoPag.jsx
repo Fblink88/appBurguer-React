@@ -53,6 +53,32 @@ function CatalogoPag() { // Componente principal de la página de catálogo
         }));
         
         setProductos(productosMapeados); // Guardar productos en el estado
+
+
+        // LIMPIAR Y CARGAR CARRITO DESDE LOCALSTORAGE
+        const carritoGuardado = localStorage.getItem('carrito');// Obtener carrito guardado
+        if (carritoGuardado) {
+          const carritoActual = JSON.parse(carritoGuardado);
+
+          const idsDisponibles = productosMapeados.map(p => p.id); // IDs de productos disponibles
+          const carritoFiltrado = carritoActual.filter(item => {// Filtrar solo productos disponibles
+            //extrae los IDs de los productos del carrito y verifica si están en la lista de productos disponibles
+            // Extraer ID base (antes del guion)
+             const idProducto = parseInt(item.id.split('-')[0]);
+            idsDisponibles.includes(idProducto);
+        });
+
+        // Si cambió el carrito, actualizar localStorage y estado
+        if (carritoFiltrado.length !== carritoActual.length) {
+          console.log('🧹 Limpiando productos no disponibles del carrito');
+          localStorage.setItem('carrito', JSON.stringify(carritoFiltrado));
+          setCarrito(carritoFiltrado);
+          window.dispatchEvent(new Event('storage')); // Notificar cambios
+        }
+      }
+
+          
+        
         setError(null); // Limpiar cualquier error previo
       } catch (err) {
         console.error('Error al cargar productos:', err);
