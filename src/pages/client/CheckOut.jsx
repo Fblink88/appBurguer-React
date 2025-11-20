@@ -463,7 +463,10 @@ function CheckoutPag() {
                         <small>Paga en la Entrega</small>
                       </div>
                     </label>
-
+                
+                 {/* ===========================================================
+                      MAS ADELANTE LO AGREGARE POR AHORA SOLO USAMOS EFECTIVO Y MERCADOPAGO
+                    ============================================================
                     <label className={`metodo-pago ${metodoPago === 'webpay' ? 'active' : ''}`}>
                       <input
                         type="radio" 
@@ -478,6 +481,7 @@ function CheckoutPag() {
                         <small>Pago 100% seguro y eficaz </small>
                       </div>
                     </label>
+                    ==========================================================*/}
 
                     <label className={`metodo-pago ${metodoPago === 'mercadopago' ? 'active' : ''}`}>
                       <input
@@ -620,3 +624,16 @@ function CheckoutPag() {
 }
 
 export default CheckoutPag;
+
+
+
+
+// los comentarios para un html se hacen  {/* asi */ }  y para un archivo js o jsx se hacen // para una sola línea o /* asi */ para varias líneas
+
+
+//explicacion general
+//Este código define un componente de React llamado CheckoutPag que representa la página de checkout de una tienda en línea. 
+//El componente maneja el estado del formulario de checkout, incluyendo la información personal del cliente, el tipo de pedido (delivery o retiro en tienda), 
+//el método de pago y la aceptación de términos y condiciones. También calcula el subtotal, el costo de delivery y el total del pedido basado en los productos en el carrito.
+//Cuando el usuario confirma el pedido, se valida el formulario y se crea un objeto de pedido que se guarda en el localStorage. Luego, se limpia el carrito y se redirige al usuario a la página de inicio. 
+//El componente también incluye un resumen del pedido que muestra el subtotal, el costo de delivery y el total.

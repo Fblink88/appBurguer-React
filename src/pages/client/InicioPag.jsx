@@ -48,7 +48,7 @@ function ProductoCard({ producto }) {
   return (
     <Card>
       <div className="card-img-container">
-        <Card.Img src={imageMap[producto.imagen]} />
+        <Card.Img src={producto.imagen} />
       </div>
       <Card.Body>
         <div>

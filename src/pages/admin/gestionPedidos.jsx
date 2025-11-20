@@ -6,6 +6,8 @@ import '../../styles/gestionPedidos.css';
 import * as pedidosService from '../../services/pedidosService';
 import * as usuariosService from '../../services/usuariosService';
 import * as productosService from '../../services/productosService';
+import * as ventaService from '../../services/ventaService';
+import * as boletaService from '../../services/boletaService';
 
 function GestionPedidos() {
   // Estados del formulario
@@ -42,11 +44,11 @@ function GestionPedidos() {
 
   // Monitorear cambios en clientes
   useEffect(() => {
-    console.log('🔄 Estado de clientes actualizado. Total:', clientes.length);
+    console.log(' Estado de clientes actualizado. Total:', clientes.length);
     if (clientes.length > 0) {
-      console.log('👥 Lista de clientes disponibles:', clientes.map(c => ({ 
-        id: c.idCliente || c.id, 
-        nombre: c.nombre || c.nombreCliente || c.NOMBRE_CLIENTE,
+      console.log(' Lista de clientes disponibles:', clientes.map(c => ({ 
+        id: c.idCliente , 
+        nombre:c.nombreCliente ,
         todosLosCampos: c
       })));
     }
@@ -65,8 +67,8 @@ function GestionPedidos() {
   // Helper: Obtener nombre del cliente por ID
   const getNombreCliente = (idCliente) => {
     if (!idCliente || !clientes.length) return 'N/A';
-    const cliente = clientes.find(c => (c.ID_CLIENTE || c.idCliente) === idCliente);
-    return cliente?.NOMBRE_CLIENTE || cliente?.nombreCliente || 'N/A';
+    const cliente = clientes.find(c => (c.idCliente) === idCliente);
+    return cliente?.nombreCliente || 'N/A';
   };
 
   // Helper: Obtener nombre del método de pago por ID
@@ -154,7 +156,7 @@ function GestionPedidos() {
         console.log('Llamando a getPedidos()...');
         const pedidosData = await pedidosService.getPedidos();
         const pedidosOrdenados = Array.isArray(pedidosData) 
-          ? pedidosData.sort((a, b) => (a.ID_PEDIDO || a.idPedido) - (b.ID_PEDIDO || b.idPedido))
+          ? pedidosData.sort((a, b) => b.idPedido - a.idPedido)
           : [];
         setPedidos(pedidosOrdenados);
         console.log('Pedidos cargados correctamente:', pedidosData.length, 'items');
@@ -170,10 +172,10 @@ function GestionPedidos() {
       // Cargar clientes
       try {
         console.log('Llamando a obtenerTodosClientes()...');
-        const clientesData = await usuariosService.obtenerTodosClientes();
+        const clientesData = await usuariosService.obtenerTodosClientes(); //esta es la variable que contiene los datos de los clientes desde el backend
         setClientes(Array.isArray(clientesData) ? clientesData : []);
-        console.log('✅ Clientes cargados:', clientesData.length, 'clientes');
-        console.log('📋 Detalle clientes:', clientesData);
+        console.log('Clientes cargados:', clientesData.length, 'clientes');
+        console.log(' Detalle clientes:', clientesData);
       } catch (err) {
         console.warn('Error cargando clientes:', err);
         console.warn('Status:', err.response?.status);
@@ -211,17 +213,17 @@ function GestionPedidos() {
         console.log('Cargando productos desde /api/catalogo/productos...');
         const productosData = await productosService.obtenerProductosDisponibles();
         setProductos(Array.isArray(productosData) ? productosData : []);
-        console.log('✅ Productos cargados desde backend:', productosData.length, 'productos');
-        console.log('📋 Muestra de productos:', productosData.slice(0, 2));
+        console.log('Productos cargados desde backend:', productosData.length, 'productos');
+        console.log(' Muestra de productos:', productosData.slice(0, 2));
       } catch (err) {
-        console.error('❌ Error cargando productos desde backend:', err);
+        console.error(' Error cargando productos desde backend:', err);
         console.error('Status:', err.response?.status);
         console.error('Mensaje:', err.response?.data?.message || err.message);
         setProductos([]);
         setError('No se pudieron cargar los productos del catálogo.');
       }
       
-      console.log('🎯 Estado final de clientes después de cargar todo:', clientes.length);
+      console.log('Estado final de clientes después de cargar todo:', clientes.length);
       
     } catch (err) {
       setError(err.message);
@@ -244,14 +246,14 @@ function GestionPedidos() {
 
   // Obtener precio del producto
   const obtenerPrecioProducto = (productoId = idProducto) => {
-    const producto = productos.find(p => (p.ID_PRODUCTO || p.idProducto || p.id) == productoId);
-    return producto ? (producto.PRECIO_BASE || producto.precioBase || producto.precio || 0) : 0;
+    const producto = productos.find(p => (p.idProducto || p.id) == productoId);
+    return producto ? (producto.precioBase || producto.precio || 0) : 0;
   };
   
   // Obtener nombre del producto
   const getNombreProducto = (productoId) => {
-    const producto = productos.find(p => (p.ID_PRODUCTO || p.idProducto || p.id) == productoId);
-    return producto ? (producto.NOMBRE_PRODUCTO || producto.nombreProducto || producto.nombre || 'Producto') : 'Producto';
+    const producto = productos.find(p => (p.idProducto || p.id) == productoId);
+    return producto ? (producto.nombreProducto || producto.nombre || 'Producto') : 'Producto';
   };
   
   // Agregar producto al carrito temporal
@@ -361,14 +363,14 @@ function GestionPedidos() {
       // El backend creará:
       // - 1 registro en tabla PEDIDO
       // - 1 o más registros en tabla DETALLEPEDIDO
-      console.log('📤 Enviando pedido al backend:', nuevoPedido);
+      console.log(' Enviando pedido al backend:', nuevoPedido);
       const response = await pedidosService.crearPedido(nuevoPedido);
-      console.log('📥 Respuesta del backend:', response);
+      console.log(' Respuesta del backend:', response);
       
       // 5. RECARGAR todos los pedidos desde el backend para asegurar datos correctos
       const pedidosActualizados = await pedidosService.getPedidos();
       const pedidosOrdenados = Array.isArray(pedidosActualizados)
-        ? pedidosActualizados.sort((a, b) => (a.ID_PEDIDO || a.idPedido) - (b.ID_PEDIDO || b.idPedido))
+        ? pedidosActualizados.sort((a, b) => b.idPedido - a.idPedido)
         : [];
       setPedidos(pedidosOrdenados);
       
@@ -387,7 +389,7 @@ function GestionPedidos() {
       setProductosCarrito([]);
     } catch (err) {
       // 7. MANEJAR errores de la API
-      console.error('❌ Error al crear pedido:', err);
+      console.error(' Error al crear pedido:', err);
       setError(err.message);
       alert('Error al crear pedido: ' + err.message);
     } finally {
@@ -395,15 +397,74 @@ function GestionPedidos() {
     }
   };
 
-  // Eliminar pedido
+  // Eliminar pedido (con Boleta y Venta si existen)
   const handleEliminarPedido = async (id) => {
-    if (window.confirm('¿Está seguro de que desea eliminar este pedido?')) {
+    if (window.confirm('¿Está seguro de que desea eliminar este pedido? Si tiene venta/boleta asociada, también se eliminarán.')) {
       setLoading(true);
       try {
+        console.log('Iniciando eliminación del pedido:', id);
+        
+        // 1. Buscar si existe una venta asociada al pedido
+        let idVenta = null;
+        let idBoleta = null;
+        
+        try {
+          const ventas = await ventaService.getVentas();
+          const venta = ventas.find(v => (v.idPedido || v.id_pedido) === id);
+          
+          if (venta) {
+            idVenta = venta.idVenta || venta.id_venta;
+            console.log('Venta encontrada:', idVenta);
+            
+            // 2. Buscar si existe una boleta asociada a la venta
+            try {
+              const boletas = await boletaService.getBoletas();
+              const boleta = boletas.find(b => {
+                const idVentaBoleta = b.venta?.idVenta || b.venta?.id_venta;
+                return idVentaBoleta === idVenta;
+              });
+              
+              if (boleta) {
+                idBoleta = boleta.idBoleta || boleta.id_boleta;
+                console.log('Boleta encontrada:', idBoleta);
+              }
+            } catch (err) {
+              console.warn('No se pudo buscar boletas:', err.message);
+            }
+          }
+        } catch (err) {
+          console.warn('No se pudo buscar ventas:', err.message);
+        }
+        
+        // 3. Eliminar en orden: Boleta → Venta → Pedido
+        if (idBoleta) {
+          try {
+            await boletaService.eliminarBoleta(idBoleta);
+            console.log('Boleta eliminada');
+          } catch (err) {
+            console.warn('No se pudo eliminar boleta:', err.message);
+          }
+        }
+        
+        if (idVenta) {
+          try {
+            await ventaService.eliminarVenta(idVenta);
+            console.log('Venta eliminada');
+          } catch (err) {
+            console.warn('No se pudo eliminar venta:', err.message);
+          }
+        }
+        
+        // 4. Eliminar el pedido (el backend eliminará DetallePedido en cascada)
         await pedidosService.eliminarPedido(id);
-        setPedidos(pedidos.filter(p => (p.ID_PEDIDO || p.idPedido || p.id) !== id));
-        alert('Pedido eliminado');
+        console.log('Pedido eliminado');
+        
+        setPedidos(pedidos.filter(p => (p.idPedido || p.id) !== id));
+        alert('Pedido eliminado exitosamente' + 
+              (idBoleta ? '\n- Boleta eliminada' : '') + 
+              (idVenta ? '\n- Venta eliminada' : ''));
       } catch (err) {
+        console.error('Error al eliminar:', err);
         alert('Error al eliminar: ' + err.message);
       } finally {
         setLoading(false);
@@ -422,15 +483,15 @@ function GestionPedidos() {
         
         // Actualizar el estado del pedido en la lista local
         setPedidos(pedidos.map(p => 
-          (p.ID_PEDIDO || p.idPedido) === idPedido 
-            ? { ...p, ID_ESTADO_PEDIDO: 2, idEstadoPedido: 2 } // Cambiar a estado "Pagado"
+          (p.idPedido) === idPedido 
+            ? { ...p, idEstadoPedido: 2 } // Cambiar a estado "Pagado"
             : p
         ));
         
-        alert('✅ Pedido marcado como pagado y venta registrada exitosamente');
+        alert('Pedido marcado como pagado y venta registrada exitosamente');
       } catch (err) {
         console.error('Error al procesar pago:', err);
-        alert('❌ Error al procesar pago: ' + (err.response?.data?.message || err.message));
+        alert('Error al procesar pago: ' + (err.response?.data?.message || err.message));
       } finally {
         setLoading(false);
       }
@@ -481,8 +542,8 @@ function GestionPedidos() {
                     <option value="">Seleccione Cliente</option>
                     {clientes.map(cliente => (
                       <option 
-                        key={cliente.ID_CLIENTE || cliente.idCliente || cliente.id} 
-                        value={cliente.ID_CLIENTE || cliente.idCliente || cliente.id}
+                        key={cliente.idCliente } 
+                        value={cliente.idCliente }
                       >
                         {cliente.NOMBRE_CLIENTE || cliente.nombreCliente || cliente.nombre}
                       </option>
@@ -522,16 +583,15 @@ function GestionPedidos() {
                   <option value="">Seleccione Producto</option>
                   {productos.map(producto => (
                     <option 
-                      key={producto.ID_PRODUCTO || producto.idProducto || producto.id} 
-                      value={producto.ID_PRODUCTO || producto.idProducto || producto.id}
+                      key={ producto.idProducto } 
+                      value={producto.idProducto }
                     >
-                      {producto.NOMBRE_PRODUCTO || producto.nombreProducto || producto.nombre} - 
-                      ${(producto.PRECIO_BASE || producto.precioBase || producto.precio || 0).toFixed(2)}
+                      {producto.nombreProducto } - 
+                      ${(producto.precioBase || 0).toFixed(2)}
                     </option>
                   ))}
                   </select>
                 </div>
-
                 <div className="form-group">
                   <label>Cantidad</label>
                   <input
@@ -579,7 +639,7 @@ function GestionPedidos() {
                   >
                     <option value="">Seleccione Tipo</option>
                     {tiposEntrega.map(tipo => (
-                      <option key={tipo.idTipoEntrega || tipo.id} value={tipo.idTipoEntrega || tipo.id}>
+                      <option key={tipo.idTipoEntrega } value={tipo.idTipoEntrega }>
                         {tipo.nombre}
                       </option>
                     ))}
@@ -668,7 +728,7 @@ function GestionPedidos() {
                                 className="btn-eliminar-item"
                                 onClick={() => handleEliminarProductoCarrito(item.id)}
                               >
-                                🗑️
+                                
                               </button>
                             </td>
                           </tr>
@@ -763,10 +823,10 @@ function GestionPedidos() {
                             <div style={{ fontSize: '0.9em' }}>
                               {pedido.detalles.map((detalle, index) => (
                                 <div key={index} style={{ marginBottom: '5px', borderBottom: index < pedido.detalles.length - 1 ? '1px solid #eee' : 'none', paddingBottom: '5px' }}>
-                                  <strong>{detalle.NOMBRE_PRODUCTO || detalle.nombreProducto || detalle.producto?.NOMBRE_PRODUCTO || detalle.producto?.nombreProducto || 'Producto'}</strong>
+                                  <strong>{detalle.nombreProducto  || 'Producto'}</strong>
                                   <br />
                                   <span style={{ color: '#666' }}>
-                                    Cant: {detalle.CANTIDAD || detalle.cantidad} × ${(detalle.PRECIO_UNITARIO || detalle.precioUnitario)?.toFixed(2) || '0.00'} = ${(detalle.SUBTOTAL_LINEA || detalle.subtotalLinea)?.toFixed(2) || '0.00'}
+                                    Cant: {detalle.cantidad} × ${(detalle.precioUnitario)?.toFixed(2) || '0.00'} = ${(detalle.subtotalLinea)?.toFixed(2) || '0.00'}
                                   </span>
                                 </div>
                               ))}
@@ -780,23 +840,23 @@ function GestionPedidos() {
                         </td>
                         <td>
                           <span className="badge-estado">
-                            {getNombreEstadoPedido(pedido.ID_ESTADO_PEDIDO || pedido.idEstadoPedido)}
+                            {getNombreEstadoPedido(pedido.idEstadoPedido)}
                           </span>
                         </td>
-                        <td>{getNombreMetodoPago(pedido.ID_METODO_PAGO || pedido.idMetodoPago)}</td>
-                        <td>{getNombreTipoEntrega(pedido.ID_TIPO_ENTREGA || pedido.idTipoEntrega)}</td>
-                        <td>${(pedido.MONTO_SUBTOTAL || pedido.montoSubtotal || 0).toFixed(2)}</td>
-                        <td>${(pedido.MONTO_ENVIO || pedido.montoEnvio || 0).toFixed(2)}</td>
+                        <td>{getNombreMetodoPago(pedido.idMetodoPago)}</td>
+                        <td>{getNombreTipoEntrega(pedido.idTipoEntrega)}</td>
+                        <td>${(pedido.montoSubtotal || 0).toFixed(2)}</td>
+                        <td>${(pedido.montoEnvio || 0).toFixed(2)}</td>
                         <td>
-                          <strong>${(pedido.MONTO_TOTAL || pedido.montoTotal || 0).toFixed(2)}</strong>
+                          <strong>${(pedido.montoTotal || 0).toFixed(2)}</strong>
                         </td>
                         <td>
                           <div style={{ display: 'flex', gap: '5px', flexDirection: 'column' }}>
                             {/* Botón Marcar como Pagado - solo visible si estado es Pendiente (1) */}
-                            {(pedido.ID_ESTADO_PEDIDO || pedido.idEstadoPedido) === 1 && (
+                            {(pedido.idEstadoPedido) === 1 && (
                               <button
                                 className="btn-agregar"
-                                onClick={() => handleMarcarComoPagado(pedido.ID_PEDIDO || pedido.idPedido)}
+                                onClick={() => handleMarcarComoPagado(pedido.idPedido)}
                                 disabled={loading}
                                 style={{ fontSize: '0.85em', padding: '5px 10px' }}
                               >
@@ -806,7 +866,7 @@ function GestionPedidos() {
                             {/* Botón Eliminar - siempre visible */}
                             <button
                               className="btn-eliminar"
-                              onClick={() => handleEliminarPedido(pedido.ID_PEDIDO || pedido.idPedido)}
+                              onClick={() => handleEliminarPedido(pedido.idPedido)}
                               disabled={loading}
                               style={{ fontSize: '0.85em', padding: '5px 10px' }}
                             >

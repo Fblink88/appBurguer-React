@@ -17,9 +17,11 @@ function CarroPag() {
 
   useEffect(() => {
     if (carrito.length > 0) { // Guarda el carrito en localStorage cada vez que cambia
-      localStorage.setItem('carrito', JSON.stringify(carrito)); // Convierte el carrito a JSON y lo guarda
-      window.dispatchEvent(new Event('storage'));// Notifica a otros componentes del cambio en el carrito
+      localStorage.setItem('carrito', JSON.stringify(carrito)); // Convierte el carrito a JSON y lo guarda     
+    } else {
+      localStorage.removeItem('carrito'); // Si el carrito está vacío, lo elimina del localStorage
     }
+    window.dispatchEvent(new Event('storage')); // Dispara un evento de almacenamiento para actualizar otros componentes (como el contador del carrito en el header)
   }, [carrito]); // Se ejecuta cada vez que cambia el carrito, PORQUE ESTA DENTRO DE UN USEEFFECT, por ejemplo cuando se agrega o elimina un producto
 
   const calcularSubtotal = () => { //
@@ -29,6 +31,10 @@ function CarroPag() {
   const calcularTotal = () => {
     return calcularSubtotal();
   };
+
+  const calcularTotalItems = () => {
+  return carrito.reduce((total, item) => total + item.cantidad, 0);
+};
   // Funciones para aumentar, disminuir y eliminar productos del carrito
   const aumentarCantidad = (itemId) => {
     setCarrito(carrito.map(item =>
@@ -37,13 +43,22 @@ function CarroPag() {
         : item// Mantiene el item sin cambios si no coincide el ID
     ));
   };
-// Disminuye la cantidad del producto en 1, pero no permite que sea menor a 1, porque o si no tendría sentido tener 0 productos en el carrito
-  const disminuirCantidad = (itemId) => {
-    setCarrito(carrito.map(item => // Recorre los items del carrito y actualiza la cantidad del item con el id que coincide
-      item.id === itemId && item.cantidad > 1 //solo va a disminuir si la cantidad es mayor a 1
-        ? { ...item, cantidad: item.cantidad - 1 } // Disminuye la cantidad del item en 1, se activa cuando el usuario hace click en el botón -
-        : item // Mantiene el item sin cambios si no coincide el ID o si la cantidad es 1
-    ));
+
+  // Disminuye la cantidad de un producto en el carrito
+  const disminuirCantidad = (itemId) => { //recibe el id del item que se va a disminuir
+    const item = carrito.find(i => i.id === itemId);
+  
+    if (item.cantidad === 1) {
+    // Si la cantidad es 1, eliminar el producto
+      eliminarProducto(itemId);
+    } else {
+    // Si la cantidad es mayor a 1, solo disminuir
+      setCarrito(carrito.map(i =>
+        i.id === itemId
+          ? { ...i, cantidad: i.cantidad - 1 }
+          : i
+      ));
+    }
   };
   // Elimina un producto del carrito después de que el usuario agrego productos
   //  y confirma que quiere eliminarlo
@@ -70,7 +85,16 @@ function CarroPag() {
     }
     navigate('/checkout'); // Si el carrito tiene productos, te lleva a la página de checkout
   };
- // Renderiza la página del carrito de compras
+
+
+
+
+
+
+
+  //=========================================
+ // RENDERIZA LA PAGINA DEL CARRITO DE COMPRAS
+ //=========================================
   return (
     <div className="pagina-completa">
       <HeaderComp />
@@ -101,7 +125,7 @@ function CarroPag() {
               {/* LISTA DE PRODUCTOS */}
               <div className="carrito-productos">
                 <div className="carrito-header">
-                  <h2>Productos ({carrito.length})</h2>
+                  <h2>Productos ({calcularTotalItems()})</h2>
                   <button 
                     className="btn-vaciar-carrito"
                     onClick={vaciarCarrito}
@@ -139,7 +163,6 @@ function CarroPag() {
                         <button 
                           className="btn-cantidad" // Botón para disminuir la cantidad, botstraps icono de dash
                           onClick={() => disminuirCantidad(item.id)} // llama a la función disminuirCantidad con el id del item
-                          disabled={item.cantidad <=1} //desactiva el botón si la cantidad es 1 o menos
                         >
                           <i className="bi bi-dash"></i> 
                         </button>
