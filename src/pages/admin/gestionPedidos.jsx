@@ -261,27 +261,27 @@ function GestionPedidos() {
   // Agregar producto al carrito temporal
   const handleAgregarProducto = (e) => {
     e.preventDefault();
-    
+
     if (!idProducto || !cantidad || cantidad <= 0) {
       alert('Seleccione un producto y cantidad válida');
       return;
     }
-    
+
     const precioUnitario = obtenerPrecioProducto(idProducto);
     const cantidadNum = parseInt(cantidad);
     const subtotal = precioUnitario * cantidadNum;
-    
+
     const nuevoProducto = {
       id: Date.now(), // ID temporal para el carrito
-      idProducto: idProducto,
+      idProducto: parseInt(idProducto), // Convertir a número AQUÍ
       nombreProducto: getNombreProducto(idProducto),
       cantidad: cantidadNum,
       precioUnitario: precioUnitario,
       subtotal: subtotal
     };
-    
+
     setProductosCarrito([...productosCarrito, nuevoProducto]);
-    
+
     // Limpiar selección de producto
     setIdProducto('');
     setCantidad('1');
@@ -295,19 +295,6 @@ function GestionPedidos() {
   // Calcular subtotal del carrito
   const calcularSubtotalCarrito = () => {
     return productosCarrito.reduce((sum, p) => sum + p.subtotal, 0); //suma los subtotales de cada producto
-  };
-
-  // Calcular subtotal
-  const calcularSubtotal = () => {
-    const precio = obtenerPrecioProducto();
-    return precio * parseInt(cantidad || 0);
-  };
-
-  // Calcular total
-  const calcularTotal = () => {
-    const subtotal = calcularSubtotal();
-    const envio = parseFloat(montoEnvio) || 0;
-    return subtotal + envio;
   };
 
   // ========================================
