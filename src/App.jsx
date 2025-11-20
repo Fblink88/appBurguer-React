@@ -14,6 +14,10 @@ import NuevoUsuario from './pages/admin/nuevoUsuario';
 import GestionVenta from './pages/admin/gestionVenta';
 import GestionContacto from './pages/admin/gestionContacto';
 
+import PagoExitoPage from './pages/client/PagoExitoPage';
+import PagoFalloPage from './pages/client/PagoFalloPage';
+import PagoPendientePage from './pages/client/PagoPendientePage';
+
 import CarroPag from './pages/client/CarroPag';
 import NuevoCliente from './pages/admin/nuevoCliente';
 import CheckOut from './pages/client/CheckOut';
@@ -35,7 +39,10 @@ function App() {
         <Route path="/carrito" element={<CarroPag />} />
         <Route path="/checkout" element={<CheckOut />} />
         <Route path="/mi-perfil" element={<ProtectedRoute element={<MiPerfilPag />} />} />
-          
+        <Route path="/pago/exito" element={<PagoExitoPage />} />
+        <Route path="/pago/fallo" element={<PagoFalloPage />} />
+        <Route path="/pago/pendiente" element={<PagoPendientePage />} />
+                  
         <Route path="/admin/dashboard" element={<ProtectedRoute element={<Dashboard />} requiredRole="ADMIN" />} />
         <Route path="/admin/gestion-pedidos" element={<ProtectedRoute element={<GestionPedidos />} requiredRole="ADMIN" />} />
         <Route path="/admin/gestion-productos" element={<ProtectedRoute element={<GestionProductos />} requiredRole="ADMIN" />} />
