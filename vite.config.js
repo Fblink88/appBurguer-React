@@ -30,15 +30,15 @@ export default defineConfig({
         },
 
         // Log de las peticiones (útil para debug)
-        configure: (proxy, _options) => {
-          proxy.on('error', (err, _req, _res) => {
+        configure: (proxy,) => {
+          proxy.on('error', (err, ) => {
             console.log('proxy error', err);
           });
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
+          proxy.on('proxyReq', (proxyReq, req,) => {
             console.log('Sending Request:', req.method, req.url);
             console.log('Headers:', proxyReq.getHeaders());
           });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
+          proxy.on('proxyRes', (proxyRes, req, ) => {
             console.log('Received Response:', proxyRes.statusCode, req.url);
           });
         },
