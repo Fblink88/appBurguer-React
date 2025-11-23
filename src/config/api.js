@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "axios";// axios es una librería para hacer peticiones HTTP
 
 // Configuración de URLs según el ambiente
 const API_URLS = {
