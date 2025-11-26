@@ -6,6 +6,11 @@ import Nav from 'react-bootstrap/Nav';
 export default function Sidebar({ adminName, onLogoutAdmin }) {
   const navigate = useNavigate();
 
+  // Función para ir a Vista Cliente (manteniendo sesión activa)
+  const handleVistaCliente = () => {
+    navigate('/inicio');
+  };
+
   const handleLogout = () => {
     // Limpiar todos los datos de sesión del localStorage
     localStorage.removeItem('authToken');
@@ -86,8 +91,15 @@ export default function Sidebar({ adminName, onLogoutAdmin }) {
       </Nav>
 
       <div className="sidebar-footer">
+        {/* Botón para ir a Vista Cliente (mantiene sesión activa) */}
+        <button className="btn btn-outline-warning text-warning fw-semibold w-100 mb-2" onClick={handleVistaCliente}>
+          <i className="bi bi-house-door me-2"></i>
+          Vista Cliente
+        </button>
+
+        {/* Botón para cerrar sesión completamente */}
         <button className="btn btn-warning text-dark fw-semibold w-100" onClick={handleLogout}>
-          <i className="bi bi-box-arrow-left me-2"></i> 
+          <i className="bi bi-box-arrow-left me-2"></i>
           {/* CAMBIO 2: Separamos Cerrar y Admin */}
           <span className="btn-text-stacked">
             <span>Cerrar</span>

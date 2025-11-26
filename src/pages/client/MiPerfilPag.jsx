@@ -105,6 +105,7 @@ export default function MiPerfilPag() {
       navigate('/login');
       return;
     }
+
     cargarDatosCliente();
   }, [navigate]);
 

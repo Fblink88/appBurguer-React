@@ -83,6 +83,17 @@
   margin-top: auto;
 }
 
+/* Estilo para el botón "Vista Cliente" al hacer hover */
+.sidebar-footer .btn-outline-warning:hover {
+  background-color: #ffc107 !important;
+  color: #0d0d0d !important;
+  border-color: #ffc107 !important;
+}
+
+.sidebar-footer .btn-outline-warning:hover i {
+  color: #0d0d0d !important;
+}
+
 /* --- ESTILOS RESPONSIVOS (MEDIA QUERY) --- */
 @media (max-width: 992px) {
   .sidebar-admin {

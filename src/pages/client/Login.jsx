@@ -199,7 +199,7 @@ function Login() {
         <div className={`container ${isRegisterActive ? 'right-panel-active' : ''}`} id="login-container-box">
 
           {/* FORMULARIO REGISTRO */}
-          <div className="form-container register-container">
+          <div className="form-container-login register-container">
             <form onSubmit={handleRegisterSubmit}>
               <h1>Regístrate aquí</h1>
               {error && <p style={{ color: 'red', fontSize: '12px', marginBottom: '10px' }}>{error}</p>}
@@ -236,7 +236,7 @@ function Login() {
           </div>
 
           {/* FORMULARIO LOGIN */}
-          <div className="form-container login-container">
+          <div className="form-container-login login-container">
             <form onSubmit={handleLoginSubmit}>
               <h1>Iniciar Sesión</h1>
               {error && <p style={{ color: 'red', fontSize: '12px', marginBottom: '10px' }}>{error}</p>}
