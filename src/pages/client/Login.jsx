@@ -114,7 +114,7 @@ function Login() {
       } else if (err.response?.status === 403) {
         setError("Tu cuenta no tiene acceso al sistema");
       } else {
-        setError("Error al conectar con el servidor. Intenta de nuevo.");
+        setError("Error al iniciar Sesion. Intenta de nuevo.");
       }
     } finally {
       setLoading(false);
