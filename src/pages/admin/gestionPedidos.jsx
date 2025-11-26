@@ -28,7 +28,6 @@ function GestionPedidos() {
   const [clientes, setClientes] = useState([]);
   const [productos, setProductos] = useState([]);
   const [pedidos, setPedidos] = useState([]);
-  const [estadosPedido, setEstadosPedido] = useState([]);
   const [metodosPago, setMetodosPago] = useState([]);
   const [tiposEntrega, setTiposEntrega] = useState([]);
   const [direccionesCliente, setDireccionesCliente] = useState([]);
@@ -36,6 +35,19 @@ function GestionPedidos() {
   // Estados de carga
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // Estado para búsqueda de pedidos por cliente
+  const [busquedaCliente, setBusquedaCliente] = useState('');
+  const [pedidosFiltrados, setPedidosFiltrados] = useState([]);
+
+  // Filtrar pedidos automáticamente cuando cambia la búsqueda
+  useEffect(() => {
+    if (!busquedaCliente.trim()) {
+      setPedidosFiltrados([]);
+      return;
+    }
+    handleBuscarPorCliente();
+  }, [busquedaCliente, clientes, pedidos]);
 
   // Cargar datos al montar
   useEffect(() => {
@@ -106,10 +118,6 @@ function GestionPedidos() {
     const mapeoEstados = {
       1: 'Pendiente de Pago',
       2: 'Pagado',
-      3: 'Recibido',
-      4: 'En preparación',
-      5: 'En camino',
-      6: 'Entregado',
       7: 'Cancelado'
     };
     
@@ -188,16 +196,6 @@ function GestionPedidos() {
       }
       
       // Datos hardcodeados - Cuando tengas endpoints en el backend, reemplaza estos
-      setEstadosPedido([
-        { idEstadoPedido: 1, nombre: 'Pendiente de Pago' },
-        { idEstadoPedido: 2, nombre: 'Pagado' },
-        { idEstadoPedido: 3, nombre: 'Recibido' },
-        { idEstadoPedido: 4, nombre: 'En preparación' },
-        { idEstadoPedido: 5, nombre: 'En camino' },
-        { idEstadoPedido: 6, nombre: 'Entregado' },
-        { idEstadoPedido: 7, nombre: 'Cancelado' }
-      ]);
-      
       setMetodosPago([
         { idMetodoPago: 1, nombre: 'Webpay' },
         { idMetodoPago: 2, nombre: 'Efectivo' },
@@ -257,10 +255,82 @@ function GestionPedidos() {
     const producto = productos.find(p => (p.idProducto || p.id) == productoId);
     return producto ? (producto.nombreProducto || producto.nombre || 'Producto') : 'Producto';
   };
+
+  // Función para buscar pedidos por nombre de cliente
+  const handleBuscarPorCliente = async () => {
+    if (!busquedaCliente.trim()) {
+      setPedidosFiltrados([]);
+      return;
+    }
+    
+    try {
+      // Buscar TODOS los clientes que coincidan con el nombre
+      const clientesEncontrados = clientes.filter(c => 
+        (c.nombreCliente )
+          .toLowerCase()
+          .includes(busquedaCliente.toLowerCase())
+      );
+
+      if (clientesEncontrados.length === 0) {
+        setPedidosFiltrados([]);
+        return;
+      }
+
+      // Obtener pedidos de TODOS los IDs encontrados
+      const promesas = clientesEncontrados.map(cliente => {
+        const idCliente = cliente.idCliente ;
+        return pedidosService.getPedidosPorCliente(idCliente).catch(() => []);
+      });
+
+      const resultados = await Promise.all(promesas); 
+      const todosPedidos = resultados.flat();
+      
+      // Eliminar duplicados por ID_PEDIDO
+      const pedidosUnicos = todosPedidos.reduce((acc, pedido) => {
+        const idPedido = pedido.idPedido;
+        if (!acc.find(p => p.idPedido === idPedido)) {
+          acc.push(pedido);
+        }
+        return acc;
+      }, []);
+      
+      setPedidosFiltrados(pedidosUnicos);
+    } catch (err) {
+      console.warn('Error al buscar pedidos:', err);
+      setPedidosFiltrados([]);
+    }
+  };
+
+  // Función para limpiar la búsqueda y mostrar todos los pedidos
+  const handleLimpiarBusqueda = () => {
+    setBusquedaCliente('');
+    setPedidosFiltrados([]);
+  };
+
+  // Determinar qué pedidos mostrar (filtrados o todos)
+  // Si hay búsqueda activa, mostrar pedidosFiltrados (incluso si está vacío)
+  // Si NO hay búsqueda, mostrar todos los pedidos
+  const pedidosAMostrar = busquedaCliente.trim() ? pedidosFiltrados : pedidos;
   
   // Agregar producto al carrito temporal
   const handleAgregarProducto = (e) => {
     e.preventDefault();
+
+    // Validar que los campos obligatorios estén llenos ANTES de agregar producto
+    if (!idCliente) {
+      alert('Por favor, seleccione un CLIENTE antes de agregar productos');
+      return;
+    }
+
+    if (!idMetodoPago) {
+      alert('Por favor, seleccione un MÉTODO DE PAGO antes de agregar productos');
+      return;
+    }
+
+    if (!idTipoEntrega) {
+      alert('Por favor, seleccione un TIPO DE ENTREGA antes de agregar productos');
+      return;
+    }
 
     if (!idProducto || !cantidad || cantidad <= 0) {
       alert('Seleccione un producto y cantidad válida');
@@ -303,9 +373,15 @@ function GestionPedidos() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. VALIDAR que todos los campos requeridos estén llenos
-    if (!idCliente || productosCarrito.length === 0 || !idEstadoPedido || !idMetodoPago || !idTipoEntrega) {
-      alert('Por favor, complete todos los campos y agregue al menos un producto');
+    // Validar que haya al menos un producto en el carrito
+    if (productosCarrito.length === 0) {
+      alert('Debes agregar al menos un producto antes de crear el pedido.');
+      return;
+    }
+
+    // Validar que todos los campos requeridos estén llenos
+    if (!idCliente || !idEstadoPedido || !idMetodoPago || !idTipoEntrega) {
+      alert('Por favor, complete todos los campos obligatorios.');
       return;
     }
 
@@ -388,7 +464,21 @@ function GestionPedidos() {
 
   // Eliminar pedido (con Boleta y Venta si existen)
   const handleEliminarPedido = async (id) => {
-    if (window.confirm('¿Está seguro de que desea eliminar este pedido? Si tiene venta/boleta asociada, también se eliminarán.')) {
+    // Verificar si el pedido tiene venta asociada para cambiar el mensaje
+    let tieneVenta = false;
+    try {
+      const ventas = await ventaService.getVentas();
+      const venta = ventas.find(v => (v.idPedido || v.id_pedido) === id);
+      tieneVenta = !!venta;
+    } catch (err) {
+      console.warn('No se pudo verificar ventas:', err.message);
+    }
+
+    const mensaje = tieneVenta 
+      ? '¿Está seguro de que desea CANCELAR este pedido?\n\nEsto eliminará:\n- La venta asociada\n- La boleta (si existe)\n- El estado cambiará a "Cancelado"'
+      : '¿Está seguro de que desea ELIMINAR este pedido?\n\nEl pedido será eliminado permanentemente.';
+
+    if (window.confirm(mensaje)) {
       setLoading(true);
       try {
         console.log('Iniciando eliminación del pedido:', id);
@@ -439,19 +529,42 @@ function GestionPedidos() {
           try {
             await ventaService.eliminarVenta(idVenta);
             console.log('Venta eliminada');
+            
+            // Cambiar el estado del pedido a "Cancelado" (ID 7) si tenía venta
+            try {
+              await pedidosService.actualizarEstadoPedido(id, 7);
+              console.log('Estado del pedido cambiado a Cancelado');
+            } catch (err) {
+              console.warn('No se pudo actualizar el estado del pedido:', err.message);
+            }
           } catch (err) {
             console.warn('No se pudo eliminar venta:', err.message);
           }
+        } else {
+          // Si NO tiene venta, eliminar el pedido directamente
+          try {
+            await pedidosService.eliminarPedido(id);
+            console.log('Pedido eliminado');
+          } catch (err) {
+            console.error('Error al eliminar pedido:', err);
+            throw err;
+          }
         }
         
-        // 4. Eliminar el pedido (el backend eliminará DetallePedido en cascada)
-        await pedidosService.eliminarPedido(id);
-        console.log('Pedido eliminado');
+        // 4. Recargar pedidos para reflejar el cambio
+        const pedidosActualizados = await pedidosService.getPedidos();
+        const pedidosOrdenados = Array.isArray(pedidosActualizados)
+          ? pedidosActualizados.sort((a, b) => b.idPedido - a.idPedido)
+          : [];
+        setPedidos(pedidosOrdenados);
         
-        setPedidos(pedidos.filter(p => (p.idPedido || p.id) !== id));
-        alert('Pedido eliminado exitosamente' + 
-              (idBoleta ? '\n- Boleta eliminada' : '') + 
-              (idVenta ? '\n- Venta eliminada' : ''));
+        if (idVenta) {
+          alert('Venta cancelada exitosamente' + 
+                (idBoleta ? '\n- Boleta eliminada' : '') + 
+                '\n- Estado del pedido cambiado a Cancelado');
+        } else {
+          alert('Pedido eliminado exitosamente');
+        }
       } catch (err) {
         console.error('Error al eliminar:', err);
         alert('Error al eliminar: ' + err.message);
@@ -547,14 +660,9 @@ function GestionPedidos() {
                     value={idEstadoPedido}
                     onChange={(e) => setIdEstadoPedido(e.target.value)}
                     className="form-input"
-                    disabled={loading}
+                    disabled={true}
                   >
-                    <option value="">Seleccione Estado</option>
-                    {estadosPedido.map(estado => (
-                      <option key={estado.idEstadoPedido || estado.id} value={estado.idEstadoPedido || estado.id}>
-                        {estado.nombre}
-                      </option>
-                    ))}
+                    <option value="1">Pendiente de Pago</option>
                   </select>
                 </div>
               </div>
@@ -709,7 +817,8 @@ function GestionPedidos() {
                           <th>Producto</th>
                           <th>Precio Unit.</th>
                           <th>Cantidad</th>
-                          <th>Subtotal</th>       
+                          <th>Subtotal</th>
+                          <th>Acción</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -722,10 +831,15 @@ function GestionPedidos() {
                             <td>
                               <button 
                                 type="button"
-                                className="btn-eliminar-item"
+                                className="btn-eliminar"
                                 onClick={() => handleEliminarProductoCarrito(item.id)}
+                                style={{ 
+                                  fontSize: '0.85em', 
+                                  padding: '5px 10px',
+                                  width: 'auto'
+                                }}
                               >
-                                
+                                 Quitar
                               </button>
                             </td>
                           </tr>
@@ -738,17 +852,24 @@ function GestionPedidos() {
               {/* RESUMEN DE MONTOS */}
               <div className="resumen-pedido">
                 <div className="resumen-fila">
-                  <span className="resumen-label">Subtotal Productos : </span>
+                  <span className="resumen-label">Subtotal Productos:</span>
                   <span className="resumen-valor">${calcularSubtotalCarrito().toFixed(2)}</span>
                 </div>
+                <div className="resumen-fila" style={{ color: '#999', fontSize: '0.9em' }}>
+                  <span className="resumen-label">IVA (19% sobre productos):</span>
+                  <span className="resumen-valor">${(calcularSubtotalCarrito() * 0.19).toFixed(2)}</span>
+                </div>
                 <div className="resumen-fila">
-                  <span className="resumen-label">Envío : </span>
+                  <span className="resumen-label">Envío:</span>
                   <span className="resumen-valor">${(parseFloat(montoEnvio) || 0).toFixed(2)}</span>
                 </div>
-                <div className="resumen-fila total">
-                  <span className="resumen-label-total">TOTAL : </span>
-                  <span className="resumen-valor-total">${(calcularSubtotalCarrito() + (parseFloat(montoEnvio) || 0)).toFixed(2)}</span>
+                <div className="resumen-fila total" style={{ borderTop: '2px solid #ffcc00', paddingTop: '10px', marginTop: '8px' }}>
+                  <span className="resumen-label-total">TOTAL A PAGAR (con IVA):</span>
+                  <span className="resumen-valor-total">${(calcularSubtotalCarrito() * 1.19 + (parseFloat(montoEnvio) || 0)).toFixed(2)}</span>
                 </div>
+                <small style={{ display: 'block', marginTop: '8px', color: '#999', fontSize: '0.85em', fontStyle: 'italic' }}>
+                  * El IVA se registrará en la boleta al momento del pago
+                </small>
               </div>
               
 
@@ -763,7 +884,7 @@ function GestionPedidos() {
                 >
                    Agregar Producto
                 </button>
-                <button type="submit" className="btn-agregar" disabled={loading || productosCarrito.length === 0}>
+                <button type="submit" className="btn-agregar" disabled={loading}>
                   {loading ? 'Creando...' : ' Crear Pedido'}
                 </button>
                 <button
@@ -792,12 +913,76 @@ function GestionPedidos() {
           {/* CONTENEDOR 2: LISTA DE PEDIDOS (ANCHO COMPLETO) */}
           <div className="lista-pedidos-container-full">
             <h2>Pedidos Registrados</h2>
+            
+            {/* Barra de búsqueda por cliente */}
+            <div style={{ 
+              marginBottom: '20px', 
+              padding: '15px', 
+              background: '#2d2d2d', 
+              borderRadius: '8px',
+              border: '1px solid #555',
+              display: 'flex',
+              gap: '10px',
+              alignItems: 'center'
+            }}>
+              <input
+                type="text"
+                placeholder="Buscar por nombre de cliente..."
+                value={busquedaCliente}
+                onChange={(e) => setBusquedaCliente(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '10px 12px',
+                  border: '1px solid #555',
+                  borderRadius: '5px',
+                  fontSize: '14px',
+                  background: '#1a1a1a',
+                  color: '#fdfdfd'
+                }}
+                disabled={loading}
+              />
+              {busquedaCliente.trim() && (
+                <button
+                  onClick={handleLimpiarBusqueda}
+                  style={{
+                    padding: '10px 20px',
+                    background: '#555',
+                    color: '#fdfdfd',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  ✖ Limpiar
+                </button>
+              )}
+            </div>
+
+            {/* Indicador de búsqueda activa */}
+            {pedidosFiltrados.length > 0 && (
+              <div style={{
+                padding: '10px 15px',
+                background: '#2d2d2d',
+                color: '#ffcc00',
+                border: '1px solid #555',
+                borderRadius: '5px',
+                marginBottom: '15px',
+                fontSize: '14px',
+                fontWeight: '600'
+              }}>
+                 Mostrando {pedidosFiltrados.length} pedido(s) filtrado(s) por cliente
+              </div>
+            )}
+
             <div className="table-responsive">
               <table className="tabla-pedidos">
                 <thead>
                   <tr>
-                    <th>#</th>
+                    <th>ID</th>
                     <th>Cliente</th>
+                    <th>Fecha</th>
                     <th>Productos</th>
                     <th>Estado</th>
                     <th>Método Pago</th>
@@ -809,18 +994,19 @@ function GestionPedidos() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pedidos.length > 0 ? (
-                    pedidos.map(pedido => (
+                  {pedidosAMostrar.length > 0 ? (
+                    pedidosAMostrar.map(pedido => (
                       <tr key={pedido.ID_PEDIDO || pedido.idPedido}>
                         <td>{pedido.ID_PEDIDO || pedido.idPedido}</td>
                         <td>{getNombreCliente(pedido.ID_CLIENTE || pedido.idCliente)}</td>
+                        <td>{pedido.fechaPedido ? new Date(pedido.fechaPedido).toLocaleString() : 'Sin fecha'}</td>
                         <td>
                           {/* Mostrar todos los productos del pedido */}
                           {pedido.detalles && pedido.detalles.length > 0 ? (
                             <div style={{ fontSize: '0.9em' }}>
                               {pedido.detalles.map((detalle, index) => (
                                 <div key={index} style={{ marginBottom: '5px', borderBottom: index < pedido.detalles.length - 1 ? '1px solid #eee' : 'none', paddingBottom: '5px' }}>
-                                  <strong>{detalle.nombreProducto  || 'Producto'}</strong>
+                                    <strong>{getNombreProducto(detalle.idProducto || detalle.ID_PRODUCTO)}</strong>
                                   <br />
                                   <span style={{ color: '#666' }}>
                                     Cant: {detalle.cantidad} × ${(detalle.precioUnitario)?.toFixed(2) || '0.00'} = ${(detalle.subtotalLinea)?.toFixed(2) || '0.00'}
