@@ -4,6 +4,8 @@ import "../../styles/gestionProd.css";
 import * as productosService from "../../services/productosService";
 
 function GestionProductos() {
+  console.log('🚀 COMPONENTE GESTIONPRODUCTOS CARGADO'); // DEBUG PRINCIPAL: Verificar que el componente se carga
+
   const handleAdminLogout = () => {
     console.log("Cerrando sesión del administrador...");
   };
@@ -58,21 +60,28 @@ function GestionProductos() {
 
   // Manejo de imagen
   const handleImageChange = (e) => {
+    console.log('🎯 FUNCIÓN HANDLEIMAGECHANGE EJECUTADA'); // DEBUG PRINCIPAL: Verificar que la función se ejecuta
     const file = e.target.files[0];
+    console.log('📁 ARCHIVO SELECCIONADO:', file); // DEBUG: Verificar que se selecciona el archivo
     if (file) {
       setImagenFile(file);
+      console.log('💾 IMAGEN FILE GUARDADA EN ESTADO:', file.name); // DEBUG: Confirmar que se guarda en estado
       // Crear preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagenPreview(reader.result);
       };
       reader.readAsDataURL(file);
+    } else {
+      console.log('❌ NO SE SELECCIONÓ NINGÚN ARCHIVO'); // DEBUG: Confirmar si no hay archivo
     }
   };
 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    console.log('🚨 FUNCIÓN HANDLESUBMIT EJECUTÁNDOSE'); // DEBUG PRINCIPAL: Verificar que handleSubmit se ejecuta
 
     let productoResultado = null;
     let imagenSubidaExitosamente = false;
@@ -89,6 +98,8 @@ function GestionProductos() {
         disponible: formData.disponible === true || formData.disponible === 'true',
       };
 
+      console.log('📦 DATOS DEL PRODUCTO PREPARADOS:', productoData); // DEBUG: Verificar datos del producto
+
       // PASO 2: Crear o Actualizar producto
       if (productoEditando) {
         // MODO EDICIÓN: Actualizar producto existente
@@ -104,15 +115,25 @@ function GestionProductos() {
       } else {
         // MODO CREACIÓN: Crear nuevo producto
         productoData.imagen = ""; // Se subirá después
+        console.log('🔨 CREANDO PRODUCTO NUEVO...'); // DEBUG: Confirmar modo creación
         productoResultado = await productosService.crearProducto(productoData);
         console.log("✅ Producto creado:", productoResultado);
       }
 
       // PASO 3: Si hay una imagen nueva, intentar subirla a Firebase
       const idProducto = productoResultado.idProducto || productoResultado.id;
+      
+      // DEBUG: Verificar valores antes de la condición - AGREGADO para diagnosticar problema
+      console.log('🔍 DEBUG ANTES DE SUBIR IMAGEN:');
+      console.log('📤 imagenFile existe:', !!imagenFile);
+      console.log('📤 imagenFile detalles:', imagenFile ? { name: imagenFile.name, type: imagenFile.type, size: imagenFile.size } : 'null');
+      console.log('📤 idProducto:', idProducto);
+      console.log('📤 Evaluando condición (imagenFile && idProducto):', !!(imagenFile && idProducto));
+      
       if (imagenFile && idProducto) {
         try {
           console.log("📤 Subiendo imagen a Firebase...");
+          console.log("📤 LLAMANDO productosService.subirImagenProducto con:", { idProducto, imagenFile }); // DEBUG: Confirmar llamada a función
           const resultado = await productosService.subirImagenProducto(idProducto, imagenFile);
           console.log("✅ Imagen subida:", resultado.imageUrl);
           imagenSubidaExitosamente = true;
@@ -120,6 +141,8 @@ function GestionProductos() {
           console.error("⚠️ Error al subir imagen:", imagenError);
           alert(`Producto guardado exitosamente, pero hubo un error al subir la imagen.\nPuedes editarlo después para agregar la imagen.\n\nError: ${imagenError.response?.data?.message || imagenError.message}`);
         }
+      } else {
+        console.log("❌ NO SE SUBE IMAGEN - Razón:", !imagenFile ? 'No hay archivo' : !idProducto ? 'No hay ID producto' : 'Condición no cumplida'); // DEBUG: Explicar por qué no se sube
       }
 
       // PASO 4: Recargar la lista de productos

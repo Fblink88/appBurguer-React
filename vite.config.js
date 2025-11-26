@@ -13,6 +13,14 @@ export default defineConfig({
     // PROXY - Redirige /api/* al backend
     // Similar al ejemplo del profesor
     proxy: {
+      // ESPECÍFICO: Solo para subida de imágenes → directo al microservicio (evita problema API Gateway)
+      '^/api/catalogo/productos/.*/imagen$': {
+        target: 'http://161.153.219.128:8084', // Directo a GESTIONCATALOGO
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
+
       '/api': {
         // En desarrollo local: backend en localhost
        // target: 'http://localhost:8080',

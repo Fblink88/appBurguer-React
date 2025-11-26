@@ -138,34 +138,52 @@ export const eliminarProducto = async (idProducto) => {
  */
 export const subirImagenProducto = async (idProducto, file) => {
   try {
-    // Validar que el archivo sea una imagen
     if (!file || !file.type.startsWith('image/')) {
       throw new Error('El archivo debe ser una imagen');
     }
 
-    // Crear FormData para enviar el archivo
     const formData = new FormData();
     formData.append('imagen', file);
 
-    console.log('📤 Subiendo imagen para producto:', idProducto);
-    console.log('📤 Archivo:', file.name, 'Tipo:', file.type, 'Tamaño:', file.size);
-    console.log('📤 FormData entries:');
+    console.log('🔍 DEBUGGING DETALLADO:');
+    console.log('📤 File name:', file.name);
+    console.log('📤 File type:', file.type);
+    console.log('📤 File size:', file.size);
+    
+    // Verificar FormData
     for (let pair of formData.entries()) {
-      console.log('  -', pair[0], ':', pair[1]);
+      console.log(`📤 FormData: ${pair[0]} =`, pair[1]);
     }
 
-    // Enviar la imagen al backend
-    // El interceptor de api.js eliminará automáticamente el Content-Type
-    // para que el navegador configure el boundary correcto
-    const response = await api.post(`/catalogo/productos/${idProducto}/imagen`, formData);
+    // TEST: Request directa sin interceptor
+    const token = localStorage.getItem('authToken');
+    //const url = `http://161.153.219.128:8080/api/catalogo/productos/${idProducto}/imagen`;
+    const url = `/api/catalogo/productos/${idProducto}/imagen`;
+    
+    console.log('🎯 URL:', url);
 
-    console.log('✅ Imagen subida exitosamente:', response.data);
-    return response.data; // Retorna { imageUrl: "...", mensaje: "..." }
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData
+    });
+
+    console.log('📡 Response status:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log('❌ Error response:', errorText);
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log('✅ Success:', result);
+    return result;
+
   } catch (error) {
-    console.error(`❌ Error al subir imagen del producto ${idProducto}:`, error);
-    console.error('Status:', error.response?.status);
-    console.error('Data:', error.response?.data);
-    console.error('Mensaje:', error.response?.data?.message || error.message);
+    console.error('❌ ERROR COMPLETO:', error);
     throw error;
   }
 };
