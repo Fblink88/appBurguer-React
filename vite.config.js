@@ -11,7 +11,7 @@ export default defineConfig({
     port: 5173,
 
     // PROXY - Redirige /api/* al backend
-    // Similar al ejemplo del profesor
+    
     proxy: {
       // ESPECÍFICO: Solo para subida de imágenes → directo al microservicio (evita problema API Gateway)
       '^/api/catalogo/productos/.*/imagen$': {
