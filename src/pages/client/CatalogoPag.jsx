@@ -21,7 +21,7 @@ function CatalogoPag() { // Componente principal de la página de catálogo
   const [selectedProduct, setSelectedProduct] = useState(null); // Producto que se va a mostrar  en el modal y viene de la lista de productos, Un hook es una función especial que permite "enganchar" características de React, como el estado y el ciclo de vida, a componentes funcionales.
   const [showModal, setShowModal] = useState(false); // Estado para controlar la visibilidad del modal viene de React Bootstrap
   const [selectedSize, setSelectedSize] = useState('Simple'); // Tamaño seleccionado para la hamburguesa que viene del modal y el modal se abre al hacer click en un producto
-  const [carrito, setCarrito] = useState(() => { // Estado del carrito de compras, inicializado desde localStorage
+  const [carrito, setCarrito] = useState(() => { // Estado del carrito de compras, inicializado desde localStorage - PERMITE carrito temporal para usuarios no logueados
     const carritoGuardado = localStorage.getItem('carrito');// Si hay un carrito guardado en localStorage, lo parseamos, si no, iniciamos con un array vacío
     return carritoGuardado ? JSON.parse(carritoGuardado) : [];  //  el carrito se guarda en localStorage cada vez que se agrega un producto Json.parse se usa para convertir el string guardado en localStorage a un objeto JavaScript
   });
@@ -146,14 +146,12 @@ function CatalogoPag() { // Componente principal de la página de catálogo
       carritoActualizado.push(nuevoItem);
     }
 
-    // Actualiza el estado del carrito y lo guarda en localStorage
+    // Actualiza el estado del carrito y lo guarda en localStorage SOLO si está logueado
     // También dispara un evento de almacenamiento para notificar otros componentes
     //sirve para que otros componentes que escuchen este evento puedan actualizarse
-    setCarrito(carritoActualizado);
-    localStorage.setItem('carrito', JSON.stringify(carritoActualizado));
+    guardarCarrito(carritoActualizado);
 
     handleCloseModal(); // Cierra el modal después de agregar al carrito, handleCloseModal declarada arriba
-    window.dispatchEvent(new Event('storage'));// Notifica otros componentes del cambio en el carrito 
   };
 
   const handleQuickAdd = (producto) => { // Agrega rápidamente un producto simple al carrito desde la lista sin abrir el modal
@@ -180,9 +178,8 @@ function CatalogoPag() { // Componente principal de la página de catálogo
       carritoActualizado.push(nuevoItem);// Si no existe, lo agrega al carrito
     }
 
-    setCarrito(carritoActualizado); // Actualiza el estado del carrito y lo guarda en localStorage
-    localStorage.setItem('carrito', JSON.stringify(carritoActualizado));
-    window.dispatchEvent(new Event('storage'));
+    // Actualiza el estado del carrito y lo guarda en localStorage SOLO si está logueado
+    guardarCarrito(carritoActualizado);
   };
 
   // Agrupa los productos por categoría para facilitar la renderización
@@ -212,6 +209,23 @@ function CatalogoPag() { // Componente principal de la página de catálogo
   // Calcula el total de items en el carrito (sumando cantidades)
   const calcularTotalItems = () => {
     return carrito.reduce((total, item) => total + item.cantidad, 0);
+  };
+
+  // Función para verificar si está logueado
+  const estaLogueado = () => {
+    const usuario = localStorage.getItem('user');
+    const token = localStorage.getItem('authToken');
+    return usuario && token;
+  };
+
+  // Función para guardar carrito (siempre guarda para mantener funcionalidad del header) - NUEVA FUNCIONALIDAD PROFESIONAL
+  const guardarCarrito = (carritoActualizado) => {
+    setCarrito(carritoActualizado);
+    
+    // SIEMPRE guardar para que el header se actualice correctamente
+    localStorage.setItem('carrito', JSON.stringify(carritoActualizado));
+    
+    window.dispatchEvent(new Event('storage'));
   };
 
   // Función para hacer scroll suave a una categoría
