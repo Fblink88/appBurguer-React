@@ -124,8 +124,8 @@ export const getDetallesPedido = async (idCliente) => {
  */
 export const actualizarPedido = async (idPedido, datosActualizacion) => {
   try {
-    console.log(`🔄 Actualizando pedido ${idPedido}...`);
-    console.log('📤 Datos de actualización:', datosActualizacion);
+    console.log(` Actualizando pedido ${idPedido}...`);
+    console.log(' Datos de actualización:', datosActualizacion);
 
     // Si el backend tiene endpoint de actualización, usar PUT
     const response = await api.put(`/pedidos/${idPedido}/actualizar`, datosActualizacion);
