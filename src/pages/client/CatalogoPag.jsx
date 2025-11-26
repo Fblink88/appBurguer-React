@@ -2,20 +2,21 @@
 
 import React, { useState, useEffect } from 'react';// React Bootstrap components 
 import { Modal, Button } from 'react-bootstrap'; //  se instala con: npm install react-bootstrap bootstrap
-import HeaderComp from '../../components/HeaderComp'; 
-import FooterComp from '../../components/FooterComp'; 
+import { Link } from 'react-router-dom';
+import HeaderComp from '../../components/HeaderComp';
+import FooterComp from '../../components/FooterComp';
 // ahora  se importa función para obtener productos desde el backend en lugar de datos locales
 import { obtenerProductosDisponibles } from '../../services/productosService';
 import '../../styles/catalogo.css';
 
 function CatalogoPag() { // Componente principal de la página de catálogo
-  
+
   // ========== NUEVOS ESTADOS PARA MANEJO DE BASE DE DATOS ==========
   // Estos estados permiten manejar la carga de productos desde la BD
   const [productos, setProductos] = useState([]); // Array de productos desde la BD
   const [loading, setLoading] = useState(true); // Estado de carga (true mientras se obtienen los datos)
   const [error, setError] = useState(null); // Guarda mensaje de error si la carga falla
-  
+
   // ========== ESTADOS ORIGINALES (NO CAMBIAN) ==========
   const [selectedProduct, setSelectedProduct] = useState(null); // Producto que se va a mostrar  en el modal y viene de la lista de productos, Un hook es una función especial que permite "enganchar" características de React, como el estado y el ciclo de vida, a componentes funcionales.
   const [showModal, setShowModal] = useState(false); // Estado para controlar la visibilidad del modal viene de React Bootstrap
@@ -33,12 +34,12 @@ function CatalogoPag() { // Componente principal de la página de catálogo
       try {
         setLoading(true); // Activar indicador de carga
         console.log('🔄 Cargando productos desde el backend...');
-        
+
         // Llamar al servicio que hace la petición GET al backend
         const productosBackend = await obtenerProductosDisponibles();
-        
+
         console.log('Productos recibidos:', productosBackend);
-        
+
         // Mapear los datos del backend al formato que usa el frontend
         // El backend retorna: { id, nombre, descripcion, precio, categoria, imagen, disponible }
         // Lo convertimos al formato que espera el resto del código
@@ -51,7 +52,7 @@ function CatalogoPag() { // Componente principal de la página de catálogo
           imagen: producto.imagen, // URL de Firebase Storage
           disponible: producto.disponible // true/false
         }));
-        
+
         setProductos(productosMapeados); // Guardar productos en el estado
 
 
@@ -66,19 +67,19 @@ function CatalogoPag() { // Componente principal de la página de catálogo
             // Extraer ID base (antes del guion)
             const idProducto = parseInt(item.id.split('-')[0]);
             return idsDisponibles.includes(idProducto); // ⬅️ AGREGADO 'return' para que el filter funcione correctamente
-        });
+          });
 
-        // Si cambió el carrito, actualizar localStorage y estado
-        if (carritoFiltrado.length !== carritoActual.length) {
-          console.log('🧹 Limpiando productos no disponibles del carrito');
-          localStorage.setItem('carrito', JSON.stringify(carritoFiltrado));
-          setCarrito(carritoFiltrado);
-          window.dispatchEvent(new Event('storage')); // Notificar cambios
+          // Si cambió el carrito, actualizar localStorage y estado
+          if (carritoFiltrado.length !== carritoActual.length) {
+            console.log('🧹 Limpiando productos no disponibles del carrito');
+            localStorage.setItem('carrito', JSON.stringify(carritoFiltrado));
+            setCarrito(carritoFiltrado);
+            window.dispatchEvent(new Event('storage')); // Notificar cambios
+          }
         }
-      }
 
-          
-        
+
+
         setError(null); // Limpiar cualquier error previo
       } catch (err) {
         console.error('Error al cargar productos:', err);
@@ -92,27 +93,27 @@ function CatalogoPag() { // Componente principal de la página de catálogo
   }, []); // Array vacío = se ejecuta solo una vez al montar el componente
 
   // ========== FUNCIONES PARA MANEJAR EL MODAL Y EL CARRITO (NO CAMBIAN) ==========
-  
+
   // Funciones para manejar el modal y el carrito
-  const handleOpenModal = (producto) => { 
+  const handleOpenModal = (producto) => {
     setSelectedProduct(producto);
     setSelectedSize('Simple');
     setShowModal(true);
   };
-  
+
   // Cierra el modal y resetea el producto seleccionado
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedProduct(null);
   };
-  
+
   // Agrega el producto seleccionado al carrito con el tamaño y precio correspondiente
   const handleAddToCart = () => {
     if (!selectedProduct) return;
 
     // Calcula el precio final según el tamaño seleccionado, esto es posible porque el estado selectedSize se actualiza al hacer click en una de las opción del modal
-    const precioFinal = selectedSize === 'Doble' 
-      ? selectedProduct.precio * 1.5 
+    const precioFinal = selectedSize === 'Doble'
+      ? selectedProduct.precio * 1.5
       : selectedProduct.precio;
 
     // Crea un nuevo ítem para el carrito con la información necesaria
@@ -129,7 +130,7 @@ function CatalogoPag() { // Componente principal de la página de catálogo
       cantidad: 1,
       id: `${selectedProduct.id}-${selectedSize}`
     };
-    
+
     // Verifica si el ítem ya existe en el carrito 
     // y actualiza la cantidad si es así, 
     // de lo contrario lo agrega como nuevo ítem 
@@ -150,7 +151,7 @@ function CatalogoPag() { // Componente principal de la página de catálogo
     //sirve para que otros componentes que escuchen este evento puedan actualizarse
     setCarrito(carritoActualizado);
     localStorage.setItem('carrito', JSON.stringify(carritoActualizado));
-    
+
     handleCloseModal(); // Cierra el modal después de agregar al carrito, handleCloseModal declarada arriba
     window.dispatchEvent(new Event('storage'));// Notifica otros componentes del cambio en el carrito 
   };
@@ -163,7 +164,7 @@ function CatalogoPag() { // Componente principal de la página de catálogo
       cantidad: 1,
       id: `${producto.id}-Simple`
     };
-    
+
     // Verifica si el ítem ya existe en el carrito y 
     // actualiza la cantidad si es así, de lo contrario lo agrega como nuevo ítem
     //ocurre porque el botón '+'  no abre el modal,
@@ -183,7 +184,7 @@ function CatalogoPag() { // Componente principal de la página de catálogo
     localStorage.setItem('carrito', JSON.stringify(carritoActualizado));
     window.dispatchEvent(new Event('storage'));
   };
-  
+
   // Agrupa los productos por categoría para facilitar la renderización
   // MODIFICADO: Ahora usa el estado 'productos' (desde BD) en lugar de 'productosDB' (datos locales)
   const agruparPorCategoria = () => {
@@ -199,10 +200,10 @@ function CatalogoPag() { // Componente principal de la página de catálogo
     });
     return grupos; // Devuelve el objeto con categorías y sus productos
   };
-  
+
   // Obtiene los productos agrupados por categoría
   const productosAgrupados = agruparPorCategoria();
-  
+
   // Calcula el total del carrito
   const calcularTotal = () => {
     return carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0); // Suma el precio por cantidad de cada ítem
@@ -233,7 +234,7 @@ function CatalogoPag() { // Componente principal de la página de catálogo
 
   // ========== RENDERIZADO CONDICIONAL ==========
   // Antes de mostrar la página completa, verificamos el estado de carga
-  
+
   // Si está cargando, mostrar spinner de carga
   if (loading) {
     return (
@@ -264,7 +265,7 @@ function CatalogoPag() { // Componente principal de la página de catálogo
               <h4 className="alert-heading">Error</h4>
               <p>{error}</p>
               <hr />
-              <button 
+              <button
                 className="btn btn-warning"
                 onClick={() => window.location.reload()}
               >
@@ -302,35 +303,35 @@ function CatalogoPag() { // Componente principal de la página de catálogo
           </div>
         </div>
       </div>
-      
+
       {/* Contenido principal con productos agrupados por categoría */}
       <main className="contenido-principal">
         <div className="container py-4">
           {Object.entries(productosAgrupados).map(([categoria, productos]) => (
-            <section 
+            <section
               key={categoria} // ID basado en el nombre de la categoría con esta Key se crea un ancla para la navegación y se hace scroll a esa sección al hacer click en el botón de la categoría
               id={categoria.toLowerCase().replace(/\s+/g, '-')}  // ID para navegación
               className="categoria-seccion"
             >
               <h2 className="titulo-categoria">{categoria}</h2>
-              
-              {/*Grid de productos*/ }
+
+              {/*Grid de productos*/}
               <div className="productos-grid-horizontal">
                 {productos.map(producto => (
                   <div key={producto.id} className="producto-horizontal">
                     {/* Imagen a la izquierda */}
-                    <div 
+                    <div
                       className="producto-imagen-izq"
                       onClick={() => handleOpenModal(producto)}
                       style={{ backgroundImage: `url(${producto.imagen})` }}
                     >
                     </div>
-                    
+
                     {/* Info a la derecha */}
                     <div className="producto-info-der">
                       <h3 className="producto-nombre">{producto.nombre}</h3>
                       <p className="producto-descripcion">{producto.descripcion}</p>
-                      
+
                       <div className="producto-acciones">
                         <div className="producto-precio-box">
                           <span className="producto-precio">
@@ -338,7 +339,7 @@ function CatalogoPag() { // Componente principal de la página de catálogo
                           </span>
                           <span className="producto-unidad">c/u</span>
                         </div>
-                        <button 
+                        <button
                           className="btn-producto-agregar"
                           onClick={() => handleQuickAdd(producto)}
                           title='Agregar al carrito'
@@ -357,33 +358,33 @@ function CatalogoPag() { // Componente principal de la página de catálogo
 
       {/* Barra de checkout inferior */}
       {carrito.length > 0 && ( // Muestra la barra de checkout solo si hay productos en el carrito, Si el length del carrito es mayor a 0
-        <div className="checkout-bar-fixed"> 
+        <div className="checkout-bar-fixed">
           <div className="container">
             <div className="checkout-contenido">
               <span className="checkout-total">
                 Total: <strong>${calcularTotal().toLocaleString('es-CL')}</strong>
               </span>
-              <a href="/carrito" className="btn-pagar">
-                Ir a pagar ({calcularTotalItems()}) 
-              </a>
+              <Link to="/carrito" className="btn-pagar">
+                Ir a pagar ({calcularTotalItems()})
+              </Link>
             </div>
           </div>
         </div>
       )}
 
       {/* Modal de producto */}
-      <Modal 
+      <Modal
         show={showModal} // Muestra el modal si showModal es true (cuando se hace click en un producto)
         onHide={handleCloseModal}  // Se cierra el modal (cuando se hace click fuera )
         size="xl" // Tamaño extra grande 
         centered // Centrado verticalmente
         className="modal-producto" // Clase personalizada para estilos
       >
-        <Modal.Body className="p-0"> 
+        <Modal.Body className="p-0">
           {selectedProduct && (
             <div className="modal-producto-contenido">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="modal-cerrar"
                 onClick={handleCloseModal}
               >
@@ -392,8 +393,8 @@ function CatalogoPag() { // Componente principal de la página de catálogo
               {/* Grid del modal con imagen e info */}
               <div className="modal-grid">
                 <div className="modal-imagen-seccion">
-                  <img 
-                    src={selectedProduct.imagen} 
+                  <img
+                    src={selectedProduct.imagen}
                     alt={selectedProduct.nombre}
                     className="modal-imagen"
                   />
@@ -402,32 +403,32 @@ function CatalogoPag() { // Componente principal de la página de catálogo
                 <div className="modal-info-seccion">
                   <h3 className="modal-titulo">{selectedProduct.nombre}</h3>
                   <p className="modal-descripcion">{selectedProduct.descripcion}</p>
-                  
+
                   <div className="modal-precio">
-                    ${selectedSize === 'Doble' 
+                    ${selectedSize === 'Doble'
                       ? (selectedProduct.precio * 1.5).toLocaleString('es-CL')
                       : selectedProduct.precio.toLocaleString('es-CL')}
                   </div>
-                      {/* Separador */ }
+                  {/* Separador */}
                   <hr className="modal-separador" />
-                  {/* Opciones de tamaño para burgers y combos */ }
+                  {/* Opciones de tamaño para burgers y combos */}
                   {(selectedProduct.categoria === 'Burgers' || selectedProduct.categoria === 'Combos') && (
                     <div className="modal-opciones">
                       <label className="modal-label">Selecciona el tamaño:</label>
                       <div className="modal-radio-group">
                         <label className="radio-option">
-                          <input 
-                            type="radio" 
-                            name="sizeBurger" 
+                          <input
+                            type="radio"
+                            name="sizeBurger"
                             checked={selectedSize === 'Simple'}
                             onChange={() => setSelectedSize('Simple')}
                           />
                           <span>Simple</span>
                         </label>
                         <label className="radio-option">
-                          <input 
-                            type="radio" 
-                            name="sizeBurger" 
+                          <input
+                            type="radio"
+                            name="sizeBurger"
                             checked={selectedSize === 'Doble'}
                             onChange={() => setSelectedSize('Doble')}
                           />
@@ -437,7 +438,7 @@ function CatalogoPag() { // Componente principal de la página de catálogo
                     </div>
                   )}
 
-                  <button 
+                  <button
                     className="modal-btn-agregar"
                     onClick={handleAddToCart}
                   >
