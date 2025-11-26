@@ -12,6 +12,8 @@ import {
   obtenerTodasCiudades,
   actualizarPerfilCliente
 } from '../../services/usuariosService';
+import { getPedidosPorCliente, getDetallesPedido } from '../../services/pedidosService';
+import { obtenerProductoPorId } from '../../services/catalogoService';
 import './MiPerfilPag.css';
 
 export default function MiPerfilPag() {
@@ -21,6 +23,8 @@ export default function MiPerfilPag() {
   const [cliente, setCliente] = useState(null);
   const [direcciones, setDirecciones] = useState([]);
   const [ciudades, setCiudades] = useState([]);
+  const [pedidos, setPedidos] = useState([]);
+  const [detallesPedidos, setDetallesPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
@@ -41,10 +45,57 @@ export default function MiPerfilPag() {
     alias: ''
   });
 
+  // Estados para modal de detalles de pedido
+  const [showModalPedido, setShowModalPedido] = useState(false);
+  const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
+  const [productosDelPedido, setProductosDelPedido] = useState({});
+
   // Función helper para obtener nombre de ciudad
   const getNombreCiudad = (idCiudad) => {
     const ciudad = ciudades.find(c => c.idCiudad === idCiudad);
     return ciudad ? ciudad.nombreCiudad : `Ciudad ID: ${idCiudad}`;
+  };
+
+  // Helper: Obtener nombre del estado por ID
+  const getNombreEstadoPedido = (idEstadoPedido) => {
+    if (!idEstadoPedido) return 'Pendiente';
+
+    const mapeoEstados = {
+      1: 'Pendiente de Pago',
+      2: 'Pagado',
+      3: 'Recibido',
+      4: 'En preparación',
+      5: 'En camino',
+      6: 'Entregado',
+      7: 'Cancelado'
+    };
+
+    return mapeoEstados[idEstadoPedido] || `Estado ${idEstadoPedido}`;
+  };
+
+  // Helper: Obtener nombre del método de pago por ID
+  const getNombreMetodoPago = (idMetodoPago) => {
+    if (!idMetodoPago) return '-';
+
+    const mapeoMetodosPago = {
+      1: 'Webpay',
+      2: 'Efectivo',
+      3: 'Mercado Pago'
+    };
+
+    return mapeoMetodosPago[idMetodoPago] || `Método ${idMetodoPago}`;
+  };
+
+  // Helper: Obtener nombre del tipo de entrega por ID
+  const getNombreTipoEntrega = (idTipoEntrega) => {
+    if (!idTipoEntrega) return '-';
+
+    const mapeoTiposEntrega = {
+      1: 'Delivery',
+      2: 'Retiro en Local'
+    };
+
+    return mapeoTiposEntrega[idTipoEntrega] || `Tipo ${idTipoEntrega}`;
   };
 
   // Verificar si el usuario está logueado
@@ -54,8 +105,53 @@ export default function MiPerfilPag() {
       navigate('/login');
       return;
     }
+
     cargarDatosCliente();
   }, [navigate]);
+
+  // Cargar productos cuando se selecciona un pedido
+  useEffect(() => {
+    const cargarProductosPedido = async () => {
+      if (!pedidoSeleccionado) {
+        setProductosDelPedido({});
+        return;
+      }
+
+      // Filtrar detalles del pedido seleccionado
+      const detallesDelPedido = detallesPedidos.filter(
+        det => (det.idPedido || det.ID_PEDIDO) === pedidoSeleccionado.idPedido
+      );
+
+      // Si no hay detalles del endpoint, usar los del pedido
+      const detalles = detallesDelPedido.length > 0
+        ? detallesDelPedido
+        : (pedidoSeleccionado.detalles || []);
+
+      // Cargar productos que no tengan nombre
+      const productosMap = {};
+      for (const detalle of detalles) {
+        const idProducto = detalle.idProducto || detalle.ID_PRODUCTO;
+        const tieneNombre = detalle.nombreProducto || detalle.NOMBRE_PRODUCTO;
+
+        if (!tieneNombre && idProducto) {
+          try {
+            console.log(`🔍 Cargando producto ID: ${idProducto}`);
+            const producto = await obtenerProductoPorId(idProducto);
+            console.log(`✅ Producto ${idProducto} cargado:`, producto);
+            if (producto) {
+              productosMap[idProducto] = producto;
+            }
+          } catch (error) {
+            console.error(`❌ Error cargando producto ${idProducto}:`, error);
+          }
+        }
+      }
+
+      setProductosDelPedido(productosMap);
+    };
+
+    cargarProductosPedido();
+  }, [pedidoSeleccionado, detallesPedidos]);
 
   // Función para cargar datos del cliente desde la API
   const cargarDatosCliente = async () => {
@@ -84,14 +180,14 @@ export default function MiPerfilPag() {
               localStorage.setItem('userId', firebaseUid);
             }
           } catch (e) {
-            console.error('❌ Error parseando user:', e);
+            console.error(' Error parseando user:', e);
           }
         }
       }
 
       if (!firebaseUid || firebaseUid === 'undefined') {
-        console.error('❌ No se pudo obtener el UID del usuario');
-        console.log('📋 localStorage completo:', {
+        console.error(' No se pudo obtener el UID del usuario');
+        console.log(' localStorage completo:', {
           userId: localStorage.getItem('userId'),
           user: localStorage.getItem('user'),
           userName: localStorage.getItem('userName'),
@@ -126,11 +222,19 @@ export default function MiPerfilPag() {
         telefonoCliente: clienteData.telefonoCliente || ''
       });
 
-      // Cargar direcciones del cliente
+      // Cargar direcciones, pedidos y detalles del cliente
       if (clienteData.idCliente) {
-        const direccionesData = await obtenerDireccionesPorCliente(clienteData.idCliente);
+        const [direccionesData, pedidosData, detallesData] = await Promise.all([
+          obtenerDireccionesPorCliente(clienteData.idCliente),
+          getPedidosPorCliente(clienteData.idCliente),
+          getDetallesPedido(clienteData.idCliente)
+        ]);
         console.log('✅ Direcciones cargadas:', direccionesData);
+        console.log('✅ Pedidos cargados:', pedidosData);
+        console.log('✅ Detalles cargados:', detallesData);
         setDirecciones(direccionesData);
+        setPedidos(pedidosData);
+        setDetallesPedidos(detallesData);
       }
 
     } catch (error) {
@@ -233,7 +337,7 @@ export default function MiPerfilPag() {
       });
 
     } catch (error) {
-      console.error('❌ Error actualizando perfil:', error);
+      console.error(' Error actualizando perfil:', error);
       setMensaje({
         tipo: 'danger',
         texto: error.response?.data?.message || 'Error al actualizar el perfil. Por favor, intenta nuevamente.'
@@ -274,6 +378,18 @@ export default function MiPerfilPag() {
       direccion: '',
       alias: ''
     });
+  };
+
+  // Abrir modal de detalles del pedido
+  const handleVerDetallePedido = (pedido) => {
+    setPedidoSeleccionado(pedido);
+    setShowModalPedido(true);
+  };
+
+  // Cerrar modal de detalles del pedido
+  const handleCerrarModalPedido = () => {
+    setShowModalPedido(false);
+    setPedidoSeleccionado(null);
   };
 
   // Manejar cambios en el formulario de dirección
@@ -369,7 +485,7 @@ export default function MiPerfilPag() {
       });
 
     } catch (error) {
-      console.error('❌ Error eliminando dirección:', error);
+      console.error(' Error eliminando dirección:', error);
       setMensaje({
         tipo: 'danger',
         texto: error.response?.data?.message || 'Error al eliminar la dirección. Por favor, intenta nuevamente.'
@@ -415,7 +531,7 @@ export default function MiPerfilPag() {
         <Row>
           {/* Columna izquierda - Datos del perfil */}
           <Col lg={6} className="mb-4">
-            <Card className="shadow-sm perfil-card" style={{ maxHeight: '600px' }}>
+            <Card className="shadow-sm perfil-card">
               <Card.Header className="bg-dark text-white d-flex justify-content-between align-items-center">
                 <h5 className="mb-0">
                   <i className="bi bi-person-badge me-2"></i>
@@ -433,7 +549,7 @@ export default function MiPerfilPag() {
                   </Button>
                 )}
               </Card.Header>
-              <Card.Body style={{ maxHeight: '500px', overflowY: 'auto' }}>
+              <Card.Body>
                 {!editandoPerfil ? (
                   // Modo visualización
                   <>
@@ -562,14 +678,14 @@ export default function MiPerfilPag() {
 
           {/* Columna derecha - Direcciones */}
           <Col lg={6} className="mb-4">
-            <Card className="shadow-sm perfil-card" style={{ maxHeight: '600px' }}>
+            <Card className="shadow-sm perfil-card">
               <Card.Header className="bg-dark text-white d-flex justify-content-between align-items-center">
                 <h5 className="mb-0">
                   <i className="bi bi-geo-alt me-2"></i>
                   Mis Direcciones
                 </h5>
-                <Button 
-                  variant="warning" 
+                <Button
+                  variant="warning"
                   size="sm"
                   onClick={() => handleAbrirModalDireccion()}
                   className="text-dark fw-semibold"
@@ -578,7 +694,7 @@ export default function MiPerfilPag() {
                   Agregar
                 </Button>
               </Card.Header>
-              <Card.Body style={{ maxHeight: '500px', overflowY: 'auto' }}>
+              <Card.Body>
                 {direcciones.length === 0 ? (
                   <div className="text-center text-muted py-4">
                     <i className="bi bi-house-x display-4"></i>
@@ -636,6 +752,102 @@ export default function MiPerfilPag() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Fila para Pedidos - Ancho completo */}
+        <Row>
+          <Col lg={12} className="mb-4">
+            <Card className="shadow-sm perfil-card">
+              <Card.Header className="bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 className="mb-0">
+                  <i className="bi bi-receipt me-2"></i>
+                  Mis Pedidos
+                </h5>
+                <Badge bg="warning" text="dark">
+                  {pedidos.length} {pedidos.length === 1 ? 'pedido' : 'pedidos'}
+                </Badge>
+              </Card.Header>
+              <Card.Body>
+                {pedidos.length === 0 ? (
+                  <div className="text-center text-muted py-5">
+                    <i className="bi bi-inbox display-4"></i>
+                    <p className="mt-3">No tienes pedidos registrados</p>
+                    <p className="small">Cuando realices tu primer pedido, aparecerá aquí</p>
+                  </div>
+                ) : (
+                  <div className="table-responsive">
+                    <Table striped hover className="mb-0">
+                      <thead>
+                        <tr>
+                          <th>N° Pedido</th>
+                          <th>Fecha</th>
+                          <th>Estado</th>
+                          <th>Método Pago</th>
+                          <th>Tipo Entrega</th>
+                          <th>Total</th>
+                          <th className="text-center">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {pedidos.map((pedido) => (
+                          <tr key={pedido.idPedido}>
+                            <td>
+                              <strong>#{pedido.idPedido}</strong>
+                            </td>
+                            <td>
+                              {(() => {
+                                const fecha = pedido.fechaPedido || pedido.FECHA_PEDIDO || pedido.fechaHoraPedido;
+                                if (!fecha) {
+                                  console.log('Pedido sin fecha:', pedido);
+                                  return '-';
+                                }
+                                try {
+                                  return new Date(fecha).toLocaleDateString('es-CL', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  });
+                                } catch (e) {
+                                  console.error('Error formateando fecha:', fecha, e);
+                                  return fecha;
+                                }
+                              })()}
+                            </td>
+                            <td>
+                              {getNombreEstadoPedido(pedido.idEstadoPedido || pedido.ID_ESTADO_PEDIDO)}
+                            </td>
+                            <td>
+                              {getNombreMetodoPago(pedido.idMetodoPago || pedido.ID_METODO_PAGO)}
+                            </td>
+                            <td>
+                              {getNombreTipoEntrega(pedido.idTipoEntrega || pedido.ID_TIPO_ENTREGA)}
+                            </td>
+                            <td>
+                              <strong className="text-success">
+                                ${pedido.montoTotal?.toLocaleString('es-CL') || '0'}
+                              </strong>
+                            </td>
+                            <td className="text-center">
+                              <Button
+                                variant="outline-primary"
+                                size="sm"
+                                onClick={() => handleVerDetallePedido(pedido)}
+                              >
+                                <i className="bi bi-eye me-1"></i>
+                                Ver
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
                   </div>
                 )}
               </Card.Body>
@@ -737,6 +949,166 @@ export default function MiPerfilPag() {
             </Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+
+      {/* Modal para ver detalles del pedido */}
+      <Modal show={showModalPedido} onHide={handleCerrarModalPedido} size="lg">
+        <Modal.Header closeButton className="bg-dark text-white">
+          <Modal.Title>
+            <i className="bi bi-receipt me-2"></i>
+            Detalle del Pedido #{pedidoSeleccionado?.idPedido}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {pedidoSeleccionado && (
+            <>
+              {/* Información del pedido */}
+              <div className="mb-4">
+                <Row>
+                  <Col md={6}>
+                    <p className="mb-2">
+                      <strong>Estado:</strong>{' '}
+                      <Badge bg="secondary">
+                        {getNombreEstadoPedido(pedidoSeleccionado.idEstadoPedido || pedidoSeleccionado.ID_ESTADO_PEDIDO)}
+                      </Badge>
+                    </p>
+                    <p className="mb-2">
+                      <strong>Fecha:</strong>{' '}
+                      {(() => {
+                        const fecha = pedidoSeleccionado.fechaPedido || pedidoSeleccionado.FECHA_PEDIDO || pedidoSeleccionado.fechaHoraPedido;
+                        if (!fecha) return '-';
+                        try {
+                          return new Date(fecha).toLocaleDateString('es-CL', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          });
+                        } catch {
+                          return fecha;
+                        }
+                      })()}
+                    </p>
+                  </Col>
+                  <Col md={6}>
+                    <p className="mb-2">
+                      <strong>Método de Pago:</strong>{' '}
+                      {getNombreMetodoPago(pedidoSeleccionado.idMetodoPago || pedidoSeleccionado.ID_METODO_PAGO)}
+                    </p>
+                    <p className="mb-2">
+                      <strong>Tipo de Entrega:</strong>{' '}
+                      {getNombreTipoEntrega(pedidoSeleccionado.idTipoEntrega || pedidoSeleccionado.ID_TIPO_ENTREGA)}
+                    </p>
+                  </Col>
+                </Row>
+              </div>
+
+              <hr />
+
+              {/* Lista de productos */}
+              <h5 className="mb-3">Productos del Pedido</h5>
+              {(() => {
+                // Filtrar detalles del pedido seleccionado
+                const detallesDelPedido = detallesPedidos.filter(
+                  det => (det.idPedido || det.ID_PEDIDO) === pedidoSeleccionado.idPedido
+                );
+
+                // Si no hay detalles del endpoint, intentar usar los del pedido
+                const detalles = detallesDelPedido.length > 0
+                  ? detallesDelPedido
+                  : (pedidoSeleccionado.detalles || []);
+
+                console.log('Detalles del pedido a mostrar:', detalles);
+                console.log('🗺️ Productos cargados en el mapa:', productosDelPedido);
+                console.log('🗺️ IDs de productos en el mapa:', Object.keys(productosDelPedido));
+
+                return detalles.length > 0 ? (
+                  <>
+                    <div className="list-group mb-3">
+                      {detalles.map((detalle, index) => (
+                        <div key={index} className="list-group-item">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <div className="flex-grow-1">
+                              <h6 className="mb-1">
+                                {(() => {
+                                  const idProducto = detalle.idProducto || detalle.ID_PRODUCTO;
+                                  const nombreDetalle = detalle.nombreProducto || detalle.NOMBRE_PRODUCTO || detalle.producto?.nombreProducto;
+
+                                  console.log(`🔍 Detalle completo:`, detalle);
+                                  console.log(`🔍 ID Producto: ${idProducto}, Nombre en detalle: ${nombreDetalle}`);
+
+                                  if (nombreDetalle) {
+                                    return nombreDetalle;
+                                  }
+
+                                  // Si no hay nombre en el detalle, buscar en productos cargados
+                                  if (idProducto && productosDelPedido[idProducto]) {
+                                    const producto = productosDelPedido[idProducto];
+                                    console.log(`📦 Producto ${idProducto} del mapa:`, producto);
+                                    console.log(`📦 Campos disponibles:`, Object.keys(producto));
+
+                                    return producto.nombreProducto ||
+                                           producto.NOMBRE_PRODUCTO ||
+                                           producto.nombre ||
+                                           producto.name ||
+                                           'Producto sin nombre';
+                                  }
+
+                                  return 'Cargando...';
+                                })()}
+                              </h6>
+                              <p className="mb-0 text-muted small">
+                                Precio unitario: ${(detalle.precioUnitario || detalle.PRECIO_UNITARIO || 0).toLocaleString('es-CL')}
+                              </p>
+                            </div>
+                            <div className="text-end ms-3">
+                              <p className="mb-0">
+                                <strong>Cantidad:</strong> {detalle.cantidad || detalle.CANTIDAD || 0}
+                              </p>
+                              <p className="mb-0 text-success">
+                                <strong>Subtotal: ${(detalle.subtotalLinea || detalle.SUBTOTAL_LINEA || 0).toLocaleString('es-CL')}</strong>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Resumen de totales */}
+                    <div className="bg-light p-3 rounded">
+                      <div className="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <strong>${(pedidoSeleccionado.montoSubtotal || 0).toLocaleString('es-CL')}</strong>
+                      </div>
+                      <div className="d-flex justify-content-between mb-2">
+                        <span>Envío:</span>
+                        <strong>${(pedidoSeleccionado.montoEnvio || 0).toLocaleString('es-CL')}</strong>
+                      </div>
+                      <hr />
+                      <div className="d-flex justify-content-between">
+                        <span className="h5 mb-0">Total:</span>
+                        <span className="h5 mb-0 text-success">
+                          ${(pedidoSeleccionado.montoTotal || 0).toLocaleString('es-CL')}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <Alert variant="warning">
+                    <i className="bi bi-exclamation-triangle me-2"></i>
+                    No hay detalles de productos disponibles para este pedido
+                  </Alert>
+                );
+              })()}
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCerrarModalPedido}>
+            Cerrar
+          </Button>
+        </Modal.Footer>
       </Modal>
 
       <FooterComp />

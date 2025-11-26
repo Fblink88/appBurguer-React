@@ -13,6 +13,7 @@ import '../../styles/carrito.css';
 function CarroPag() {
   const navigate = useNavigate(); // Hook para navegar entre páginas
   const [carrito, setCarrito] = useState([]); // Estado que guarda los productos del carrito
+  const [userRole, setUserRole] = useState(null); // Estado para el rol del usuario
 
   // useEffect se ejecuta cuando se carga la página
   // Carga el carrito desde localStorage (memoria del navegador)
@@ -21,6 +22,10 @@ function CarroPag() {
     if (carritoGuardado) {
       setCarrito(JSON.parse(carritoGuardado)); // Convertir de texto a objeto JavaScript
     }
+
+    // Cargar el rol del usuario
+    const role = localStorage.getItem('userRole');
+    setUserRole(role);
   }, []);
 
   // Cada vez que el carrito cambia, lo guardamos en localStorage
@@ -98,8 +103,14 @@ function CarroPag() {
       return;
     }
 
-    try {  // ⬅️ ⬅️ ⬅️ ESTE "try {" ES EL QUE FALTA
-      // 2. Verificar que el usuario esté logueado
+    // 2. Verificar que el usuario sea Cliente (no Admin o Trabajador)
+    if (userRole === 'Admin' || userRole === 'Trabajador') {
+      alert('⚠️ Recuerda que solo los clientes pueden hacer pedidos desde vista cliente.\n\nPor favor, usa el panel de administración para gestionar pedidos.');
+      return;
+    }
+
+    try {
+      // 3. Verificar que el usuario esté logueado
       const firebaseUid = localStorage.getItem('userId');
       if (!firebaseUid) {
         alert('Debes iniciar sesión para continuar');

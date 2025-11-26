@@ -1,29 +1,21 @@
 /* Estilos específicos para la página Mi Perfil */
 
-/* Scrollbar personalizada SOLO para cards de perfil */
-.perfil-card .card-body::-webkit-scrollbar {
-  width: 12px !important;
+/* Cards de perfil - misma altura para todos */
+.perfil-card {
+  height: 100% !important;
+  max-height: none !important;
+  display: flex;
+  flex-direction: column;
 }
 
-.perfil-card .card-body::-webkit-scrollbar-track {
-  background: #3a3a3a !important;
-  border-radius: 10px;
-  margin: 5px;
-}
-
-.perfil-card .card-body::-webkit-scrollbar-thumb {
-  background: #ffc107 !important;
-  border-radius: 10px;
-  border: 2px solid #2a2a2a;
-}
-
-.perfil-card .card-body::-webkit-scrollbar-thumb:hover {
-  background: #e0b300 !important;
-  border: 2px solid #2a2a2a;
-}
-
-/* Firefox */
 .perfil-card .card-body {
-  scrollbar-width: thin !important;
-  scrollbar-color: #ffc107 #3a3a3a !important;
+  flex: 1;
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: visible !important;
+}
+
+/* Input deshabilitado - texto más claro para mejor legibilidad */
+.form-control:disabled {
+  color: #adb5bd !important;
 }

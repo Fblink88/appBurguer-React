@@ -64,8 +64,8 @@ function CatalogoPag() { // Componente principal de la página de catálogo
           const carritoFiltrado = carritoActual.filter(item => {// Filtrar solo productos disponibles
             //extrae los IDs de los productos del carrito y verifica si están en la lista de productos disponibles
             // Extraer ID base (antes del guion)
-             const idProducto = parseInt(item.id.split('-')[0]);
-            idsDisponibles.includes(idProducto);
+            const idProducto = parseInt(item.id.split('-')[0]);
+            return idsDisponibles.includes(idProducto); // ⬅️ AGREGADO 'return' para que el filter funcione correctamente
         });
 
         // Si cambió el carrito, actualizar localStorage y estado
@@ -213,6 +213,24 @@ function CatalogoPag() { // Componente principal de la página de catálogo
     return carrito.reduce((total, item) => total + item.cantidad, 0);
   };
 
+  // Función para hacer scroll suave a una categoría
+  const scrollToCategoria = (categoria) => {
+    const elementId = categoria.toLowerCase().replace(/\s+/g, '-');
+    const elemento = document.getElementById(elementId);
+    if (elemento) {
+      // Obtener la posición del elemento
+      const elementPosition = elemento.getBoundingClientRect().top + window.pageYOffset;
+      // Offset para compensar el header y la barra de categorías (ajusta este valor según necesites)
+      const offset = 170; // px de espacio superior
+
+      // Hacer scroll con offset
+      window.scrollTo({
+        top: elementPosition - offset,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   // ========== RENDERIZADO CONDICIONAL ==========
   // Antes de mostrar la página completa, verificamos el estado de carga
   
@@ -271,15 +289,15 @@ function CatalogoPag() { // Componente principal de la página de catálogo
       {/*Funcion de mapeo */}
       <div className="categorias-nav">
         <div className="container">
-          <div className="categorias-wrapper"> 
+          <div className="categorias-wrapper">
             {Object.keys(productosAgrupados).map(categoria => ( // Recorre las categorías para crear los enlaces de navegación
-              <a 
+              <button
                 key={categoria} // Clave única para cada categoría
                 className="btn-categoria" // Clase para estilo de botón de categoría
-                href={`#${categoria.toLowerCase().replace(/\s+/g, '-')}`} // Convierte el nombre de la categoría en un ID válido para el enlace
+                onClick={() => scrollToCategoria(categoria)} // Hace scroll suave a la categoría
               >
                 {categoria}
-              </a>
+              </button>
             ))}
           </div>
         </div>

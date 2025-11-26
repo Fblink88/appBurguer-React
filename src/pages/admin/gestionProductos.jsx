@@ -26,6 +26,9 @@ function GestionProductos() {
   const [imagenFile, setImagenFile] = useState(null);
   const [imagenPreview, setImagenPreview] = useState(null);
 
+  // Estado para edición
+  const [productoEditando, setProductoEditando] = useState(null);
+
   // Cargar productos al iniciar
   useEffect(() => {
     cargarProductos();
@@ -71,28 +74,42 @@ function GestionProductos() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let productoCreado = null;
+    let productoResultado = null;
     let imagenSubidaExitosamente = false;
 
     try {
       setLoading(true);
 
-      // PASO 1: Preparar datos del producto (SIN imagen)
+      // PASO 1: Preparar datos del producto
       const productoData = {
         nombre: formData.nombre,
         idCategoria: parseInt(formData.idCategoria),
         precio: parseFloat(formData.precio),
         descripcion: formData.descripcion,
-        imagen: "", // Se dejará vacío, se subirá después
         disponible: formData.disponible === true || formData.disponible === 'true',
       };
 
-      // PASO 2: Crear producto en el backend (POST /api/catalogo/productos)
-      productoCreado = await productosService.crearProducto(productoData);
-      console.log("✅ Producto creado:", productoCreado);
+      // PASO 2: Crear o Actualizar producto
+      if (productoEditando) {
+        // MODO EDICIÓN: Actualizar producto existente
+        const idProducto = productoEditando.idProducto || productoEditando.id;
 
-      // PASO 3: Si hay una imagen, intentar subirla a Firebase
-      const idProducto = productoCreado.idProducto || productoCreado.id;
+        // Si no hay nueva imagen, mantener la anterior
+        if (!imagenFile) {
+          productoData.imagen = formData.imagen;
+        }
+
+        productoResultado = await productosService.actualizarProducto(idProducto, productoData);
+        console.log("✅ Producto actualizado:", productoResultado);
+      } else {
+        // MODO CREACIÓN: Crear nuevo producto
+        productoData.imagen = ""; // Se subirá después
+        productoResultado = await productosService.crearProducto(productoData);
+        console.log("✅ Producto creado:", productoResultado);
+      }
+
+      // PASO 3: Si hay una imagen nueva, intentar subirla a Firebase
+      const idProducto = productoResultado.idProducto || productoResultado.id;
       if (imagenFile && idProducto) {
         try {
           console.log("📤 Subiendo imagen a Firebase...");
@@ -100,37 +117,29 @@ function GestionProductos() {
           console.log("✅ Imagen subida:", resultado.imageUrl);
           imagenSubidaExitosamente = true;
         } catch (imagenError) {
-          console.error("⚠️ Error al subir imagen (producto creado sin imagen):", imagenError);
-          // No lanzar el error, solo mostrar advertencia
-          alert(`Producto creado exitosamente, pero hubo un error al subir la imagen.\nPuedes editarlo después para agregar la imagen.\n\nError: ${imagenError.response?.data?.message || imagenError.message}`);
+          console.error("⚠️ Error al subir imagen:", imagenError);
+          alert(`Producto guardado exitosamente, pero hubo un error al subir la imagen.\nPuedes editarlo después para agregar la imagen.\n\nError: ${imagenError.response?.data?.message || imagenError.message}`);
         }
       }
 
       // PASO 4: Recargar la lista de productos
       await cargarProductos();
 
-      // PASO 5: Limpiar formulario
-      setFormData({
-        nombre: "",
-        idCategoria: "",
-        precio: "",
-        descripcion: "",
-        imagen: "",
-        disponible: true,
-      });
-      setImagenFile(null);
-      setImagenPreview(null);
+      // PASO 5: Limpiar formulario y estado de edición
+      handleCancelarEdicion();
 
       // Resetear el input de archivo
       e.target.reset();
 
-      // Mensaje de éxito solo si todo salió bien
+      // Mensaje de éxito
+      const accion = productoEditando ? "actualizado" : "agregado";
       if (imagenSubidaExitosamente || !imagenFile) {
-        alert("Producto agregado exitosamente");
+        alert(`Producto ${accion} exitosamente`);
       }
     } catch (error) {
-      console.error("❌ Error al agregar producto:", error);
-      alert("Error al agregar producto: " + (error.response?.data?.message || error.message));
+      const accion = productoEditando ? "actualizar" : "agregar";
+      console.error(`❌ Error al ${accion} producto:`, error);
+      alert(`Error al ${accion} producto: ` + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }
@@ -154,6 +163,37 @@ function GestionProductos() {
     }
   };
 
+  // Función para editar producto (cargar datos en el formulario)
+  const handleEditar = (producto) => {
+    setProductoEditando(producto);
+    setFormData({
+      nombre: producto.nombreProducto || producto.nombre || "",
+      idCategoria: producto.idCategoria?.toString() || "",
+      precio: (producto.precioBase || producto.precio)?.toString() || "",
+      descripcion: producto.descripcion || "",
+      imagen: producto.imagen || "",
+      disponible: producto.disponible ?? true,
+    });
+    setImagenPreview(producto.imagen || null);
+    // Scroll al formulario
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Función para cancelar edición
+  const handleCancelarEdicion = () => {
+    setProductoEditando(null);
+    setFormData({
+      nombre: "",
+      idCategoria: "",
+      precio: "",
+      descripcion: "",
+      imagen: "",
+      disponible: true,
+    });
+    setImagenFile(null);
+    setImagenPreview(null);
+  };
+
 
   return (
     <>
@@ -170,7 +210,14 @@ function GestionProductos() {
           <div className="form-container-producto">{/* Contenedor Principal */}
 
             <form className="form-producto" onSubmit={handleSubmit}>
-              <h1 className="titulo-gp">Gestión de Productos</h1>
+              <h1 className="titulo-gp">
+                {productoEditando ? 'Editar Producto' : 'Gestión de Productos'}
+              </h1>
+              {productoEditando && (
+                <p style={{ color: '#ffc107', marginBottom: '15px' }}>
+                  <strong>Editando:</strong> {productoEditando.nombreProducto || productoEditando.nombre}
+                </p>
+              )}
 
               <label htmlFor="nombre">Nombre del Producto</label>
               <input
@@ -257,12 +304,25 @@ function GestionProductos() {
                 <option value={false}>No disponible</option>
               </select>
 
-              <input
-                className="btn-agregar"
-                type="submit"
-                value={loading ? "Guardando..." : "Agregar Producto"}
-                disabled={loading}
-              />
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <input
+                  className="btn-agregar"
+                  type="submit"
+                  value={loading ? "Guardando..." : (productoEditando ? "Actualizar Producto" : "Agregar Producto")}
+                  disabled={loading}
+                  style={{ flex: productoEditando ? '1' : 'auto' }}
+                />
+                {productoEditando && (
+                  <button
+                    type="button"
+                    className="btn-eliminar"
+                    onClick={handleCancelarEdicion}
+                    disabled={loading}
+                  >
+                    Cancelar
+                  </button>
+                )}
+              </div>
             </form>
           </div>
           {/* Tabla de productos */}
@@ -320,13 +380,24 @@ function GestionProductos() {
                       </span>
                     </td>
                     <td data-label="Acciones">
-                      <button
-                        className="btn-eliminar"
-                        onClick={() => handleEliminar(prod.idProducto || prod.id)}
-                        disabled={loading}
-                      >
-                        Eliminar
-                      </button>
+                      <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <button
+                          className="btn-agregar"
+                          onClick={() => handleEditar(prod)}
+                          disabled={loading}
+                          style={{ fontSize: '0.85em', padding: '6px 12px', minWidth: '70px' }}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          className="btn-eliminar"
+                          onClick={() => handleEliminar(prod.idProducto || prod.id)}
+                          disabled={loading}
+                          style={{ fontSize: '0.85em', padding: '6px 12px', minWidth: '70px' }}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

@@ -418,6 +418,11 @@
   color: #ffc107;
 }
 
+/* MODAL DIRECCION */
+.modal-body .form-label {
+  color: #212529 !important;
+}
+
 @media (max-width: 992px) {
   .checkout-grid {
     grid-template-columns: 1fr;

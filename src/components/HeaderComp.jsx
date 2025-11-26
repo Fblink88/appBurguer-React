@@ -10,6 +10,7 @@ import logo from '/src/assets/img/Logo.JPG';
 export default function HeaderComp() {
   // --- 1. LÓGICA Y ESTADO (Esto no cambia) ---
   const [usuario, setUsuario] = useState(null);
+  const [userRole, setUserRole] = useState(null);
 // estado para el contador del carrito
   const [contadorCarrito, setContadorCarrito] = useState(0);
 //===============================================================================
@@ -19,7 +20,9 @@ export default function HeaderComp() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (isLoggedIn) {
       const userName = localStorage.getItem('userName');
+      const role = localStorage.getItem('userRole');
       setUsuario({ nombre: userName });
+      setUserRole(role);
     }
   }, []);
 
@@ -112,10 +115,22 @@ export default function HeaderComp() {
             {usuario ? (
               // Usamos el componente <NavDropdown> para el menú de usuario. Es mucho más limpio.
               <NavDropdown title={`Hola, ${usuario.nombre}`} id="basic-nav-dropdown" menuVariant="dark">
-                <NavDropdown.Item as={Link} to="/mi-perfil">
-                  <i className="bi bi-person-circle me-2"></i>
-                  Mi Perfil
-                </NavDropdown.Item>
+                {/* Mi Perfil - Solo visible para Cliente */}
+                {userRole === 'Cliente' && (
+                  <NavDropdown.Item as={Link} to="/mi-perfil">
+                    <i className="bi bi-person-circle me-2"></i>
+                    Mi Perfil
+                  </NavDropdown.Item>
+                )}
+
+                {/* Panel de Administración - Solo visible para Admin y Trabajador */}
+                {(userRole === 'Admin' || userRole === 'Trabajador') && (
+                  <NavDropdown.Item as={Link} to="/admin/dashboard">
+                    <i className="bi bi-gear-fill me-2"></i>
+                    Panel de Administración
+                  </NavDropdown.Item>
+                )}
+
                 <NavDropdown.Divider />
                 <NavDropdown.Item onClick={handleLogout}>
                   <i className="bi bi-box-arrow-right me-2"></i>

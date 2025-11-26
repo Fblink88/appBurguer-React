@@ -471,7 +471,7 @@ function CheckoutPag() {
         <Modal.Body>
           <Form onSubmit={handleGuardarDireccion}>
             <Form.Group className="mb-3">
-              <Form.Label>Ciudad *</Form.Label>
+              <Form.Label className="text-dark">Ciudad *</Form.Label>
               <Form.Select name="idCiudad" value={formDireccion.idCiudad} onChange={handleChangeDireccion} required>
                 <option value="">Selecciona</option>
                 {ciudades.map((c) => (
@@ -480,11 +480,11 @@ function CheckoutPag() {
               </Form.Select>
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Dirección *</Form.Label>
+              <Form.Label className="text-dark" >Dirección *</Form.Label>
               <Form.Control type="text" name="direccion" value={formDireccion.direccion} onChange={handleChangeDireccion} required />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Alias</Form.Label>
+              <Form.Label className="text-dark" >Alias</Form.Label>
               <Form.Control type="text" name="alias" value={formDireccion.alias} onChange={handleChangeDireccion} />
             </Form.Group>
             <div className="d-flex gap-2 justify-content-end">
