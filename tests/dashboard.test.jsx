@@ -1,77 +1,133 @@
-// Importaciones necesarias para ejecutar las pruebas
+import { describe, it, expect, afterEach, vi, beforeEach } from "vitest";
+import { render, screen, cleanup, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import Dashboard from "../src/pages/admin/dashboard";
 
+// Mock del Sidebar
+vi.mock('../src/components/Sidebar', () => ({
+  default: () => <div data-testid="sidebar">Sidebar</div>,
+}));
 
+// Mock de los servicios del dashboard
+const mockData = {
+  resumen: {
+    ventasHoy: { VENTA_HOY: 50000 },
+    ventasMesActual: { VENTA_MES_ACTUAL: 1000000 },
+    ventasAnioActual: { VENTA_ANIO_ACTUAL: 10000000 }
+  },
+  ventasMes: [
+    { MES: 'Enero', TOTAL_VENTA: 500000 },
+    { MES: 'Febrero', TOTAL_VENTA: 600000 }
+  ],
+  ventasCategoria: [
+    { CATEGORIA: 'Hamburguesas', TOTAL_VENTA: 300000 },
+    { CATEGORIA: 'Bebidas', TOTAL_VENTA: 200000 }
+  ],
+  ventasCiudad: [
+    { CIUDAD: 'Santiago', TOTAL_VENTA: 400000 },
+    { CIUDAD: 'Valparaíso', TOTAL_VENTA: 300000 }
+  ]
+};
 
-import { describe, it, expect, afterEach, } from "vitest";
+vi.mock('../src/services/dashboardService', () => ({
+  getResumenVentas: vi.fn(() => Promise.resolve(mockData.resumen)),
+  getVentasMesActual: vi.fn(() => Promise.resolve(mockData.resumen.ventasMesActual)),
+  getVentasAnioActual: vi.fn(() => Promise.resolve(mockData.resumen.ventasAnioActual)),
+  getVentasPorMes: vi.fn(() => Promise.resolve(mockData.ventasMes)),
+  getVentasPorCategoria: vi.fn(() => Promise.resolve(mockData.ventasCategoria)),
+  getVentasPorCiudad: vi.fn(() => Promise.resolve(mockData.ventasCiudad))
+}));
 
+// Mock de Chart.js
+vi.mock('chart.js/auto', () => {
+  const ChartMock = vi.fn(() => ({
+    destroy: vi.fn(),
+    update: vi.fn()
+  }));
+  ChartMock.register = vi.fn();
 
+  return {
+    default: ChartMock
+  };
+});
 
-import { render, screen, cleanup } from "@testing-library/react"; // renderiza el componente y permite hacer consultas sobre el DOM
-import { MemoryRouter } from "react-router-dom"; // simula un entorno de enrutamiento
-import Dashboard from "../src/pages/admin/dashboard"; // componente principal del panel de administración que se probará
-
-/* CONJUNTO DE PRUEBAS PARA EL DASHBOARD ADMINISTRADOR */
+vi.mock('chartjs-plugin-datalabels', () => ({
+  default: {}
+}));
 
 describe("Dashboard Admin", () => {
-  // Limpieza después de cada prueba
-  // La función cleanup desmonta el componente del DOM para evitar conflictos entre pruebas
-  afterEach(() => cleanup());
-
-  // Prueba 1: Renderizado del título principal
-  // Verifica que el encabezado <h1> con el texto esperado esté presente en el DOM
-  it("debería renderizar el título principal correctamente", () => {
-    render(
-      <MemoryRouter>
-        <Dashboard />
-      </MemoryRouter>
-    );
-
-    // Busca el encabezado principal por su nivel y texto
-    expect(
-      screen.getByRole("heading", { level: 1, name: "Bienvenido, Administrador" })
-    ).toBeInTheDocument();
+  beforeEach(() => {
+    // Mock de HTMLCanvasElement.getContext para evitar errores con Chart.js
+    HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
+      fillStyle: '',
+      fillRect: vi.fn(),
+      clearRect: vi.fn(),
+      getImageData: vi.fn(),
+      putImageData: vi.fn(),
+      createImageData: vi.fn(),
+      setTransform: vi.fn(),
+      drawImage: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      beginPath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      closePath: vi.fn(),
+      stroke: vi.fn(),
+      translate: vi.fn(),
+      scale: vi.fn(),
+      rotate: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
+      measureText: vi.fn(() => ({ width: 0 })),
+      transform: vi.fn(),
+      rect: vi.fn(),
+      clip: vi.fn(),
+    }));
   });
 
-  // Prueba 2: Visualización de las tarjetas de indicadores (KPIs)
-  // Comprueba que los títulos de las tarjetas principales estén visibles
-  it("debería mostrar las tarjetas de KPIs con sus títulos", () => {
+  afterEach(() => cleanup());
+
+  it("debería renderizar el título principal correctamente", async () => {
     render(
       <MemoryRouter>
         <Dashboard />
       </MemoryRouter>
     );
 
-    // Lista de los indicadores clave que deben renderizarse en el Dashboard
-    const titulos = [
-      "Ventas Totales",
-      "Usuarios Registrados",
-      "Nuevos Clientes",
-      "Tickets Soporte",
-    ];
-
-    // Recorre cada título y verifica que esté presente en el DOM
-    titulos.forEach((titulo) => {
-      expect(screen.getByText(titulo)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { level: 1, name: /Dashboard de Ventas/i })).toBeInTheDocument();
     });
   });
 
-  // Prueba 3: Renderizado de gráficos principales
-  // Asegura que los gráficos del Dashboard existan en el DOM
-  it("debería renderizar los tres gráficos principales", () => {
+  it("debería mostrar las tarjetas de KPIs con sus títulos", async () => {
     render(
       <MemoryRouter>
         <Dashboard />
       </MemoryRouter>
     );
 
-    // Busca los elementos mediante su atributo data-testid
-    expect(screen.getByTestId("chart-ventas")).toBeInTheDocument(); // gráfico de ventas totales
-    expect(screen.getByTestId("chart-progreso")).toBeInTheDocument(); // gráfico de progreso
-    expect(screen.getByTestId("chart-categorias")).toBeInTheDocument(); // gráfico de categorías de productos
+    await waitFor(() => {
+      expect(screen.getByText(/Ventas Mes/i)).toBeInTheDocument();
+      expect(screen.getByText(/Ventas Año/i)).toBeInTheDocument();
+      expect(screen.getByText(/Ventas Hoy/i)).toBeInTheDocument();
+    });
   });
 
-  // Prueba 4: Verificación del Sidebar en el layout
-  // Se comprueba que el panel lateral (aside) esté presente, lo que indica que el layout general es correcto
+  it("debería renderizar los tres gráficos principales", async () => {
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Ventas por Mes/i)).toBeInTheDocument();
+      expect(screen.getByText(/Ventas por Ciudad/i)).toBeInTheDocument();
+      expect(screen.getByText(/Ventas por Categoría/i)).toBeInTheDocument();
+    });
+  });
+
   it("debería incluir el Sidebar en el layout", () => {
     render(
       <MemoryRouter>
@@ -79,27 +135,21 @@ describe("Dashboard Admin", () => {
       </MemoryRouter>
     );
 
-    // Busca el elemento con rol 'complementary' (usado por <aside>)
-    expect(screen.getByRole("complementary")).toBeInTheDocument();
+    expect(screen.getByTestId('sidebar')).toBeInTheDocument();
   });
 
-  // Prueba 5: Creación y desmontaje correcto de los gráficos
-  // Se asegura que los gráficos se crean y eliminan sin generar errores
-  it("debería crear y limpiar correctamente los gráficos (sin errores)", () => {
-    // Renderiza el Dashboard y obtiene la función unmount (para desmontar el componente)
+  it("debería crear y limpiar correctamente los gráficos (sin errores)", async () => {
     const { unmount } = render(
       <MemoryRouter>
         <Dashboard />
       </MemoryRouter>
     );
 
-    // Verifica que los gráficos existen inicialmente
-    expect(screen.getByTestId("chart-ventas")).toBeInTheDocument();
-    expect(screen.getByTestId("chart-progreso")).toBeInTheDocument();
-    expect(screen.getByTestId("chart-categorias")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/Dashboard de Ventas/i)).toBeInTheDocument();
+    });
 
-    // Desmonta el componente simulando el cierre de la vista
-    // La prueba pasa si no lanza errores al desmontar
+    // No debería haber errores al desmontar el componente
     expect(() => unmount()).not.toThrow();
   });
 });

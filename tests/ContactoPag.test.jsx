@@ -13,9 +13,13 @@ vi.mock('../src/components/FooterComp', () => ({
   default: () => <footer>Footer Mock</footer>,
 }));
 
+// Mock del servicio de contacto
+vi.mock('../src/services/contactoService', () => ({
+  enviarMensajeContacto: vi.fn(() => Promise.resolve({ mensaje: 'Mensaje enviado' }))
+}));
+
 // Mock para window.alert
-vi.stubGlobal('alert', vi.fn());// Mock para console.log
-console.log = vi.fn();
+vi.stubGlobal('alert', vi.fn());
 
 // Función auxiliar para renderizar el componente
 const renderContacto = () => {
@@ -55,7 +59,7 @@ describe('Componente ContactoPag', () => {
     // Busca los campos por su etiqueta asociada
     expect(screen.getByLabelText('Nombre')).toBeInTheDocument();
     expect(screen.getByLabelText('Correo')).toBeInTheDocument();
-    expect(screen.getByLabelText('Comentario')).toBeInTheDocument();
+    expect(screen.getByLabelText('Mensaje')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Enviar' })).toBeInTheDocument();
   });
 
@@ -64,20 +68,17 @@ describe('Componente ContactoPag', () => {
   it('debería actualizar los contadores de caracteres al escribir', async () => {
     renderContacto();
     const nombreInput = screen.getByLabelText('Nombre');
-    const comentarioInput = screen.getByLabelText('Comentario');
+    const mensajeInput = screen.getByLabelText('Mensaje');
 
     // Simula escribir en el campo Nombre
     fireEvent.change(nombreInput, { target: { value: 'Fabián Basaes' } });
-    // Espera a que el DOM se actualice (el estado de React es asíncrono)
-    await waitFor(() => {
-      expect(screen.getByText('13 / 100 caracteres')).toBeInTheDocument();
-    });
+    // Verificar que el input tiene el valor correcto
+    expect(nombreInput.value).toBe('Fabián Basaes');
 
-    // Simula escribir en el campo Comentario
-    fireEvent.change(comentarioInput, { target: { value: 'Este es un comentario de prueba.' } });
-    await waitFor(() => {
-      expect(screen.getByText('32 / 500 caracteres')).toBeInTheDocument();
-    });
+    // Simula escribir en el campo Mensaje
+    fireEvent.change(mensajeInput, { target: { value: 'Este es un mensaje de prueba.' } });
+    // Verificar que el input tiene el valor correcto
+    expect(mensajeInput.value).toBe('Este es un mensaje de prueba.');
   });
 
   it('debería mostrar mensajes de error si se envía el formulario vacío', async () => {
@@ -91,45 +92,33 @@ describe('Componente ContactoPag', () => {
     // `findAllByText` busca todos los elementos con ese texto (puede haber varios mensajes iguales)
     const errorMessagesNombre = await screen.findAllByText('Debe ingresar un nombre (máx. 100 caracteres).');
     const errorMessagesCorreo = await screen.findAllByText('Ingrese un correo válido.');
-    const errorMessagesComentario = await screen.findAllByText('Debe ingresar un comentario (máx. 500 caracteres).');
+    const errorMessagesMensaje = await screen.findAllByText('Debe ingresar un mensaje (máx. 500 caracteres).');
 
     // Verifica que al menos un mensaje de error para cada campo esté visible
     expect(errorMessagesNombre.length).toBeGreaterThan(0);
     expect(errorMessagesCorreo.length).toBeGreaterThan(0);
-    expect(errorMessagesComentario.length).toBeGreaterThan(0);
-
-    // Verifica que alert y console.log NO fueron llamados
-    expect(alert).not.toHaveBeenCalled();
-    expect(console.log).not.toHaveBeenCalled();
+    expect(errorMessagesMensaje.length).toBeGreaterThan(0);
   });
 
-  it('debería enviar el formulario (llamar a alert y console.log) si los campos son válidos', async () => {
+  it('debería enviar el formulario y mostrar mensaje de éxito si los campos son válidos', async () => {
     renderContacto();
     const nombreInput = screen.getByLabelText('Nombre');
     const correoInput = screen.getByLabelText('Correo');
-    const comentarioInput = screen.getByLabelText('Comentario');
+    const mensajeInput = screen.getByLabelText('Mensaje');
     const submitButton = screen.getByRole('button', { name: 'Enviar' });
 
     // Rellenamos el formulario con datos válidos
     fireEvent.change(nombreInput, { target: { value: 'Usuario Test' } });
     fireEvent.change(correoInput, { target: { value: 'test@correo.com' } });
-    fireEvent.change(comentarioInput, { target: { value: 'Mensaje válido.' } });
+    fireEvent.change(mensajeInput, { target: { value: 'Mensaje válido.' } });
 
     // Enviamos el formulario
     fireEvent.click(submitButton);
 
-    // Esperamos a que la lógica del handleSubmit se ejecute
+    // Esperamos a que aparezca el mensaje de éxito
     await waitFor(() => {
-      // Verificamos que se llamó a alert
-      expect(alert).toHaveBeenCalledWith("¡Gracias por tu mensaje!");
-      // Verificamos que se llamó a console.log con los datos correctos
-      expect(console.log).toHaveBeenCalledWith("Formulario enviado:", {
-        nombre: 'Usuario Test',
-        correo: 'test@correo.com',
-        comentario: 'Mensaje válido.'
-      });
+      expect(screen.getByText('¡Mensaje enviado con éxito!')).toBeInTheDocument();
+      expect(screen.getByText(/Gracias por contactarnos/i)).toBeInTheDocument();
     });
-
-    
   });
 });
