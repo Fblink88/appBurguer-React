@@ -149,38 +149,22 @@ export const subirImagenProducto = async (idProducto, file) => {
     console.log('📤 File name:', file.name);
     console.log('📤 File type:', file.type);
     console.log('📤 File size:', file.size);
-    
+
     // Verificar FormData
     for (let pair of formData.entries()) {
       console.log(`📤 FormData: ${pair[0]} =`, pair[1]);
     }
 
-    // TEST: Request directa sin interceptor
-    const token = localStorage.getItem('authToken');
-    //const url = `http://161.153.219.128:8080/api/catalogo/productos/${idProducto}/imagen`;
-    const url = `/api/catalogo/productos/${idProducto}/imagen`;
-    
-    console.log('🎯 URL:', url);
-
-    const response = await fetch(url, {
-      method: 'POST',
+    // Usar la API configurada en lugar de fetch directo
+    // Esto asegura que funcione tanto en local como en producción (S3)
+    const response = await api.post(`/catalogo/productos/${idProducto}/imagen`, formData, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
       },
-      body: formData
     });
 
-    console.log('📡 Response status:', response.status);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.log('❌ Error response:', errorText);
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
-    }
-
-    const result = await response.json();
-    console.log('✅ Success:', result);
-    return result;
+    console.log('✅ Success:', response.data);
+    return response.data;
 
   } catch (error) {
     console.error('❌ ERROR COMPLETO:', error);
