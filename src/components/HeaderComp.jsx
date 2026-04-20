@@ -5,7 +5,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 
 // Importamos los componentes específicos de React-Bootstrap
 import { Navbar, Nav, Container, NavDropdown, Button, Badge } from 'react-bootstrap';
-import logo from '/src/assets/img/Logo.JPG';
+import { IMAGES } from '../config/images';
 
 export default function HeaderComp() {
   // --- 1. LÓGICA Y ESTADO (Esto no cambia) ---
@@ -78,7 +78,7 @@ export default function HeaderComp() {
       <Container>
         {/* <Navbar.Brand> es el reemplazo de 'navbar-brand' y lo convertimos en un Link */}
         <Navbar.Brand as={Link} to="/">
-          <img src={logo} height="26" alt="Golden Burger" className="d-inline-block align-top me-2" />
+          <img src={IMAGES.logo} height="26" alt="Golden Burger" className="d-inline-block align-top me-2" />
           <strong>GOLDEN <span className="text-warning">BURGER</span></strong>
         </Navbar.Brand>
 

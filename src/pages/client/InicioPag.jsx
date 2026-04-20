@@ -11,22 +11,13 @@ import '../../styles/Inicio.css';
 
 // --- DATOS Y IMÁGENES ---
 import { productosDB } from '../../data/dataBase.js';
+import { IMAGES } from '../../config/images';
 
-// Imágenes para el carrusel
-import carrusel1 from '/src/assets/img/Carrusel1.png';
-import carrusel2 from '/src/assets/img/Carrusel2.png';
-import carrusel3 from '/src/assets/img/Carrusel3.png';
-
-// Imágenes para las tarjetas de productos
-import goldenImg from '/src/assets/img/Golden.PNG';
-import baconBbqImg from '/src/assets/img/BaconBBQ.PNG';
-import ClasicaImg from '/src/assets/img/Clasica.PNG';
-
-// Mapeo para conectar las rutas de texto de la DB con las imágenes importadas
+// Mapeo para conectar las rutas de texto de la DB con las imágenes de Firebase
 const imageMap = {
-  '/src/assets/img/Golden.PNG': goldenImg,
-  '/src/assets/img/BaconBBQ.PNG': baconBbqImg,
-  '/src/assets/img/Clasica.PNG': ClasicaImg
+  '/src/assets/img/Golden.PNG': IMAGES.golden,
+  '/src/assets/img/BaconBBQ.PNG': IMAGES.baconBBQ,
+  '/src/assets/img/Clasica.PNG': IMAGES.clasica
 };
 
 // --- COMPONENTE TARJETA DE PRODUCTO ---
@@ -48,7 +39,7 @@ function ProductoCard({ producto }) {
   return (
     <Card>
       <div className="card-img-container">
-        <Card.Img src={producto.imagen} />
+        <Card.Img src={imageMap[producto.imagen] || producto.imagen} />
       </div>
       <Card.Body>
         <div>
@@ -82,21 +73,21 @@ function InicioPag() {
        
         <Carousel>
           <Carousel.Item interval={2000}>
-            <img className="d-block w-100" src={carrusel1} alt="Promoción de hamburguesas" />
+            <img className="d-block w-100" src={IMAGES.carrusel1} alt="Promoción de hamburguesas" />
             <Carousel.Caption>
               <h3>Las Mejores Hamburguesas</h3>
               <p>Hechas con ingredientes frescos y de la mejor calidad.</p>
             </Carousel.Caption>
           </Carousel.Item>
           <Carousel.Item interval={2000}>
-            <img className="d-block w-100" src={carrusel2} alt="Promoción de combos" />
+            <img className="d-block w-100" src={IMAGES.carrusel2} alt="Promoción de combos" />
             <Carousel.Caption>
               <h3>Combos Imperdibles</h3>
               <p>Acompaña tu burger favorita con nuestras papas y refrescos.</p>
             </Carousel.Caption>
           </Carousel.Item>
           <Carousel.Item interval={2000}>
-            <img className="d-block w-100" src={carrusel3} alt="Oferta especial" />
+            <img className="d-block w-100" src={IMAGES.carrusel3} alt="Oferta especial" />
             <Carousel.Caption>
               <h3>Pide Ahora</h3>
               <p>Disfruta del auténtico sabor de Golden Burger en tu casa.</p>
