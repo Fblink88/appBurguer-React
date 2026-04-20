@@ -15,7 +15,7 @@ export default defineConfig({
     proxy: {
       // ESPECÍFICO: Solo para subida de imágenes → directo al microservicio (evita problema API Gateway)
       '^/api/catalogo/productos/.*/imagen$': {
-        target: 'http://161.153.219.128:8084', // Directo a GESTIONCATALOGO
+        target: 'http://localhost:8084', // LOCAL - GESTIONCATALOGO
         changeOrigin: true,
         secure: false,
         ws: true,
@@ -23,21 +23,19 @@ export default defineConfig({
 
       '/api': {
         // En desarrollo local: backend en localhost
-       // target: 'http://localhost:8080',
+        target: 'http://localhost:8080', // LOCAL - API GATEWAY
 
         // Para testing contra la VM, comentar línea anterior y descomentar la siguiente:
-         target: 'http://161.153.219.128:8080',
+        // target: 'http://161.153.219.128:8080',
 
         changeOrigin: true,
         secure: false,
         ws: true,
         rewrite: (path) => {
           console.log('Original path:', path);
-          // No cambiar la ruta, dejar /api/... como está
           return path;
         },
 
-        // Log de las peticiones (útil para debug)
         configure: (proxy,) => {
           proxy.on('error', (err, ) => {
             console.log('proxy error', err);

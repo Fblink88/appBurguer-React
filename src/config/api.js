@@ -1,10 +1,12 @@
-import axios from "axios";// axios es una librería para hacer peticiones HTTP
+import axios from "axios";
 
 // Configuración de URLs según el ambiente
 const API_URLS = {
-  // En desarrollo, usa directamente la VM
-  //development: "http://localhost:8080/api", //puerto de la apigateway del backend
-  development: "http://161.153.219.128:8080/api",
+  // En desarrollo local
+  development: "http://localhost:8080/api",
+  
+  // Para la VM (descomentar cuando despliegues):
+  // development: "http://161.153.219.128:8080/api",
 
   // En producción, apunta directamente a la VM del backend
   production: "http://161.153.219.128:8080/api"
@@ -23,27 +25,23 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json"
   },
-  timeout: 30000, // 30 segundos
-  withCredentials: false // Cambiar a true si usas cookies
+  timeout: 30000,
+  withCredentials: false
 });
 
-// Interceptor para agregar el token JWT en cada request para rutas protegidas, valida el rol del usuario segun la autenticación
+// Interceptor para agregar el token JWT
 api.interceptors.request.use(
   (config) => {
-    // Obtener token del localStorage
     const token = localStorage.getItem("authToken");
 
     if (token) {
-      // Agregar token en el header Authorization (estándar)
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Si el body es FormData, eliminar el Content-Type para que el navegador lo configure automáticamente
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type'];
     }
 
-    // Log en desarrollo
     if (isDevelopment) {
       console.log(` ${config.method.toUpperCase()} ${config.url}`);
     }
@@ -59,25 +57,20 @@ api.interceptors.request.use(
 // Interceptor para manejo de respuestas y errores
 api.interceptors.response.use(
   (response) => {
-    // Log en desarrollo
     if (isDevelopment) {
       console.log(` ${response.status} ${response.config.url}`);
     }
     return response;
   },
   (error) => {
-    // Manejo de errores comunes
     if (error.response) {
-      // El servidor respondió con un código de error
       const { status, data } = error.response;
 
       switch (status) {
         case 401:
-          // Token inválido o expirado
           console.error("No autorizado - Token inválido");
           localStorage.removeItem("authToken");
           localStorage.removeItem("user");
-          // Redirigir al login
           if (!window.location.pathname.includes("/login")) {
             window.location.href = "/login";
           }
@@ -101,11 +94,9 @@ api.interceptors.response.use(
           console.error(` Error ${status}:`, data);
       }
     } else if (error.request) {
-      // La petición se hizo pero no hubo respuesta
       console.error(" No se pudo conectar con el servidor");
       alert("No se pudo conectar con el servidor. Verifica tu conexión.");
     } else {
-      // Algo pasó al configurar la petición
       console.error(" Error:", error.message);
     }
 
